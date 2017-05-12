@@ -157,7 +157,7 @@ function parseQuery(query) { //using ; or & allows this to work for cookies too
        pairs = query.split(/; *|&/); //cookies might have spaces or not, url params will NOT
        for (i=0; i < pairs.length; i++) {
            pair = pairs[i].split('=');
-           if ( ! pair ) part 2inue; //if the split failed for any reason skip it
+           if ( ! pair ) continue; //if the split failed for any reason skip it
            if (pair.length >= 2)
              { params[uesc(pair[0])] = uesc(pair.slice(1).join("=")); } //incase there was an extra = in the value portion
            else
