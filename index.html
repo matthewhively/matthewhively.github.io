@@ -12,7 +12,7 @@ label {
    font-weight: bold;
 }
 .most_recent::before {
-   part 2ent: '**';
+   content: '**';
 }
 </style>
 
@@ -20,6 +20,7 @@ label {
 
 // Access page via https://matthewhively.github.io/
 
+var video_array = []; // add videos to this array as we loop through matches, so that index's stay consistent (without having to skip numbers)
 var matches = [
 'Code S R.32 Group A',
 ['Match 1','https://youtu.be/uxCIS_Kv3co?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=3309'],
@@ -180,7 +181,7 @@ if (! cParams['vid_url'] && matches.length > 0) { //if no cookie, we'll start at
 
 function setup_player(evt, idx, section) {
 
-   var data               = matches[idx];
+   var data               = video_array[idx];
    var the_youtube_player = document.getElementById('the_youtube_player');
    var now_playing        = document.getElementById('now_playing');
    now_playing.innerHTML  = section + " :: " + data[0];
@@ -192,7 +193,6 @@ function setup_player(evt, idx, section) {
    } else {
       // format 1: https://www.youtube.com/watch?v=qlEBhDxqibY&list=PL9kbtXdyV0zti0mIssCA99DNmLYrk1K88&index=26
       // format 2: https://youtu.be/qlEBhDxqibY?list=PL9kbtXdyV0zti0mIssCA99DNmLYrk1K88&t=301
-	  // also allows twitch videos (get example)
       var v, t;
       var parts = data[1].split('?');
       var params = parseQuery(parts[1]);
@@ -211,7 +211,7 @@ function setup_player(evt, idx, section) {
        // set cookie to remember which one we most recently clicked on
        // cookie value is the URL
        setC('vid_url', matches[idx][1], '/', 30 * 86400);
-       var all_links = document.querySelectorAll('li > a');
+       var all_links = document.querySelectorAll('li > a'); // NOTE: this should match the idx within video_array
        for (var i = 0; i < all_links.length; i++) {
           all_links[i].className = ""; //clear all class names
        }
@@ -224,7 +224,7 @@ function setup_player(evt, idx, section) {
 	   }
        document.getElementById('reload_shortcut').innerHTML = '<a href="javascript:" onclick="setup_player(this, ' + idx + ', \'' + section + '\');">reload player</a>';
 
-       if (idx < data.length) {
+       if (idx < video_array.length-1) {
            document.getElementById('next_shortcut').innerHTML = '<a href="javascript:" class="next" onclick="setup_player(this, ' + (idx+1) + ', \'' + section + '\');">Next Video</a>';
        } else {
            document.getElementById('next_shortcut').innerHTML = 'Last Video';
@@ -264,6 +264,7 @@ if (matches.length == 0) {
 	elm.innerHTML = '<h2>Add more Video links</h2>';
 	the_menu.appendChild(elm);
 }
+// don't need the else case really.
 
 for (var i = 0; i < matches.length; i++) {
    if (typeof(matches[i]) == 'string') {
@@ -272,16 +273,17 @@ for (var i = 0; i < matches.length; i++) {
        section = matches[i]; //for group labeling
 
    } else {
+	   vidx  = video_array.length;
        elm   = document.createElement('li');
        clazz = '';
 	   
 	   // if this is the video that is marked as "current" via the cookie
-       if ( matches[i][1] == cParams['vid_url'] ) {
+       if ( matches[i][1] == cParams['vid_url'] ) { // NOTE: cParams will always have a value (even if there was no cookie set)
            clazz = 'class="most_recent"';
-           document.getElementById('reload_shortcut').innerHTML = '<a href="javascript:" onclick="setup_player(this, ' + i + ', \'' + section + '\');">reload player</a>';
+           document.getElementById('reload_shortcut').innerHTML = '<a href="javascript:" onclick="setup_player(this, ' + vidx + ', \'' + section + '\');">reload player</a>';
 
            if (i < matches.length) {
-               document.getElementById('next_shortcut').innerHTML = '<a href="javascript:" onclick="setup_player(this, ' + (i+1) + ', \'' + section + '\');">Next Video</a>';
+               document.getElementById('next_shortcut').innerHTML = '<a href="javascript:" onclick="setup_player(this, ' + (vidx+1) + ', \'' + section + '\');">Next Video</a>';
            } else {
                document.getElementById('next_shortcut').innerHTML = 'Last Video';
            }
@@ -290,7 +292,9 @@ for (var i = 0; i < matches.length; i++) {
            now_playing.innerHTML  = section + " :: " + matches[i][0];
        }
        //clazz = ( matches[i][1] == cParams['vid_url'] ? 'class="most_recent"' : '' );
-       elm.innerHTML = '<a '+clazz+' href="javascript:" onclick="setup_player(this, ' + i + ', \'' + section + '\');">' + matches[i][0] + '</a>';
+       elm.innerHTML = '<a '+clazz+' href="javascript:" onclick="setup_player(this, ' + vidx + ', \'' + section + '\');">' + matches[i][0] + '</a>';
+	   
+	   video_array.push(matches[i]);
    }
    the_menu.appendChild(elm);
 }
