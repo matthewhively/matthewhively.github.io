@@ -179,22 +179,25 @@ if (! cParams['vid_url'] && matches.length > 0) { //if no cookie, we'll start at
     cParams['vid_url'] = matches[i][1];
 }
 
-function setup_player(evt, idx, section) {
+function setup_player(evt, idx) {
 
    var data               = video_array[idx];
+   var section            = data[2]; // the group
+   var title              = data[0]; // the text
+   var url                = data[1];
    var the_youtube_player = document.getElementById('the_youtube_player');
    var now_playing        = document.getElementById('now_playing');
-   now_playing.innerHTML  = section + " :: " + data[0];
+   now_playing.innerHTML  = section + " :: " + title;
 
-   if (data[1].indexOf('embed') > -1) { //already the correct URL no parsing needed
-      the_youtube_player.src = data[1];
-   } else if (data[1].indexOf('twitch') > -1) { //a correct embeded twitch player URL
-      the_youtube_player.src = data[1];
+   if (url.indexOf('embed') > -1) { //already the correct URL no parsing needed
+      the_youtube_player.src = url;
+   } else if (url.indexOf('twitch') > -1) { //a correct embeded twitch player URL
+      the_youtube_player.src = url;
    } else {
       // format 1: https://www.youtube.com/watch?v=qlEBhDxqibY&list=PL9kbtXdyV0zti0mIssCA99DNmLYrk1K88&index=26
       // format 2: https://youtu.be/qlEBhDxqibY?list=PL9kbtXdyV0zti0mIssCA99DNmLYrk1K88&t=301
       var v, t;
-      var parts = data[1].split('?');
+      var parts  = url.split('?');
       var params = parseQuery(parts[1]);
 
       if (parts[0].indexOf('youtu.be') > -1) {
@@ -210,7 +213,7 @@ function setup_player(evt, idx, section) {
    if (evt.parentElement.id != 'reload_shortcut') {
        // set cookie to remember which one we most recently clicked on
        // cookie value is the URL
-       setC('vid_url', matches[idx][1], '/', 30 * 86400);
+       setC('vid_url', url, '/', 30 * 86400);
        var all_links = document.querySelectorAll('li > a'); // NOTE: this should match the idx within video_array
        for (var i = 0; i < all_links.length; i++) {
           all_links[i].className = ""; //clear all class names
@@ -222,10 +225,10 @@ function setup_player(evt, idx, section) {
        } else {
 	      evt.className = 'most_recent';
 	   }
-       document.getElementById('reload_shortcut').innerHTML = '<a href="javascript:" onclick="setup_player(this, ' + idx + ', \'' + section + '\');">reload player</a>';
+       document.getElementById('reload_shortcut').innerHTML = '<a href="javascript:" onclick="setup_player(this, ' + idx + ');">reload player</a>';
 
        if (idx < video_array.length-1) {
-           document.getElementById('next_shortcut').innerHTML = '<a href="javascript:" class="next" onclick="setup_player(this, ' + (idx+1) + ', \'' + section + '\');">Next Video</a>';
+           document.getElementById('next_shortcut').innerHTML = '<a href="javascript:" class="next" onclick="setup_player(this, ' + (idx+1) + ');">Next Video</a>';
        } else {
            document.getElementById('next_shortcut').innerHTML = 'Last Video';
        }
@@ -267,34 +270,36 @@ if (matches.length == 0) {
 // don't need the else case really.
 
 for (var i = 0; i < matches.length; i++) {
-   if (typeof(matches[i]) == 'string') {
+   var m = matches[i];
+   if (typeof(m) == 'string') {
        elm = document.createElement('h4');
-       elm.innerHTML = matches[i];
-       section = matches[i]; //for group labeling
-
+	   section       = m; //for group labeling, keep the section until it gets overwritten again later
+       elm.innerHTML = section;
    } else {
 	   vidx  = video_array.length;
        elm   = document.createElement('li');
        clazz = '';
 	   
 	   // if this is the video that is marked as "current" via the cookie
-       if ( matches[i][1] == cParams['vid_url'] ) { // NOTE: cParams will always have a value (even if there was no cookie set)
+       if ( m[1] == cParams['vid_url'] ) { // NOTE: cParams will always have a value (even if there was no cookie set)
            clazz = 'class="most_recent"';
-           document.getElementById('reload_shortcut').innerHTML = '<a href="javascript:" onclick="setup_player(this, ' + vidx + ', \'' + section + '\');">reload player</a>';
+           document.getElementById('reload_shortcut').innerHTML = '<a href="javascript:" onclick="setup_player(this, ' + vidx + ');">reload player</a>';
 
            if (i < matches.length) {
-               document.getElementById('next_shortcut').innerHTML = '<a href="javascript:" onclick="setup_player(this, ' + (vidx+1) + ', \'' + section + '\');">Next Video</a>';
+               document.getElementById('next_shortcut').innerHTML = '<a href="javascript:" class="next" onclick="setup_player(this, ' + (vidx+1) + ');">Next Video</a>';
+			   // Make NEXT VIDEO button transfer the click onto the correct link at the bottom!
            } else {
                document.getElementById('next_shortcut').innerHTML = 'Last Video';
            }
 
            var now_playing        = document.getElementById('now_playing');
-           now_playing.innerHTML  = section + " :: " + matches[i][0];
+           now_playing.innerHTML  = section + " :: " + m[0];
        }
-       //clazz = ( matches[i][1] == cParams['vid_url'] ? 'class="most_recent"' : '' );
-       elm.innerHTML = '<a '+clazz+' href="javascript:" onclick="setup_player(this, ' + vidx + ', \'' + section + '\');">' + matches[i][0] + '</a>';
+       //clazz = ( m[1] == cParams['vid_url'] ? 'class="most_recent"' : '' );
+       elm.innerHTML = '<a '+clazz+' href="javascript:" onclick="setup_player(this, ' + vidx + ', \'' + section + '\');">' + m[0] + '</a>';
 	   
-	   video_array.push(matches[i]);
+	   m.push(section);    // now it'll be an array of length 3
+	   video_array.push(m);
    }
    the_menu.appendChild(elm);
 }
