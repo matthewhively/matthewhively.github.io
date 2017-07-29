@@ -21,6 +21,7 @@ label {
 // Access page via https://matthewhively.github.io/
 
 var video_array = []; // add videos to this array as we loop through matches, so that index's stay consistent (without having to skip numbers)
+/* Current: 2017 GSL Season 1 */
 var matches = [
 /*
 'Code S R.32 Group A',
@@ -87,7 +88,6 @@ var matches = [
 ['Match 4 part 2','https://www.youtube.com/watch?v=Sl43C2AfnOM&index=29&list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety'],
 ['Match 5','https://youtu.be/Sl43C2AfnOM?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=2853'],
 ['Match 5 part 2','https://www.youtube.com/watch?v=HJMxbZAEc1E&list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&index=30'],
-*/
 'Code S R.16 Group A',
 ['Match 2','https://youtu.be/mWWaiW7kZ1g?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=224'],
 ['Match 3','https://youtu.be/ajg6gzznvaE?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=231'],
@@ -105,23 +105,28 @@ var matches = [
 ['Match 3','https://youtu.be/CtJD4CUUDPI?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=188'],
 ['Match 4','https://youtu.be/SW-nxvhhz40?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=164'],
 ['Match 5','https://youtu.be/W2BJCyEVxjc?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=174'],
+*/
 'Code S R.16 Group D',
 ['Match 1','https://youtu.be/gMH_TDC1dlQ?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=1019'],
 ['Match 2','https://youtu.be/SaLgKfJUJkY?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=271'],
 ['Match 3','https://youtu.be/Z-xZG0--jRo?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=164'],
 ['Match 4','https://youtu.be/pGby8FDWakg?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=188'],
 ['Match 5','https://youtu.be/eePuOt9-re4?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=203'],
-/*
 'Code S R.8',
-['Match 1',''],
-['Match 2',''],
-['Match 3',''],
-['Match 4',''],
+['Match 1','https://youtu.be/FB_bk_whKgs?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=1045'],
+['Match 2','https://youtu.be/HwB5oVgeR8w?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=760'],
+['Match 3','https://youtu.be/szAfVglKSWQ?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=1049'],
+['Match 4','https://youtu.be/n1pNofbBhLQ?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=604'],
 'Code S R.4',
-['Match 1',''],
-['Match 2',''],
+['Match 1','https://youtu.be/3HAy3VumC4o?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=730'],
+['Match 2','https://youtu.be/kDaXcaURBZA?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=773'],
 'Code S Finals',
-*/
+['Set 1', 'https://youtu.be/cQFe898vjG0?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=65'],
+['Set 2', 'https://youtu.be/hxdYtNewI4o?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=65'],
+['Set 3', 'https://youtu.be/XgJPKWaqvhI?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=51'],
+['Set 4', 'https://youtu.be/_Yl5ZVoGp8w?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=50'],
+['Set 5', 'https://youtu.be/0CCIFtRPIJQ?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=56'],
+['Set 6', 'https://youtu.be/Wg_X-0Vc8v8?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=78'],
 /*
 GROUP format
 ['Match 1',''],
