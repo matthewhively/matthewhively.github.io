@@ -22,6 +22,11 @@ label {
 
 var video_array = []; // add videos to this array as we loop through matches, so that index's stay consistent (without having to skip numbers)
 /* Current: 2017 GSL Season 1 */
+// Videos: 
+// 2017 GSL super tournament https://www.youtube.com/playlist?list=PL9kbtXdyV0zvLdYMcvDRQuPgpi1Jl-l1S
+// 2017 GSL Season 2 https://www.youtube.com/playlist?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb
+// 2017 GSL vs The World https://www.youtube.com/playlist?list=PL9kbtXdyV0zvtObdVeXAJXcROFu1J8kit
+// 2017 GSL Season 3 https://www.youtube.com/playlist?list=PL9kbtXdyV0zuSsXXuK9UTg2camzyLxHIi
 var matches = [
 /*
 'Code S R.32 Group A',
@@ -105,7 +110,6 @@ var matches = [
 ['Match 3','https://youtu.be/CtJD4CUUDPI?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=188'],
 ['Match 4','https://youtu.be/SW-nxvhhz40?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=164'],
 ['Match 5','https://youtu.be/W2BJCyEVxjc?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=174'],
-*/
 'Code S R.16 Group D',
 ['Match 1','https://youtu.be/gMH_TDC1dlQ?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=1019'],
 ['Match 2','https://youtu.be/SaLgKfJUJkY?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=271'],
@@ -119,7 +123,7 @@ var matches = [
 ['Match 4','https://youtu.be/n1pNofbBhLQ?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=604'],
 'Code S R.4',
 ['Match 1','https://youtu.be/3HAy3VumC4o?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=730'],
-['Match 2','https://youtu.be/kDaXcaURBZA?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=773'],
+['Match 2','https://youtu.be/kDaXcaURBZA?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=773'], */
 'Code S Finals',
 ['Set 1', 'https://youtu.be/cQFe898vjG0?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=65'],
 ['Set 2', 'https://youtu.be/hxdYtNewI4o?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=65'],
@@ -127,6 +131,25 @@ var matches = [
 ['Set 4', 'https://youtu.be/_Yl5ZVoGp8w?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=50'],
 ['Set 5', 'https://youtu.be/0CCIFtRPIJQ?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=56'],
 ['Set 6', 'https://youtu.be/Wg_X-0Vc8v8?list=PL9kbtXdyV0zseGUFNoTQYWV_Klu-09Ety&t=78'],
+'GSL Super Tournamet 1',
+'Round of 16',
+['Match 1', 'https://youtu.be/qYovHtbuq3M?list=PL9kbtXdyV0zvLdYMcvDRQuPgpi1Jl-l1S&t=422'],
+['Match 2', 'https://youtu.be/tkNya8t0Gc4?list=PL9kbtXdyV0zvLdYMcvDRQuPgpi1Jl-l1S&t=371'],
+['Match 3', 'https://youtu.be/FWXiNKi7_SA?list=PL9kbtXdyV0zvLdYMcvDRQuPgpi1Jl-l1S&t=420'],
+['Match 4', 'https://youtu.be/78ohqH1HdgQ?list=PL9kbtXdyV0zvLdYMcvDRQuPgpi1Jl-l1S&t=364'],
+['Match 5', 'https://youtu.be/E9pkNp4GfMY?list=PL9kbtXdyV0zvLdYMcvDRQuPgpi1Jl-l1S&t=456'],
+['Match 6', 'https://youtu.be/gtxIstodoEI?list=PL9kbtXdyV0zvLdYMcvDRQuPgpi1Jl-l1S&t=287'],
+['Match 7', 'https://youtu.be/3VFeuzuU3nk?list=PL9kbtXdyV0zvLdYMcvDRQuPgpi1Jl-l1S&t=311'],
+['Match 8', 'https://youtu.be/BLvKxPF6YW8?list=PL9kbtXdyV0zvLdYMcvDRQuPgpi1Jl-l1S&t=298'],
+'Round of 8',
+['Match 1', 'https://youtu.be/rhTGuHQGdto?list=PL9kbtXdyV0zvLdYMcvDRQuPgpi1Jl-l1S&t=445'],
+['Match 2', 'https://youtu.be/1ZpewfWd5IY?list=PL9kbtXdyV0zvLdYMcvDRQuPgpi1Jl-l1S&t=260'],
+['Match 3', 'https://youtu.be/2yxNVr_Dctk?list=PL9kbtXdyV0zvLdYMcvDRQuPgpi1Jl-l1S&t=223'],
+['Match 4', 'https://youtu.be/eOUI4zVzgUc?list=PL9kbtXdyV0zvLdYMcvDRQuPgpi1Jl-l1S&t=394'],
+'Round of 4',
+['Match 1', 'https://youtu.be/fqiCihBHXVE?list=PL9kbtXdyV0zvLdYMcvDRQuPgpi1Jl-l1S&t=501'],
+['Match 2', 'https://youtu.be/vpvXxq6UVMM?list=PL9kbtXdyV0zvLdYMcvDRQuPgpi1Jl-l1S&t=400'],
+'Finals',
 /*
 GROUP format
 ['Match 1',''],
