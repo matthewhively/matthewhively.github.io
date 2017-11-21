@@ -21,57 +21,27 @@ label {
 // Access page via https://matthewhively.github.io/
 
 var video_array = []; // add videos to this array as we loop through matches, so that index's stay consistent (without having to skip numbers)
-/* Current: 2017 GSL Season 1 */
+/* Current: 2017 GSL vs The World */
 // Videos: 
-// 2017 GSL Season 2 https://www.youtube.com/playlist?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb
 // 2017 GSL vs The World https://www.youtube.com/playlist?list=PL9kbtXdyV0zvtObdVeXAJXcROFu1J8kit
 // 2017 GSL Season 3 https://www.youtube.com/playlist?list=PL9kbtXdyV0zuSsXXuK9UTg2camzyLxHIi
 var matches = [
 /*
-'Code S R.32 Group D',
 /// youtube links are ALL FUCKED UP
 ['All Twitch', 'https://www.twitch.tv/videos/114595757'],
-'Code S R.32 Group E',
 */
-'Code S R.32',
-'Group G',
-['Match 1','https://youtu.be/Yh0xne_f6zk?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=346'],
-['Match 2','https://youtu.be/FbnShZoaXLQ?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=265'],
-['Match 3','https://youtu.be/X36SXoIWJ08?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=175'],
-['Match 4','https://youtu.be/3NWUa6Pj4s8?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=193'],
-['Match 5','https://youtu.be/1b1KHfDEc-4?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=137'],
-'Group H',
-['Match 1','https://youtu.be/bzbSlCnDcFg?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=367'],
-['Match 2','https://youtu.be/Tj2R-fcGjtg?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=230'],
-['Match 3','https://youtu.be/E5YUAuFPLis?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=159'],
-['Match 4','https://youtu.be/wR9W-9vkpic?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=140'],
-['Match 5','https://youtu.be/48jaNh69vo4?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=117'],
-'Code S R.16',
-'Group A',
-['Match 1','https://youtu.be/il4suUqZBXM?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=957'],
-['Match 2','https://youtu.be/kjotp9O2lCs?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=245'],
-['Match 3','https://youtu.be/U93Q86XFJKE?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=157'],
-['Match 4','https://youtu.be/onI3-dC164k?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=158'],
-['Match 5','https://youtu.be/7zWZYmlLrss?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=175'],
-'Group B',
-['Match 1','https://youtu.be/mNUSciZuJEs?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=590'],
-['Match 2','https://youtu.be/fC1yIimtlQk?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=262'],
-['Match 3','https://youtu.be/NaCGsdtf6D4?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=216'],
-['Match 4','https://youtu.be/z7Ip4ZgALlA?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=163'],
-['Match 5','https://youtu.be/czcjV8Th1T8?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=168'],
-'Group C',
-['Match 1','https://youtu.be/98jLB94QsKM?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=727'],
-['Match 2','https://youtu.be/RRWh_iMp88Q?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=270'],
-['Match 3','https://youtu.be/LfNAPf1a24E?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=175'],
-['Match 4','https://youtu.be/07d6uuPHvpQ?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=161'],
-['Match 5','https://youtu.be/OCXLh7JyjFs?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=186'],
-'Group D',
-['Match 1','https://youtu.be/w8F8KfndNeI?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=629'],
-['Match 2','https://youtu.be/wTkvbJm8koY?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=270'],
-['Match 3','https://youtu.be/nIapE7lzBEY?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=205'],
-['Match 4','https://youtu.be/Urdd-Gi8n6Q?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=206'],
-['Match 5','https://youtu.be/TyYGi8Us7j4?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=185'],
+'Code S R.8',
+['Match 1','https://youtu.be/rHoNCnnYeyE?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=1410'],
+['Match 2','https://youtu.be/ThEtZ-t-MvI?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=736'],
+['Match 3','https://youtu.be/8EAZUj9cduM?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=877'],
+['Match 4','https://youtu.be/ONhswl4Vy7I?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=727'],
+'Code S R.4',
+['Match 1','https://youtu.be/P0ggKh8wNIM?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=790'],
+['Match 2','https://youtu.be/rU1PAdcHnmQ?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=902'],
+'Finals',
+['Match 1','https://youtu.be/2BTDUyglQpM?list=PL9kbtXdyV0ztdytJg-PaiH7N3Pn8DRvSb&t=1715'],
 /*
+'Code S R.32 Group A',
 'Group A',
 'Group B',
 'Group C',
