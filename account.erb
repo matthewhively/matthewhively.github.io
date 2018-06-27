@@ -1,0 +1,77 @@
+<body>
+<div>
+Some text on the webpage 'this is a test of the emergency broadcast system'
+</div>
+<section id="<%= (foo == bar ? '' : 'help')  %>">
+<p style="color:black;"></p>
+<p style="color:blue;"></p>
+<p></p>
+</section>
+
+<style type="text/css">
+/* a test inline stylesheet */
+label {
+   font-size: 30px;
+   font-weight: bold;
+   <%# testing another set of ' in a comment %>
+   <% if true && foo == bar %>
+      color: orange;
+   <% end %>
+}
+.most_recent::before {
+   content: '**';
+}
+</style>
+
+<script type="text/javascript">
+// some random javascript comment <%# testing another set of ' in a comment %>
+var video_array = [];
+
+<% if something && var == this # 9/1/2018  do something while we have cookies, testing another set of ' in a comment  -%>
+
+function setC(n,v,p,t) {  //set cookie
+    if (arguments.length < 2) {return;} //no cookie without name+value pair
+    p = p || '/';
+    t = t || 30*60; //30min default
+    var e,
+        dt = new Date();
+    dt.setTime(dt.getTime()+(t*1000)); //num sec * millisec
+    e = dt.toGMTString();
+    document.cookie = n + '=' + encodeURIComponent(v) + '; path=' + p + '; expires=' + e;
+}
+<% end -%>
+
+  <% foo = :bar
+     main_g = g  unless  g.nil? || "CA" == @geo  # use the mapping unless it was nil, or the original was 'CA'
+     bar = :baz
+  -%>
+  
+if (! cParams['vid_url'] && matches.length > 0) { //if no cookie, we'll start at the beginning ::: find the first array type entry and start with that.
+    var i = 0;
+    while (i < matches.length && typeof(matches[i]) == 'string' ) {
+        i++;
+    }
+    cParams['vid_url'] = matches[i][1];
+}
+  
+  <% if is_logged_in -%>
+    /* initialize localytics for logged in users */
+    +function(l,y,t,i,c,s) {
+        l['LocalyticsGlobal'] = i;
+        l[i] = function() { (l[i].q = l[i].q || []).push(arguments) };
+        l[i].t = +new Date;
+        (s = y.createElement(t)).type = 'text/javascript';
+        s.src = '//web.localytics.com/v3/localytics.js';
+        (c = y.getElementsByTagName(t)[0]).parentNode.insertBefore(s, c);
+        <% if Settings.localytics.app_key.web_viz_dot_com != 'xREMOVEDx' -%>
+        ll('init', '<%= Settings.localytics.app_key.web_viz_dot_com %>',
+           { 'appVersion':     '<%= Settings.git_version %>',
+             'sessionTimeout': 3600,
+             'trackPageView':  true
+           /* customDimensions etc*/
+           } /* Options */);
+        <% end -%>
+        ll('tagScreen', document.title);
+    }(window, document, 'script', 'll');
+  <% end -%>
+</script>
