@@ -27,7 +27,11 @@ var video_array = []; // add videos to this array as we loop through matches, so
 2018 GSL Season 2 https://www.youtube.com/playlist?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6
 */
 // TODO: add a button to make the video into fullscreen (if possible) or style the fullscreen button larger?
-// TODO: add a countdown of how many videos remain in the queue
+//https://developers.google.com/youtube/iframe_api_reference
+//https://stackoverflow.com/questions/15114884/make-youtube-video-fullscreen-using-iframe-and-javascript-api
+
+// if I could just style .ytp-fullscreen-button {position: fixed; top:0; right:0; height: initial;}  --- that would be good enough to easily hit the button
+// does behave somewhat weird though!   Or maybe just {transform: scale(2);}  --- that would be fine too
 var matches = [
 /*
 ['All Twitch', 'https://www.twitch.tv/videos/114595757'],
@@ -236,7 +240,13 @@ function setup_player(evt, idx) {
          v = params.v;
          t = 1;
       }
-      the_youtube_player.src = 'https://www.youtube.com/embed/' + v + '?start=' + t;
+	  // NOTE: the controls look significantly different depending on whether I view this on mobile or not (and in which browser)
+	  /*
+	  OPTIONS:
+	    rel=0 - turn off related videos
+		modestbranding=1 - turn off the youtube logo
+	  */
+      the_youtube_player.src = 'https://www.youtube.com/embed/' + v + '?modestbranding=1&rel=0&start=' + t;
    }
 
    if (evt.parentElement.id != 'reload_shortcut') {
