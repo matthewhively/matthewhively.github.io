@@ -34,24 +34,6 @@ var matches = [
 */
 'GSL 2018 Season 2',
 'Code S R.32',
-'Group D',
-['Match 1','https://youtu.be/b7G_auSPDWA?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=883'],
-['Match 2 (watched already)','https://youtu.be/uUS1riGNTAM?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=220'],
-['Match 3','https://youtu.be/njuPJkPwXqs?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=146'],
-['Match 4','https://youtu.be/BaXe_rhSivA?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=145'],
-['Match 5','https://youtu.be/OupIsqw3tKQ?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=138'],
-'Group E',
-['Match 1','https://youtu.be/hgD9P2t5794?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=566'],
-['Match 2','https://youtu.be/alNE2ZT_5UU?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=196'],
-['Match 3','https://youtu.be/2sUYXV-Kvgw?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=140'],
-['Match 4','https://youtu.be/KVZAVxsaEyU?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=140'],
-['Match 5','https://youtu.be/ILcoQYg6thc?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=149'],
-'Group F',
-['Match 1','https://youtu.be/ET8oZ9NG6OE?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=513'],
-['Match 2','https://youtu.be/x5uyPDabVn4?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=171'],
-['Match 3','https://youtu.be/eneeHWeqE0E?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=128'],
-['Match 4','https://youtu.be/KFO-SlhOzKs?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=165'],
-['Match 5','https://youtu.be/iiMhTLlF91E?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=148'],
 'Group G',
 ['Match 1','https://youtu.be/hLP343_zdRg?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=588'],
 ['Match 2','https://youtu.be/ObuXH-INziw?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=132'],
@@ -208,15 +190,33 @@ if (! cParams['vid_url'] && matches.length > 0) { //if no cookie, we'll start at
     cParams['vid_url'] = matches[i][1];
 }
 
+function update_elements(idx, now_playing) {
+	// Update the reload player button
+	document.getElementById('reload_shortcut').innerHTML = '<a href="javascript:" onclick="setup_player(this, ' + idx + ');">reload player</a>';
+
+	// Update the next video button (if there is a next video)
+	if (idx < video_array.length-1) {
+	   document.getElementById('next_shortcut').innerHTML = '<a href="javascript:" class="next" onclick="setup_player(this, ' + (idx+1) + ');">Next Video</a>';
+	} else {
+	   document.getElementById('next_shortcut').innerHTML = 'Last Video';
+	}
+
+	// Update the videos counter
+	document.getElementById('count_down').innerHTML = video_array.length - idx - 1;
+	
+	// Update the title header
+    document.getElementById('now_playing').innerHTML = now_playing;
+}
+
 function setup_player(evt, idx) {
 
    var data               = video_array[idx];
    var section            = data[2]; // the group
    var title              = data[0]; // the text
    var url                = data[1];
-   var the_youtube_player = document.getElementById('the_youtube_player');
-   var now_playing        = document.getElementById('now_playing');
-   now_playing.innerHTML  = section + " :: " + title;
+   var the_youtube_player = document.getElementById('the_youtube_player'); // the iframe
+   //var now_playing        = document.getElementById('now_playing');
+   //now_playing.innerHTML  = section + " :: " + title;
 
    if (url.indexOf('embed') > -1) { //already the correct URL no parsing needed
       the_youtube_player.src = url;
@@ -254,13 +254,9 @@ function setup_player(evt, idx) {
        } else {
 	      evt.className = 'most_recent';
 	   }
-       document.getElementById('reload_shortcut').innerHTML = '<a href="javascript:" onclick="setup_player(this, ' + idx + ');">reload player</a>';
 
-       if (idx < video_array.length-1) {
-           document.getElementById('next_shortcut').innerHTML = '<a href="javascript:" class="next" onclick="setup_player(this, ' + (idx+1) + ');">Next Video</a>';
-       } else {
-           document.getElementById('next_shortcut').innerHTML = 'Last Video';
-       }
+	   // setup all the control buttons and title
+	   update_elements(idx, section + " :: " + title);
    }
    window.scrollTo(0,0);
    return false;
@@ -281,6 +277,9 @@ function setup_player(evt, idx) {
 <br />
 <br />
 <div id="next_shortcut" style="padding:5px; display:inline;"></div>
+<br />
+<br />
+Videos Remaining: <span id="count_down"></span>
 
 <br style="clear:both;" />
 <ol id="the_menu" style="margin-left: 20px;">
@@ -289,7 +288,7 @@ function setup_player(evt, idx) {
 <script type="text/javascript">
 
 var the_menu = document.getElementById('the_menu');
-var elm, clazz, section;
+var elm, clazz, section, curr_idx, curr_title;
 
 if (matches.length == 0) {
 	elm = document.createElement('li');
@@ -312,26 +311,20 @@ for (var i = 0; i < matches.length; i++) {
 	   // if this is the video that is marked as "current" via the cookie
        if ( m[1] == cParams['vid_url'] ) { // NOTE: cParams will always have a value (even if there was no cookie set)
            clazz = 'class="most_recent"';
-           document.getElementById('reload_shortcut').innerHTML = '<a href="javascript:" onclick="setup_player(this, ' + vidx + ');">reload player</a>';
-
-           if (i < matches.length) {
-               document.getElementById('next_shortcut').innerHTML = '<a href="javascript:" class="next" onclick="setup_player(this, ' + (vidx+1) + ');">Next Video</a>';
-			   // Make NEXT VIDEO button transfer the click onto the correct link at the bottom!
-           } else {
-               document.getElementById('next_shortcut').innerHTML = 'Last Video';
-           }
-
-           var now_playing        = document.getElementById('now_playing');
-           now_playing.innerHTML  = section + " :: " + m[0];
+		   curr_idx = vidx; // save this for later
+		   curr_title = section + " :: " + m[0];
        }
-       //clazz = ( m[1] == cParams['vid_url'] ? 'class="most_recent"' : '' );
+	   // create the list of matches as links
        elm.innerHTML = '<a '+clazz+' href="javascript:" onclick="setup_player(this, ' + vidx + ', \'' + section + '\');">' + m[0] + '</a>';
 	   
 	   m.push(section);    // now it'll be an array of length 3
 	   video_array.push(m);
    }
    the_menu.appendChild(elm);
-}
+} // end loop
+
+// setup all the control buttons and title
+update_elements(curr_idx, curr_title);
 </script>
 
 </body>
