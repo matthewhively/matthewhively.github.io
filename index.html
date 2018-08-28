@@ -24,7 +24,7 @@ label {
 
 var video_array = []; // add videos to this array as we loop through matches, so that index's stay consistent (without having to skip numbers)
 /* Current: 
-2018 GSL Season 2 https://www.youtube.com/playlist?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6
+2018 GSL Season 2 https://www.youtube.com/playlist?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6 --- completed
 */
 // TODO: add a button to make the video into fullscreen (if possible) or style the fullscreen button larger?
 //https://developers.google.com/youtube/iframe_api_reference
@@ -37,59 +37,30 @@ var matches = [
 ['All Twitch', 'https://www.twitch.tv/videos/114595757'],
 */
 'GSL 2018 Season 2',
-'Code S R.32',
-'Group G',
-['Match 1','https://youtu.be/hLP343_zdRg?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=588'],
-['Match 2','https://youtu.be/ObuXH-INziw?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=132'],
-['Match 3','https://youtu.be/HR4WqIeYtGA?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=132'],
-['Match 4','https://youtu.be/t3ZZcA0A2Cw?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=144'],
-['Match 5','https://youtu.be/HBr-k8cWLw0?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=117'],
-'Group H',
-['Match 1','https://youtu.be/9BnAj2lpvBI?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=607'],
-['Match 2','https://youtu.be/HmXkR9oH3Ao?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=146'],
-['Match 3','https://youtu.be/k_sU5McYV-M?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=145'],
-['Match 4','https://youtu.be/06BL9kiZWbQ?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=157'],
-['Match 5','https://youtu.be/pIU_25lDulA?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=120'],
-
 'Code S R.16',
-'Group A',
-['Match 1','https://youtu.be/W6KTZDRJUFA?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=960'],
-['Match 2','https://youtu.be/jwlOBn2Zb_k?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=204'],
-['Match 3','https://youtu.be/bG68DG-Dzt8?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=230'],
-['Match 4','https://youtu.be/m-JIsUlGTUU?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=141'],
-['Match 5','https://youtu.be/mNA3hogeB1c?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=129'],
-'Group B',
-['Match 1','https://youtu.be/z6RhdOkZsK4?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=565'],
-['Match 2','https://youtu.be/lXa0xHq9K3M?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=148'],
-['Match 3','https://youtu.be/QNu0q713HB4?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=149'],
-['Match 4','https://youtu.be/deaL-ngSv5Y?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=179'],
-['Match 5','https://youtu.be/RyiZslI95bg?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=153'],
-'Group C',
-['Match 1','https://youtu.be/cdnPAy3JkDE?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=775'],
-['Match 2','https://youtu.be/CaVSILu_lMc?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=156'],
-['Match 3','https://youtu.be/7Q_mOfw_5TA?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=113'],
-['Match 4','https://youtu.be/HmavuODiPes?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=107'],
-['Match 5','https://youtu.be/1J95gFuCb0s?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=148'],
 'Group D',
 ['Match 1','https://youtu.be/fN_UTYjeNgs?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=653'],
 ['Match 2','https://youtu.be/3ySxJBdtDHk?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=197'],
 ['Match 3','https://youtu.be/CuHFknimZwo?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=138'],
 ['Match 4','https://youtu.be/mLDd4GRd9us?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=155'],
 ['Match 5','https://youtu.be/RRj6scVbOWw?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=114'],
-/*
-// TODO may want to format the same way as with the finals with shortcut links after the commercial breaks
 'Code S R.8',
-['Match 1',''],
-['Match 2',''],
-['Match 3',''],
-['Match 4',''],
+['Match 1 part 1,2','https://youtu.be/76cmNNTZz1A?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=853'],
+['Match 1 part 3','https://youtu.be/76cmNNTZz1A?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=5161'],
+['Match 2','https://youtu.be/NvC91tQaAC8?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=769'],
+['Match 3','https://youtu.be/sBNjU0wLIYg?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=681'],
+['Match 4 part 1,2','https://youtu.be/X4eu3eOE7DI?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=645'],
+['Match 4 part 3','https://youtu.be/X4eu3eOE7DI?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=4227'],
 'Code S R.4',
-['Match 1',''],
-['Match 2',''],
-['Finals until X',''],
-['Finals until Y',''],
-['Finals until Z',''],
-*/
+['Match 1 part 1,2','https://youtu.be/GleTHWp8Urk?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=726'],
+['Match 1 part 3,4','https://youtu.be/GleTHWp8Urk?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=2543'],
+['Match 1 part 5,6,7','https://youtu.be/GleTHWp8Urk?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=4052'],
+['Match 2 part 1,2','https://youtu.be/54PnHHVirTw?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=864'],
+['Match 2 part 3,4','https://youtu.be/54PnHHVirTw?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=2747'],
+['Match 2 part 5','https://youtu.be/54PnHHVirTw?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=4549'],
+['Finals part 1','https://youtu.be/a0IijqePUsA?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=1779'],
+['Finals part 2,3','https://youtu.be/a0IijqePUsA?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=3290'],
+['Finals part 4','https://youtu.be/a0IijqePUsA?list=PL9kbtXdyV0zs9kRHFIrQiOl6Hvqm4ooB6&t=4801'],
 ];
 /*
 'Code S R.32',
@@ -120,6 +91,7 @@ ALT
 ['Match 5',''],
 ['Match 5 part 2',''],
 
+// TODO may want to format the same way as with the finals with shortcut links after the commercial breaks
 'Code S R.8',
 'Code S R.4',
 ['Match 1',''],
