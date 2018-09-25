@@ -296,7 +296,7 @@ Videos Remaining: <span id="count_down"></span>
 <script type="text/javascript">
 
 var the_menu = document.getElementById('the_menu');
-var elm, clazz, section, curr_idx, curr_title;
+var elm, clazz, section, curr_idx = null, curr_title = null;
 
 if (matches.length == 0) {
 	elm = document.createElement('li');
@@ -330,6 +330,17 @@ for (var i = 0; i < matches.length; i++) {
    }
    the_menu.appendChild(elm);
 } // end loop
+
+// If the cookie didn't exist,
+//   or if the cookied video was old, and thus not in the current list.
+if (curr_idx === null) {
+	// is the first array item a string (section)
+	curr_idx = (typeof(matches[0]) == 'string'  ?  1  :  0);
+	// If there was no section (for some reason)
+	section = (curr_idx === 0  ?  ''  :  matches[0]);
+	// Create the title
+	curr_title = section + " :: " + matches[curr_idx][0];
+}
 
 // setup all the control buttons and title
 update_elements(curr_idx, curr_title);
