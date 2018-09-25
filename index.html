@@ -296,7 +296,8 @@ Videos Remaining: <span id="count_down"></span>
 <script type="text/javascript">
 
 var the_menu = document.getElementById('the_menu');
-var elm, clazz, section, curr_idx = null, curr_title = null;
+var elm, clazz, vidx, section = '', curr_idx = null, curr_title = null;
+var first_match_idx = null; // Placeholder in case the cookied video url was old, or didn't exist.
 
 if (matches.length == 0) {
 	elm = document.createElement('li');
@@ -307,11 +308,14 @@ if (matches.length == 0) {
 
 for (var i = 0; i < matches.length; i++) {
    var m = matches[i];
+   // REM there could be one or more sections before an actual video
    if (typeof(m) == 'string') {
        elm = document.createElement('h4');
 	   section       = m; //for group labeling, keep the section until it gets overwritten again later
        elm.innerHTML = section;
    } else {
+	   if (first_match_idx === null) { first_match_idx = i; }  // save for later
+   
 	   vidx  = video_array.length;
        elm   = document.createElement('li');
        clazz = '';
@@ -334,12 +338,15 @@ for (var i = 0; i < matches.length; i++) {
 // If the cookie didn't exist,
 //   or if the cookied video was old, and thus not in the current list.
 if (curr_idx === null) {
-	// is the first array item a string (section)
-	curr_idx = (typeof(matches[0]) == 'string'  ?  1  :  0);
-	// If there was no section (for some reason)
-	section = (curr_idx === 0  ?  ''  :  matches[0]);
-	// Create the title
-	curr_title = section + " :: " + matches[curr_idx][0];
+	// REM: this idx is for the video_array[], not matches[]
+	curr_idx = 0;
+	// Create the title  
+	curr_title = matches[first_match_idx][0];
+	// Fail-safe for if there is no section before the first match (for some reason)
+	if (first_match_idx !== 0) {
+		// prepend (get the section from JUST before the first match)
+		curr_title = matches[first_match_idx - 1] + " :: " + curr_title;
+	}
 }
 
 // setup all the control buttons and title
