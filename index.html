@@ -24,7 +24,7 @@ label {
 
 var video_array = []; // add videos to this array as we loop through matches, so that index's stay consistent (without having to skip numbers)
 /* Current: 
-https://www.youtube.com/watch?v=GacBiXlPRpg&list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&index=62  -- gsl 2018 season 3
+https://www.youtube.com/watch?v=Mw98Mg8pE4M&list=PL9kbtXdyV0zvttuSwe31JuK0VhhY552Vg  -- gsl vs the world 2018
 
 */
 // TODO: add a button to make the video into fullscreen (if possible) or style the fullscreen button larger?
@@ -37,26 +37,7 @@ var matches = [
 /*
 ['All Twitch', 'https://www.twitch.tv/videos/114595757'],
 */
-'Code S R.32',
-'Group H',
-['Match 1','https://youtu.be/YOouiIITh6U?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=1043'],
-['Match 2','https://youtu.be/dVG8LIT-Avw?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=165'],
-['Match 3','https://youtu.be/NS7dMEnrLbg?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=125'],
-['Match 4','https://youtu.be/WrFKUpUWTmk?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=126'],
-['Match 5','https://youtu.be/oTc02LXnR7U?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=121'],
 'Code S R.16',
-'Group A',
-['Match 1','https://youtu.be/SmRbbWO9c0s?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=1052'],
-['Match 2','https://youtu.be/mm-66fbSxDI?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=183'],
-['Match 3','https://youtu.be/ureQK0EUkmE?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=130'],
-['Match 4','https://youtu.be/0f61PzsHwao?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=120'],
-['Match 5','https://youtu.be/qetExX9baXU?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=151'],
-'Group B',
-['Match 1','https://youtu.be/X32aFwFMCM8?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=646'],
-['Match 2','https://youtu.be/9rHRYsWeGv0?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=165'],
-['Match 3','https://youtu.be/S8xjWVWVqr0?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=115'],
-['Match 4','https://youtu.be/H3ZMzLez33c?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=115'],
-['Match 5','https://youtu.be/of6koaTm5bk?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=115'],
 'Group C',
 ['Match 1','https://youtu.be/xhOAmdOvpSE?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=557'],
 ['Match 2','https://youtu.be/AeIevgw_t4U?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=176'],
@@ -70,6 +51,23 @@ var matches = [
 ['Match 4','https://youtu.be/wKyNgkkI68o?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=140'],
 ['Match 5','https://youtu.be/wy47MftbKPU?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=152'],
 'Code S R.8',
+['Match 1 part A','https://youtu.be/GacBiXlPRpg?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=696'],
+['Match 1 part B','https://youtu.be/GacBiXlPRpg?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=3463'],
+['Match 2 part A','https://youtu.be/R37zRqd4eKY?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=439'],
+['Match 3 part A','https://youtu.be/mDU51QCv7_8?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=633'],
+['Match 4 part A','https://youtu.be/_jbVKQ3aZhU?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=582'],
+['Match 4 part B','https://youtu.be/_jbVKQ3aZhU?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=3228'],
+'Code S R.4',
+['Match 1 part A','https://youtu.be/ZrkgBIXlmj4?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=732'],
+['Match 1 part B','https://youtu.be/ZrkgBIXlmj4?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=2771'],
+['Match 1 part C','https://youtu.be/ZrkgBIXlmj4?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=6185'],
+['Match 2 part A','https://youtu.be/VIozezuE3rQ?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=617'],
+['Match 2 part B','https://youtu.be/VIozezuE3rQ?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=2072'],
+['Match 2 part C','https://youtu.be/VIozezuE3rQ?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=3571'],
+'Finals',
+['Finals part 1, 2','https://youtu.be/zV5OuIW3CpQ?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=1740'],
+['Finals part 3, 4','https://youtu.be/zV5OuIW3CpQ?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=4353'],
+['Finals part 5, 6, 7','https://youtu.be/zV5OuIW3CpQ?list=PL9kbtXdyV0zt6ogrYqKKRaITPqyFORpEO&t=7396'],
 ];
 /*
 'Code S R.32',
@@ -121,14 +119,14 @@ ALT
 ['Match 4 part B',''],
 ['Match 4 part C',''],
 
-Finals
+'Finals',
 ['Finals until X',''],
 ['Finals until Y',''],
 ['Finals until Z',''],
-ALT
-['Finals part A',''],
-['Finals part B',''],
-['Finals part C',''],
+'Finals', ALT
+['Finals 1,2',''],
+['Finals 3,4',''],
+['Finals 5,6,7',''],
 */
 
 
