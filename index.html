@@ -246,7 +246,7 @@ function setup_player(evt, idx) {
    if (evt.parentElement.id != 'reload_shortcut') {
        // set cookie to remember which one we most recently clicked on
        // cookie value is the URL
-       setC('vid_url', url, '/', 30 * 86400);
+       setC('vid_url', url, '/', 180 * 86400);
        var all_links = document.querySelectorAll('li > a'); // NOTE: this should match the idx within video_array
        for (var i = 0; i < all_links.length; i++) {
           all_links[i].className = ""; //clear all class names
