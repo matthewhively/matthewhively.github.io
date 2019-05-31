@@ -1,0 +1,7 @@
+scripts/chosen/docsupport/
+scripts/chosen/options.html
+scripts/chosen/LICENSE.md
+scripts/chosen/index*
+scripts/chosen/*.min.*
+scripts/chosen/composer.json
+scripts/chosen/*.proto.*
