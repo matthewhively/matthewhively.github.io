@@ -72,24 +72,23 @@
 
 .chosen-results .active-result.shadow_unicorn       { background-color: black; color: white !important; }
 
+
+/* NOTE: add .chosen-with-drop to the .chosen-container to FORCE it to stay open while I click around in the DOM */
 </style>
 
 <script type="text/javascript">
 
 function paired_role_toggle(roles, state) {
-  var $base_selector = $(".chosen-results");
-  
-  
+  var $role_select   = $('#role_select');
+
   for (var i=0; i < roles.length; i++) {
-    var $li = $base_selector.find('li.'+ roles[i]);
+    var $opt = $role_select.find('option.' + roles[i]);
     
-    // TODO: is there a safer way to enable/disable the elements instead of "pretending" they were selected?
-    if (state == 'selected') {
-      $li.removeClass('active-result').addClass('result-selected');
-    } else { // deselected
-      $li.removeClass('result-selected').addClass('active-result');
-    }
+    $opt.attr('disabled', (state == 'selected'));
   } // for loop
+  
+  // Force the chosen to update its options based on the current select status
+  $role_select.trigger("chosen:updated");
 }
 
 $(document).ready(function(){
