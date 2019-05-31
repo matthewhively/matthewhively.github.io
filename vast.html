@@ -1,0 +1,290 @@
+<html>
+<head>
+<title>Vast Player Rules</title>
+
+<script type="text/javascript" src="./scripts/jquery-3.4.1.min.js"></script>
+<script type="text/javascript" src="./scripts/chosen/chosen.jquery.js"></script>
+<link rel="stylesheet" href="./scripts/chosen/chosen.css"/>
+<!--link rel="stylesheet" media="all" href="https://assets.viz.com/assets/manifest-viz-ui-ff98d880cd859eb469620f19e469be7ea0dccd59dcf76faa76c3dcc434ef3999.css" /-->
+
+<style type="text/css">
+#controls { 
+  background-color: #CCC; 
+  width: 400px;
+  padding: 5px;
+  }
+#role_select {  width: 400px; }
+#role_select_chosen.chosen-container-multi .chosen-choices { height: 60px; }
+
+/*  https://github.com/harvesthq/chosen/issues/2611  ~~~ implemented this  */
+
+.disp-n { display: none; }
+
+.chosen-choices li.search-choice:before { 
+  content:  "";
+  display:  block;
+  position: absolute;
+  top:    0;
+  bottom: 0;
+  left:   0;
+  right:  0;
+  opacity: 0.5;
+  background-image: linear-gradient(#dbdbdb 20%, #a3a3a3 50%, #9c9c9c 52%, #d4d4d4 100%); /*linear-gradient(#f4f4f4 20%, #f0f0f0 50%, #e8e8e8 52%, #eee 100%);*/
+}
+.chosen-choices li.search-choice {
+  background-image: none !important;
+}
+.chosen-choices li.search-choice span,
+.chosen-results li.active-result
+{ color: black; font-weight: bold; } /* make the text darker to make sure its readable */
+
+/* Create an alternative highlight mechanism */
+.chosen-container .chosen-results li.highlight_alt {
+font-style: italic;
+
+}
+
+// The selected role boxes
+.chosen-container-multi .chosen-choices li.search-choice.knight     { background-color: yellow; }
+.chosen-container-multi .chosen-choices li.search-choice.goblins    { background-color: lightgreen; }
+.chosen-container-multi .chosen-choices li.search-choice.vile_ghoul { background-color: darkseagreen; }
+.chosen-container-multi .chosen-choices li.search-choice.dragon     { background-color: red; }
+.chosen-container-multi .chosen-choices li.search-choice.cave       { background-color: mediumorchid; }
+.chosen-container-multi .chosen-choices li.search-choice.cave_ghost { background-color: mediumslateblue; }
+/*.chosen-container-multi .chosen-choices li.search-choice.thief    { background-color: gray; } the default is fine */
+.chosen-container-multi .chosen-choices li.search-choice.ghoul      { background-color: orange; }
+.chosen-container-multi .chosen-choices li.search-choice.ghost      { background-color: skyblue; }
+.chosen-container-multi .chosen-choices li.search-choice.nightmare_unicorn    { background-color: chocolate; }
+
+.chosen-container-multi .chosen-choices li.search-choice.shadow_unicorn       { background-color: black; }
+.chosen-container-multi .chosen-choices li.search-choice.shadow_unicorn span  { color: white !important; }
+
+/* The dropdown list */
+.chosen-results .active-result.knight     { background-color: yellow; }
+.chosen-results .active-result.goblins    { background-color: lightgreen; }
+.chosen-results .active-result.vile_ghoul { background-color: darkseagreen; }
+.chosen-results .active-result.dragon     { background-color: red; }
+.chosen-results .active-result.cave       { background-color: mediumorchid; }
+.chosen-results .active-result.cave_ghost { background-color: mediumslateblue; }
+.chosen-results .active-result.thief      { background-color: lightgray; }
+.chosen-results .active-result.ghoul      { background-color: orange; }
+.chosen-results .active-result.ghost      { background-color: skyblue; }
+.chosen-results .active-result.nightmare_unicorn    { background-color: chocolate; }
+
+.chosen-results .active-result.shadow_unicorn       { background-color: black; color: white !important; }
+
+</style>
+
+<script type="text/javascript">
+
+function paired_role_toggle(roles, state) {
+  var $base_selector = $(".chosen-results");
+  
+  
+  for (var i=0; i < roles.length; i++) {
+    var $li = $base_selector.find('li.'+ roles[i]);
+    
+    // TODO: is there a safer way to enable/disable the elements instead of "pretending" they were selected?
+    if (state == 'selected') {
+      $li.removeClass('active-result').addClass('result-selected');
+    } else { // deselected
+      $li.removeClass('result-selected').addClass('active-result');
+    }
+  } // for loop
+}
+
+$(document).ready(function(){
+   // setup
+   var roles = [
+      'Knight',
+      'Goblins',
+      'Dragon',
+      'Cave',
+      'Thief',
+      'Ghoul',
+      'Vile Ghoul',
+      'Ghost',
+      'Cave Ghost',
+      'Nightmare Unicorn',
+      'Shadow Unicorn'       // REM: if 7 players already selected, this is the only remaining available option
+   ];
+   $.each(roles, function(key, value){
+      var class_val = value.toLowerCase().replace(' ', '_');
+      $("#role_select").append("<option class='"+ class_val +"' value='"+ class_val +"'>"+ value +"</option>");
+   });
+   
+   
+   $("#role_select").chosen({
+     hide_results_on_select: false,
+     disable_search:         false,
+     highlight_class:        'highlight_alt',
+   }).change(function(evt, params){
+     //console.log(evt);
+     //console.log(params); // {deselected: "dragon"}  or  {selected: "knight"}
+     
+     // part 1 -- disable certain alternative roles
+     var state = Object.keys(params)[0];
+     var role  = Object.values(params)[0];
+     switch(role) {
+	case 'cave':       paired_role_toggle(['cave_ghost'],    state); break;
+	case 'cave_ghost': paired_role_toggle(['cave', 'ghost'], state); break;
+	case 'ghost':      paired_role_toggle(['cave_ghost'],    state); break;
+	
+	case 'nightmare_unicorn': paired_role_toggle(['shadow_unicorn'],    state); break;
+	case 'shadow_unicorn':    paired_role_toggle(['nightmare_unicorn'], state); break;
+	
+	case 'goblins':    paired_role_toggle(['vile_ghoul'],       state); break;
+	case 'vile_ghoul': paired_role_toggle(['goblins', 'ghoul'], state); break;
+	case 'ghoul':      paired_role_toggle(['vile_ghoul'],       state); break;
+     }
+     
+     
+     // part 2 -- enable/disable modified rule cards
+     
+     
+   });
+   
+   // Fix the height of the chosen dropdown
+   // .chosen-results { max-height: 300px; }
+   $('.chosen-results').css({"maxHeight": "300px"})
+   
+   // TODO: somehow update chosen-results li.active-result > li.result-selected, if its paired option is chosen
+   //$('#role_select').off('change').change(function(evt){console.log($(evt.target).val())}) // Need to compare against previous value to determine if its a delete action?
+   //$('#')
+   
+   // Logic for choosing the various rule options based on the chosen-select value
+   // TODO
+   /*
+	Crowded house should automatically apply when relevant:
+		<=4 players + NO:cave
+		<=6 players + cave
+   
+	What I need to do is write down a list of all possible role + varient cards
+	  EG: flare -> knight, flare -> goblins, + Ash_Dragon, Past_Plunder -> Dragon, etc
+	  Then figure out what rules dictate when each of those activate. (monster if-clauses)
+	  EG: no one will have Past_Plunder if there is a thief in the game, regardless of what other rules are in play.
+	  
+	  (NOTE: multiple players could gain the flare ability)
+	  Thief gets Flare - thief + < 4player
+	  Goblins get Flare - solo || goblins+cave+thief, goblins+cave, goblins+thief
+	  Knight gets Flare - knight+goblins+cave+thief, knight+goblins+cave, knight+cave+thief, knight+cave, 
+	  Ghoul gets Flare - 
+	  
+	  Knight gets Infestation - knight    +    NO:goblins (A if dragon,  C if vs thief, B otherwise, solo == choose)
+	  Ash-Dragon Active - goblins+dragon+cave+thief, goblins+dragon+cave, goblins+dragon+thief, goblins+dragon, dragon+thief
+	  
+	  "In most of the variants Past Plunder does go to the last player" (with a few exceptions)
+	  Past_plunder to last in turn-order - NO:cave + ignores/skips positions: (1)knight, (5)thief.  ??does it also skip (3)unicorn if dragon is replaced??
+	  Dragon gets Plunder - knight+goblins+dragon+thief,  knight+goblins+dragon, knight+dragon
+	  Goblins gets Plunder - knight+goblins, goblins+dragon
+	  
+	  2 Sloth cubes moved - (knight+dragon+cave, knight+dragon, dragon+cave) +/- thief
+	  Knight break 5 crystals - knight   +   NO:dragon
+	  Knight break 5 or 6 crystals - knight+thief
+	  Goblins break 5 crystals - goblins   +   NO:knight & NO:dragon
+	  automated_cave - NO:cave
+	  cave_place_treasure_optional - cave+thief & < 4player
+	  knight_daring_eagle_cards - solo
+	  alone_in_the_dark - solo
+	  
+	  nightmare_unicorn_extra_cube - if ash_dragon
+	  nightmare_unicorn_tile_mod   - NO:cave
+	  unicorn+dragon+ANY = ???
+	  unicorn+thief +- cave  =   thief can kill unicorn instead of treasures
+	  
+	  goal_kill_shadow_unicorn - shadow unicorn is present (how to model someone electing to change victory condition??? this also shifts other victory conditions)
+	  
+	  ghost + > 3players = ghost gets past_plunder (always)
+	  ghost + > 2players = ghost gets past_plunder (if included in other rules) ???
+	  goblins+ghost = goblins break 4 crystals & ghost unlocks 5 artifacts
+		       or goblins break 5 crystals & ghost unlocks 6 artifacts
+	  
+   */
+});
+</script>
+</head>
+<body>
+
+<section id="controls">
+  <select id="role_select" class="chosen-select" data-placeholder="Choose Roles" multiple=""></select>
+<!--
+- Lets use the chosen UI like Viz has for selecting roles.
+- Other rules might effect these rules, so add checkboxes for those too.
+- How to handle dragon vs unicorn option? Its just another option... deal with it the same as everything else
+ -->
+   <h4>Other options:</h4>
+   <!-- include terrain variant, or thieves guild, or difficulty levels -->
+</section>
+
+<!-- rules will be copied from wherever they are defined into this box -->
+<section>
+  <h4>Rules:</h4>
+  <div id="rule_display"></div>
+</section>
+
+<div class="disp-n">
+  <div class="four_player_default five_player_default seven_player_default">
+   &bullet; Setup and play all roles using their standard rules and victory conditions. &bullet;
+  </div>
+  
+  <div class="four_player thief">
+   &bullet; <span class="thief">Thief</span> plays according to his normal rules. &bullet;
+  </div>
+  
+  <div class="three_player knight goblins dragon">
+    <ul>
+      <li><span class="plunder">Past Plunder</span> card given to <span class="dragon">Dragon</span></li>
+      <li>The other roles play using their standard rules and victory conditions.</li>
+      <li>All players lose if the cave collapses</li>
+    </ul>
+  </div>
+  
+  <div class="three_player knight goblins cave">
+    <ul>
+      <li><span class="flare">Flare</span> card given to <span class="knight">Knight</span></li>
+      <li><span class="knight">Knight</span> wins if she smashes 5 Crystals<i class="crystal"></i> and then escapes the cave.</li>
+      <li>The other roles play using their standard rules and victory conditions.</li>
+    </ul>
+  </div>
+  
+  <div class="three_player knight dragon cave">
+    <ul>
+      <li><span class="infestation">Goblin Infestation</span> card and <span class="monster">Monster Tokens</span> are given to <span class="knight">Knight</span></li>
+      <li><i>Recommended</i>: Use <u>Normal Goblins</u> difficulty (line A) on the <span class="infestation">Goblin Infestation</span> card.</li>
+      <li><span class="dragon">Dragon</span> begins play with 2 Sloth cubes<i class="cube"></i> from Hunger track on the Wakefulness track. These cubes cannot be moved back to Hunger track by the cave.</li>
+      <li>If the <span class="knight">Knight</span> is killed, she looses; and her turn is skipped until the <span class="dragon">Dragon</span> or the <span class="cave">Cave</span> wins.</li>
+      <li>The <span class="cave">Cave</span> plays with standard rules and victory conditions.</li>
+    </ul>
+  </div>
+  
+  <div class="three_player goblins dragon cave">
+    <ul>
+      <li><span class="ash">Ash Dragon</span> card is activated. It effects both the <span class="dragon">Dragon</span> and <span class="goblins">Goblins</span>.</li>
+      <li><span class="goblins">Goblins</span> wins if they kill the <span class="dragon">Dragon</span>.</li>
+      <li>The <span class="cave">Cave</span> plays with standard rules and victory conditions.</li>
+    </ul>
+  </div>
+  
+  <!-- this is complicated * it copies rules from 2player with exceptions -->
+  <div class="three_player thief">
+  
+  </div>
+  
+  
+  <div class="two_player knight goblins">
+    <ul>
+      <li><span class="plunder">Past Plunder</span> card given to <span class="knight">Knight</span></li>
+      <li><span class="knight">Knight</span> wins if she smashes 5 Crystals<i class="crystal"></i> and then escapes the cave.</li>
+      <li>The other roles play using their standard rules and victory conditions.</li>
+    </ul>
+  </div>
+  
+  <!-- solo cave or cave-ghost or shadow unicorn -->
+  <div class="impossible">
+    &bullet; This setup is not possible &bullet;
+  </div>
+
+</div><!-- hidden -->
+
+</body>
+</html>
