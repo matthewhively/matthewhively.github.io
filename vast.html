@@ -78,14 +78,49 @@
 
 <script type="text/javascript">
 
-function paired_role_toggle(roles, state) {
-  var $role_select   = $('#role_select');
-
-  for (var i=0; i < roles.length; i++) {
-    var $opt = $role_select.find('option.' + roles[i]);
-    
-    $opt.attr('disabled', (state == 'selected'));
-  } // for loop
+function paired_role_toggle(role, state, active_roles) {
+  var $role_select = $('#role_select');
+  
+  // TODO: use fall-through if practical
+  switch(role) {
+    case 'cave':
+      if (state == 'deselected' && active_roles.includes('ghost')) { break; } 
+      $role_select.find('option.cave_ghost').attr('disabled', (state == 'selected'));
+      break;
+    case 'ghost':
+      // if clearing ghost | cave  && the other is still in-effect, do NOT clear cave_ghost
+      if (state == 'deselected' && active_roles.includes('cave')) { break; } 
+      $role_select.find('option.cave_ghost').attr('disabled', (state == 'selected'));
+      break;
+    case 'cave_ghost': 
+      $role_select.find('option.cave, option.ghost').attr('disabled', (state == 'selected'));
+      break;
+      
+    case 'nightmare_unicorn':
+      $role_select.find('option.shadow_unicorn').attr('disabled', (state == 'selected'));
+      break;
+    case 'shadow_unicorn':
+      // NOTE: cannot disable something that is also "result-selected" or it will become STUCK as selected
+      $role_select.find('option.nightmare_unicorn').attr('disabled', (state == 'selected'));
+      break;
+      
+    case 'goblins':
+      if (state == 'deselected' && active_roles.includes('ghoul')) { break; } 
+      $role_select.find('option.vile_ghoul').attr('disabled', (state == 'selected'));
+      break;
+    case 'ghoul':
+      if (state == 'deselected' && active_roles.includes('goblins')) { break; } 
+      $role_select.find('option.vile_ghoul').attr('disabled', (state == 'selected'));
+      break;
+    case 'vile_ghoul':
+      $role_select.find('option.goblins, option.ghoul').attr('disabled', (state == 'selected'));
+      break;
+  }
+     
+  num_players = active_roles.length;
+  if (active_roles.includes('shadow_unicorn')) { num_players--; } // This is a non player role!
+  $("#num_players").html(num_players);
+  // cannot use max_selected_options, since we need to ALLOW 8 for shadow_unicorn
   
   // Force the chosen to update its options based on the current select status
   $role_select.trigger("chosen:updated");
@@ -128,35 +163,27 @@ $(document).ready(function(){
      //console.log(evt);
      //console.log(params); // {deselected: "dragon"}  or  {selected: "knight"}
      
+     var active_roles = $role_select.val();
+     
      // part 1 -- disable certain alternative roles
      var state = Object.keys(params)[0];
      var role  = Object.values(params)[0];
-     switch(role) {
-        case 'cave':       paired_role_toggle(['cave_ghost'],    state); break;
-        case 'cave_ghost': paired_role_toggle(['cave', 'ghost'], state); break;
-        case 'ghost':      paired_role_toggle(['cave_ghost'],    state); break;
-	
-        case 'nightmare_unicorn': paired_role_toggle(['shadow_unicorn'],    state); break;
-        case 'shadow_unicorn':    paired_role_toggle(['nightmare_unicorn'], state); break;
-	
-        case 'goblins':    paired_role_toggle(['vile_ghoul'],       state); break;
-        case 'vile_ghoul': paired_role_toggle(['goblins', 'ghoul'], state); break;
-        case 'ghoul':      paired_role_toggle(['vile_ghoul'],       state); break;
-     }
+     paired_role_toggle(role, state, active_roles);
      
      
      // part 2 -- enable/disable modified rule cards
      
+     // set helper flag
+     window[role] = (state == 'selected');
      
+     // re-focus the input box so that the menu stays open
+     // TODO: has a flicker, is there a better way?
+     if (state == 'deselected') { setTimeout(function(){$('.search-field').click();}, 100); }
    });
    
    // Fix the height of the chosen dropdown
    // .chosen-results { max-height: 300px; }
    $('.chosen-results').css({"maxHeight": "300px"})
-   
-   // TODO: somehow update chosen-results li.active-result > li.result-selected, if its paired option is chosen
-   //$('#role_select').off('change').change(function(evt){console.log($(evt.target).val())}) // Need to compare against previous value to determine if its a delete action?
-   //$('#')
    
    // Logic for choosing the various rule options based on the chosen-select value
    // TODO
@@ -230,6 +257,9 @@ $(document).ready(function(){
    <h4>Other options:</h4>
    <!-- include terrain variant, or thieves guild, or difficulty levels -->
 </section>
+<div style="display: inline-block;">
+  Num Players: <span id="num_players">0</span>
+</div>
 
 <!-- rules will be copied from wherever they are defined into this box -->
 <section>
