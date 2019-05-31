@@ -91,24 +91,32 @@ function paired_role_toggle(roles, state) {
   $role_select.trigger("chosen:updated");
 }
 
+// setup
+window.roles = [
+  'Knight',
+  'Goblins',
+  'Dragon',
+  'Cave',
+  'Thief',
+  'Ghoul',
+  'Vile Ghoul',
+  'Ghost',
+  'Cave Ghost',
+  'Nightmare Unicorn',
+  'Shadow Unicorn'       // REM: if 7 players already selected, this is the only remaining available option
+];
+window.num_players = 0;
+
 $(document).ready(function(){
-   // setup
-   var roles = [
-      'Knight',
-      'Goblins',
-      'Dragon',
-      'Cave',
-      'Thief',
-      'Ghoul',
-      'Vile Ghoul',
-      'Ghost',
-      'Cave Ghost',
-      'Nightmare Unicorn',
-      'Shadow Unicorn'       // REM: if 7 players already selected, this is the only remaining available option
-   ];
+
    $.each(roles, function(key, value){
       var class_val = value.toLowerCase().replace(' ', '_');
+      
+      // create the select list items
       $("#role_select").append("<option class='"+ class_val +"' value='"+ class_val +"'>"+ value +"</option>");
+      
+      // also create globals for ease of reference later
+      window[class_val] = false;
    });
    
    var $role_select = $("#role_select");
