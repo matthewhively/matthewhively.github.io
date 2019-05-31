@@ -40,12 +40,11 @@
 
 /* Create an alternative highlight mechanism */
 .chosen-container .chosen-results li.highlight_alt {
-font-style: italic;
-
+  box-shadow: inset 0px 0px 0px 4px blue;
 }
 
-// The selected role boxes
-.chosen-container-multi .chosen-choices li.search-choice.knight     { background-color: yellow; }
+/* The selected role boxes */
+.chosen-container-multi .chosen-choices li.search-choice.knight     { background-color: yellow; } /* why is this broken? */
 .chosen-container-multi .chosen-choices li.search-choice.goblins    { background-color: lightgreen; }
 .chosen-container-multi .chosen-choices li.search-choice.vile_ghoul { background-color: darkseagreen; }
 .chosen-container-multi .chosen-choices li.search-choice.dragon     { background-color: red; }
@@ -113,8 +112,8 @@ $(document).ready(function(){
       $("#role_select").append("<option class='"+ class_val +"' value='"+ class_val +"'>"+ value +"</option>");
    });
    
-   
-   $("#role_select").chosen({
+   var $role_select = $("#role_select");
+   $role_select.chosen({
      hide_results_on_select: false,
      disable_search:         false,
      highlight_class:        'highlight_alt',
@@ -126,16 +125,16 @@ $(document).ready(function(){
      var state = Object.keys(params)[0];
      var role  = Object.values(params)[0];
      switch(role) {
-	case 'cave':       paired_role_toggle(['cave_ghost'],    state); break;
-	case 'cave_ghost': paired_role_toggle(['cave', 'ghost'], state); break;
-	case 'ghost':      paired_role_toggle(['cave_ghost'],    state); break;
+        case 'cave':       paired_role_toggle(['cave_ghost'],    state); break;
+        case 'cave_ghost': paired_role_toggle(['cave', 'ghost'], state); break;
+        case 'ghost':      paired_role_toggle(['cave_ghost'],    state); break;
 	
-	case 'nightmare_unicorn': paired_role_toggle(['shadow_unicorn'],    state); break;
-	case 'shadow_unicorn':    paired_role_toggle(['nightmare_unicorn'], state); break;
+        case 'nightmare_unicorn': paired_role_toggle(['shadow_unicorn'],    state); break;
+        case 'shadow_unicorn':    paired_role_toggle(['nightmare_unicorn'], state); break;
 	
-	case 'goblins':    paired_role_toggle(['vile_ghoul'],       state); break;
-	case 'vile_ghoul': paired_role_toggle(['goblins', 'ghoul'], state); break;
-	case 'ghoul':      paired_role_toggle(['vile_ghoul'],       state); break;
+        case 'goblins':    paired_role_toggle(['vile_ghoul'],       state); break;
+        case 'vile_ghoul': paired_role_toggle(['goblins', 'ghoul'], state); break;
+        case 'ghoul':      paired_role_toggle(['vile_ghoul'],       state); break;
      }
      
      
@@ -169,25 +168,34 @@ $(document).ready(function(){
 	  Goblins get Flare - solo || goblins+cave+thief, goblins+cave, goblins+thief
 	  Knight gets Flare - knight+goblins+cave+thief, knight+goblins+cave, knight+cave+thief, knight+cave, 
 	  Ghoul gets Flare - 
+	  xyz_flare
 	  
 	  Knight gets Infestation - knight    +    NO:goblins (A if dragon,  C if vs thief, B otherwise, solo == choose)
+	  infestation
+	  
 	  Ash-Dragon Active - goblins+dragon+cave+thief, goblins+dragon+cave, goblins+dragon+thief, goblins+dragon, dragon+thief
+	  ash_dragon
 	  
 	  "In most of the variants Past Plunder does go to the last player" (with a few exceptions)
 	  Past_plunder to last in turn-order - NO:cave + ignores/skips positions: (1)knight, (5)thief.  ??does it also skip (3)unicorn if dragon is replaced??
 	  Dragon gets Plunder - knight+goblins+dragon+thief,  knight+goblins+dragon, knight+dragon
 	  Goblins gets Plunder - knight+goblins, goblins+dragon
+	  xyz_plunder
 	  
 	  2 Sloth cubes moved - (knight+dragon+cave, knight+dragon, dragon+cave) +/- thief
+	  
+	  
 	  Knight break 5 crystals - knight   +   NO:dragon
 	  Knight break 5 or 6 crystals - knight+thief
 	  Goblins break 5 crystals - goblins   +   NO:knight & NO:dragon
+	  xyz_#_crystals
+
 	  automated_cave - NO:cave
 	  cave_place_treasure_optional - cave+thief & < 4player
 	  knight_daring_eagle_cards - solo
 	  alone_in_the_dark - solo
 	  
-	  nightmare_unicorn_extra_cube - if ash_dragon
+	  nightmare_unicorn_extra_cube - if ash_dragon & NO:dragon ???
 	  nightmare_unicorn_tile_mod   - NO:cave
 	  unicorn+dragon+ANY = ???
 	  unicorn+thief +- cave  =   thief can kill unicorn instead of treasures
