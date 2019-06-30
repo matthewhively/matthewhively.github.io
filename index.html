@@ -23,7 +23,7 @@ label {
 // useful: https://www.youtube.com/embed/chElHV99xak?start=53&end=59   <<< specify both START and END time  (ONLY works for embedded)
 
 var video_array = []; // add videos to this array as we loop through matches, so that index's stay consistent (without having to skip numbers)
-/* Current: 
+/* Current: Season 1
 https://www.youtube.com/watch?v=GMERb0zfIKc&list=PLo2fPnM8EiQw4e9heKJ_xUF-gZQ52-FMZ  -- 2019 GSL super tournament season 1
 https://www.youtube.com/watch?v=2K73wiWbJy0&list=PLo2fPnM8EiQwmq_U3OM8QHKHmveL3DBYt  -- 2019 GSL season 2
 
@@ -39,20 +39,6 @@ var matches = [
 ['All Twitch', 'https://www.twitch.tv/videos/114595757'],
 */
 '2019 Code S Season 1',
-'Group D',
-['Match 1','https://youtu.be/FH6aXT4FS4I?list=PLo2fPnM8EiQyzh_uTzrnKymevHJjFCZ_y&t=596'],
-['Match 2','https://youtu.be/z0TBDdbbOQs?list=PLo2fPnM8EiQyzh_uTzrnKymevHJjFCZ_y&t=316'],
-['Match 3','https://youtu.be/k_iv44XzUNE?list=PLo2fPnM8EiQyzh_uTzrnKymevHJjFCZ_y&t=302'],
-['Match 4','https://youtu.be/u9Z0sJ4PnkM?list=PLo2fPnM8EiQyzh_uTzrnKymevHJjFCZ_y&t=191'],
-['Match 5','https://youtu.be/f6Ixad-q0iw?list=PLo2fPnM8EiQyzh_uTzrnKymevHJjFCZ_y&t=140'],
-'Code S R.8',
-['Match 1','https://youtu.be/UZSxuZlvhbI?list=PLo2fPnM8EiQyzh_uTzrnKymevHJjFCZ_y&t=554'],
-['Match 2 part 1,2,3','https://youtu.be/8Vg8-_YgCGc?list=PLo2fPnM8EiQyzh_uTzrnKymevHJjFCZ_y&t=387'],
-['Match 2 part 4+','https://youtu.be/8Vg8-_YgCGc?list=PLo2fPnM8EiQyzh_uTzrnKymevHJjFCZ_y&t=2933'],
-['Match 3 part 1,2,3','https://youtu.be/fWdjclm8Bas?list=PLo2fPnM8EiQyzh_uTzrnKymevHJjFCZ_y&t=487'],
-['Match 3 part 4+','https://youtu.be/fWdjclm8Bas?list=PLo2fPnM8EiQyzh_uTzrnKymevHJjFCZ_y&t=4116'],
-['Match 4 part 1,2,3','https://youtu.be/joQNEZb5Mbw?list=PLo2fPnM8EiQyzh_uTzrnKymevHJjFCZ_y&t=528'],
-['Match 4 part 4+','https://youtu.be/joQNEZb5Mbw?list=PLo2fPnM8EiQyzh_uTzrnKymevHJjFCZ_y&t=3715'],
 'Code S R.4',
 ['Match 1 part 1,2','https://youtu.be/peyz7ZXyTAY?list=PLo2fPnM8EiQyzh_uTzrnKymevHJjFCZ_y&t=1366'],
 ['Match 1 part 3,4','https://youtu.be/peyz7ZXyTAY?list=PLo2fPnM8EiQyzh_uTzrnKymevHJjFCZ_y&t=3150'],
@@ -63,6 +49,27 @@ var matches = [
 ['Finals 1,2','https://youtu.be/lcfoy9WEoXY?list=PLo2fPnM8EiQyzh_uTzrnKymevHJjFCZ_y&t=2273'],
 ['Finals 3,4','https://youtu.be/lcfoy9WEoXY?list=PLo2fPnM8EiQyzh_uTzrnKymevHJjFCZ_y&t=4311'],
 ['Finals 5,6,7','https://youtu.be/lcfoy9WEoXY?list=PLo2fPnM8EiQyzh_uTzrnKymevHJjFCZ_y&t=6042'],
+
+'Super Tournament Season 1 R.16',
+['Match 1','https://youtu.be/GMERb0zfIKc?list=PLo2fPnM8EiQw4e9heKJ_xUF-gZQ52-FMZ&t=381'],
+['Match 2','https://youtu.be/p8Oo_gwyhRs?list=PLo2fPnM8EiQw4e9heKJ_xUF-gZQ52-FMZ&t=220'],
+['Match 3','https://youtu.be/rBCm_4d35v4?list=PLo2fPnM8EiQw4e9heKJ_xUF-gZQ52-FMZ&t=220'],
+['Match 4','https://youtu.be/Q4A5JmPmkWU?list=PLo2fPnM8EiQw4e9heKJ_xUF-gZQ52-FMZ&t=243'],
+['Match 5','https://youtu.be/pbYy5LygM-k?list=PLo2fPnM8EiQw4e9heKJ_xUF-gZQ52-FMZ&t=375'],
+['Match 6','https://youtu.be/B_K4qVCNJYo?list=PLo2fPnM8EiQw4e9heKJ_xUF-gZQ52-FMZ&t=255'],
+['Match 7','https://youtu.be/gwpJZkyJTYA?list=PLo2fPnM8EiQw4e9heKJ_xUF-gZQ52-FMZ&t=390'],
+['Match 8','https://youtu.be/4PUCTh1bC6A?list=PLo2fPnM8EiQw4e9heKJ_xUF-gZQ52-FMZ&t=244'],
+'Super Tournament Season 1 R.8',
+['Match 1','https://youtu.be/EN7BX-AidVw?list=PLo2fPnM8EiQw4e9heKJ_xUF-gZQ52-FMZ&t=369'],
+['Match 2','https://youtu.be/rDMYUmW08W4?list=PLo2fPnM8EiQw4e9heKJ_xUF-gZQ52-FMZ&t=180'],
+['Match 3','https://youtu.be/7iVzPdmBs5w?list=PLo2fPnM8EiQw4e9heKJ_xUF-gZQ52-FMZ&t=193'],
+['Match 4','https://youtu.be/275DU9e5hG8?list=PLo2fPnM8EiQw4e9heKJ_xUF-gZQ52-FMZ&t=187'],
+'Super Tournament Season 1 R.4',
+['Match 1','https://youtu.be/Xe1Es3c6EeM?list=PLo2fPnM8EiQw4e9heKJ_xUF-gZQ52-FMZ&t=579'],
+['Match 2','https://youtu.be/xRSpgq6lQfA?list=PLo2fPnM8EiQw4e9heKJ_xUF-gZQ52-FMZ&t=460'],
+'Super Tournament Season 1 Finals',
+['Finals 1,2,3','https://youtu.be/0yJg8Atcjm0?list=PLo2fPnM8EiQw4e9heKJ_xUF-gZQ52-FMZ&t=575'],
+['Finals 4+',   'https://youtu.be/0yJg8Atcjm0?list=PLo2fPnM8EiQw4e9heKJ_xUF-gZQ52-FMZ&t=3708'],
 ];
 /*
 'Code S R.32',
@@ -81,17 +88,7 @@ GROUP format
 ['Match 3',''],
 ['Match 4',''],
 ['Match 5',''],
-ALT
-['Match 1',''],
-['Match 1 part 2',''],
-['Match 2',''],
-['Match 2 part 2',''],
-['Match 3',''],
-['Match 3 part 2',''],
-['Match 4',''],
-['Match 4 part 2',''],
-['Match 5',''],
-['Match 5 part 2',''],
+
 
 // TODO may want to format the same way as with the finals with shortcut links after the commercial breaks
 'Code S R.8',
@@ -101,27 +98,24 @@ ALT
 ['Match 3',''],
 ['Match 4',''],
 ALT
-['Match 1 part A',''],
-['Match 1 part B',''],
-['Match 1 part C',''],
-['Match 2 part A',''],
-['Match 2 part B',''],
-['Match 2 part C',''],
-['Match 3 part A',''],
-['Match 3 part B',''],
-['Match 3 part C',''],
-['Match 4 part A',''],
-['Match 4 part B',''],
-['Match 4 part C',''],
+['Match 1 Part 1,2',''],
+['Match 1 part 3',''],
+['Match 2 Part 1,2',''],
+['Match 2 part 3',''],
+['Match 3 Part 1,2',''],
+['Match 3 part 3',''],
+['Match 4 Part 1,2',''],
+['Match 4 part 3',''],
 
 'Finals',
-['Finals until X',''],
-['Finals until Y',''],
-['Finals until Z',''],
-'Finals', ALT
 ['Finals 1,2',''],
 ['Finals 3,4',''],
 ['Finals 5,6,7',''],
+'Finals', ALT
+['Finals until X',''],
+['Finals until Y',''],
+['Finals until Z',''],
+
 */
 
 
