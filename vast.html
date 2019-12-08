@@ -121,10 +121,21 @@ function paired_role_toggle(role, state, active_roles) {
   num_players = active_roles.length;
   if (active_roles.includes('shadow_unicorn')) { num_players--; } // This is a non player role!
   $("#num_players").html(num_players);
+  // "knight", "goblins", "dragon", "cave", "thief", "ghoul", "ghost", "nightmare_unicorn" == 8 --- TODO: should be disallowed!!!
+  if (num_players == 7) {
+    // find the remaining enabled options
+    // disable anything EXCEPT shadow_unicorn (still valid)
+  }
   // cannot use max_selected_options, since we need to ALLOW 8 for shadow_unicorn
   
   // Force the chosen to update its options based on the current select status
   $role_select.trigger("chosen:updated");
+}
+
+function flag_helper(active_roles) {
+  //$.each(active_roles, function(key, clazz){
+  //  window[clazz] = true;
+  //});
 }
 
 // setup
@@ -176,6 +187,12 @@ $(document).ready(function(){
      
      // set helper flag
      window[role] = (state == 'selected');
+     
+     
+
+     
+     //flag_helper(active_roles);
+     
      
      // re-focus the input box so that the menu stays open
      // TODO: has a flicker, is there a better way?
@@ -260,6 +277,7 @@ $(document).ready(function(){
 </section>
 <div style="display: inline-block;">
   Num Players: <span id="num_players">0</span>
+  <br/><button id="reset">Clear</button>
 </div>
 
 <!-- rules will be copied from wherever they are defined into this box -->
