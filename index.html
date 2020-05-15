@@ -25,7 +25,8 @@ label {
 var video_array = []; // add videos to this array as we loop through matches, so that index's stay consistent (without having to skip numbers)
 /* 
 https://www.youtube.com/watch?v=FumtQBrOfDM&list=PLo2fPnM8EiQwmy713CVuFrDYqcbiN8Vol  -- 2019 Super Tournament II
-
+https://www.youtube.com/watch?v=Dg5dYN2A44c&list=PLo2fPnM8EiQxsjLAy48R20YBXIbb4K5P2  -- 2020 Super Tournament
+https://www.youtube.com/watch?v=FumtQBrOfDM&list=PLo2fPnM8EiQwmy713CVuFrDYqcbiN8Vol  -- 2020 GSL Season 1
 */
 // TODO: add a button to make the video into fullscreen (if possible) or style the fullscreen button larger?
 //https://developers.google.com/youtube/iframe_api_reference
@@ -37,25 +38,7 @@ var matches = [
 /*
 ['All Twitch', 'https://www.twitch.tv/videos/114595757'],
 */
-'2019 Code S Season 3',
-'Finals',
-['Finals 1,2','https://youtu.be/SK3nNEiN25o?list=PLo2fPnM8EiQzwU1h6xrfWao2J9WL5yAPD&t=3073'],
-['Finals 3,4','https://youtu.be/SK3nNEiN25o?list=PLo2fPnM8EiQzwU1h6xrfWao2J9WL5yAPD&t=4842'],
 '2019 GSL vs the World',
-'R.16',
-['Match 1','https://youtu.be/nBKRsDg4e_k?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=1381'],
-['Match 1 Part 4+','https://youtu.be/nBKRsDg4e_k?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=3383'],
-['Match 2','https://youtu.be/vFGxXiyTGLg?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=793'],
-['Match 3','https://youtu.be/VFiWwBsMbAI?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=388'],
-['Match 4','https://youtu.be/fegeLfww25w?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=957'],
-['Match 4 Part 4+','https://youtu.be/fegeLfww25w?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=3718'],
-['Match 5','https://youtu.be/PgIVtJMFQPI?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=319'],
-['Match 5 Part 4+','https://youtu.be/PgIVtJMFQPI?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=3204'],
-['Match 6','https://youtu.be/8PTtaNkHAQE?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=326'],
-['Match 7','https://youtu.be/6KYS-ft9MQE?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=383'],
-['Match 7 Part 4+','https://youtu.be/6KYS-ft9MQE?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=2839'],
-['Match 8','https://youtu.be/b3fy6Xdhnd4?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=365'],
-['Match 8 Part 4+','https://youtu.be/b3fy6Xdhnd4?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=2867'],
 'R.8',
 ['Match 1','https://youtu.be/JQAw_zL6qkE?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=450'], 
 ['Match 1 Part 4+','https://youtu.be/JQAw_zL6qkE?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=5742'],
