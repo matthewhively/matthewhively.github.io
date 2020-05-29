@@ -5,3 +5,14 @@ scripts/chosen/index*
 scripts/chosen/*.min.*
 scripts/chosen/composer.json
 scripts/chosen/*.proto.*
+
+# Vim
+*.swp
+*.swo
+*.swn
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
