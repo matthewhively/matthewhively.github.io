@@ -22,10 +22,9 @@ label {
 
 // useful: https://www.youtube.com/embed/chElHV99xak?start=53&end=59   <<< specify both START and END time  (ONLY works for embedded)
 
-var video_array = []; // add videos to this array as we loop through matches, so that index's stay consistent (without having to skip numbers)
+var video_array = []; // add videos to this array as we loop through matches, so that indexes stay consistent (without having to skip numbers)
 /* 
-Current: 2019 GSL vs the World
-https://www.youtube.com/watch?v=FumtQBrOfDM&list=PLo2fPnM8EiQwmy713CVuFrDYqcbiN8Vol  -- 2019 Super Tournament II
+Current: 2019 Super Tournament II
 https://www.youtube.com/watch?v=Dg5dYN2A44c&list=PLo2fPnM8EiQxsjLAy48R20YBXIbb4K5P2  -- 2020 Super Tournament
 https://www.youtube.com/watch?v=TQCPWv5wQnI&list=PLo2fPnM8EiQxmXj1HAlxkSWoEecgc6Wql  -- 2020 GSL Season 1
 */
@@ -33,7 +32,7 @@ https://www.youtube.com/watch?v=TQCPWv5wQnI&list=PLo2fPnM8EiQxmXj1HAlxkSWoEecgc6
 //https://developers.google.com/youtube/iframe_api_reference
 //https://stackoverflow.com/questions/15114884/make-youtube-video-fullscreen-using-iframe-and-javascript-api
 
-// TODO: Add a quick way to save the current timestamp so that reloading the player doesn't make me loose my place.
+// TODO: Add a quick way to save the current timestamp so that reloading the player does not make me loose my place.
 // https://stackoverflow.com/questions/58870093/get-current-timestamp-of-embedded-youtube-playlist-videos-from-the-iframe-tag
 
 // if I could just style .ytp-fullscreen-button {position: fixed; top:0; right:0; height: initial;}  --- that would be good enough to easily hit the button
@@ -42,26 +41,7 @@ var matches = [
 /*
 ['All Twitch', 'https://www.twitch.tv/videos/114595757'],
 */
-'2019 GSL vs the World',
-'Teams',
-['Part 1','https://youtu.be/ROUuzbAyCtM?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=1522'],
-['Part 2','https://youtu.be/ROUuzbAyCtM?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=3350'],
-['Part 3','https://youtu.be/ROUuzbAyCtM?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=5421'],
-['Part 4','https://youtu.be/Eed4q2CbjZQ?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=290'],
-['Part 5','https://youtu.be/Eed4q2CbjZQ?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=1716'],
-['Part 6','https://youtu.be/Eed4q2CbjZQ?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=2772'],
-['Part 7','https://youtu.be/H4JdrEkFldk?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=591'],
-['Part 8','https://youtu.be/H4JdrEkFldk?list=PLo2fPnM8EiQxd3E7qSP70imQB5wl9mN1F&t=1892'],
 'GSL 2019 Super Tournament II',
-'R.16',
-['Match 1','https://youtu.be/FumtQBrOfDM?list=PLo2fPnM8EiQwmy713CVuFrDYqcbiN8Vol&t=455'],
-['Match 2','https://youtu.be/4fpQ-9WkAvs?list=PLo2fPnM8EiQwmy713CVuFrDYqcbiN8Vol&t=187'],
-['Match 3','https://youtu.be/eJNiUFdcB4E?list=PLo2fPnM8EiQwmy713CVuFrDYqcbiN8Vol&t=234'],
-['Match 4','https://youtu.be/qFgKD9RYyoE?list=PLo2fPnM8EiQwmy713CVuFrDYqcbiN8Vol&t=168'],
-['Match 5','https://youtu.be/Im9A7fPl__U?list=PLo2fPnM8EiQwmy713CVuFrDYqcbiN8Vol&t=387'],
-['Match 6','https://youtu.be/QR9BppvBBr0?list=PLo2fPnM8EiQwmy713CVuFrDYqcbiN8Vol&t=166'],
-['Match 7','https://youtu.be/txJv2zOXRkk?list=PLo2fPnM8EiQwmy713CVuFrDYqcbiN8Vol&t=496'],
-['Match 8','https://youtu.be/-k0hiOKR3cc?list=PLo2fPnM8EiQwmy713CVuFrDYqcbiN8Vol&t=181'],
 'R.8',
 ['Match 1','https://youtu.be/rTsaCw4Strk?list=PLo2fPnM8EiQwmy713CVuFrDYqcbiN8Vol&t=324'],
 ['Match 2','https://youtu.be/ESzOp0GT6vQ?list=PLo2fPnM8EiQwmy713CVuFrDYqcbiN8Vol&t=752'],
@@ -73,6 +53,27 @@ var matches = [
 'Finals',
 ['Finals Part 1','https://youtu.be/jRshRe-jKpk?list=PLo2fPnM8EiQwmy713CVuFrDYqcbiN8Vol&t=605'],
 ['Finals Part 2','https://youtu.be/hFSw87rsrdQ?list=PLo2fPnM8EiQwmy713CVuFrDYqcbiN8Vol&t=112'],
+'2020 Super Tournament',
+'R.16',
+['Match 1','https://youtu.be/Dg5dYN2A44c?list=PLo2fPnM8EiQxsjLAy48R20YBXIbb4K5P2&t=609'],
+['Match 2','https://youtu.be/Oc7u5HMS3eI?list=PLo2fPnM8EiQxsjLAy48R20YBXIbb4K5P2&t=265'],
+['Match 3','https://youtu.be/ri6XmnFfmB4?list=PLo2fPnM8EiQxsjLAy48R20YBXIbb4K5P2&t=250'],
+['Match 4','https://youtu.be/cGma3yiTimo?list=PLo2fPnM8EiQxsjLAy48R20YBXIbb4K5P2&t=222'],
+['Match 5','https://youtu.be/HqWobbOx03w?list=PLo2fPnM8EiQxsjLAy48R20YBXIbb4K5P2&t=422'],
+['Match 6','https://youtu.be/qraazX6FeJ4?list=PLo2fPnM8EiQxsjLAy48R20YBXIbb4K5P2&t=170'],
+['Match 7','https://youtu.be/7-CzSQSUHCs?list=PLo2fPnM8EiQxsjLAy48R20YBXIbb4K5P2&t=215'],
+['Match 8','https://youtu.be/u2KIJiaoWWI?list=PLo2fPnM8EiQxsjLAy48R20YBXIbb4K5P2&t=212'],
+'R.8',
+['Match 1','https://youtu.be/CCnBGjkZdo4?list=PLo2fPnM8EiQxsjLAy48R20YBXIbb4K5P2&t=411'],
+['Match 2','https://youtu.be/fMRt9dhAP4s?list=PLo2fPnM8EiQxsjLAy48R20YBXIbb4K5P2&t=168'],
+['Match 3','https://youtu.be/cUoxhXYAo10?list=PLo2fPnM8EiQxsjLAy48R20YBXIbb4K5P2&t=315'],
+['Match 4','https://youtu.be/PRUJTe60ahk?list=PLo2fPnM8EiQxsjLAy48R20YBXIbb4K5P2&t=207'],
+'R.4',
+['Match 1','https://youtu.be/4EuXDQDo3T8?list=PLo2fPnM8EiQxsjLAy48R20YBXIbb4K5P2&t=373'],
+['Match 2','https://youtu.be/39NXUuC2nts?list=PLo2fPnM8EiQxsjLAy48R20YBXIbb4K5P2&t=403'],
+'Finals',
+['Finals Part 1','https://youtu.be/HBINsLYKkp4?list=PLo2fPnM8EiQxsjLAy48R20YBXIbb4K5P2&t=513'],
+['Finals Part 2','https://youtu.be/HBINsLYKkp4?list=PLo2fPnM8EiQxsjLAy48R20YBXIbb4K5P2&t=4049'],
 ];
 /*
 'R.32',
@@ -131,37 +132,37 @@ function setC(n,v,p,t) {  //set cookie
     t = t || 30*60; //30min default
     var e,
         dt = new Date();
-    dt.setTime(dt.getTime()+(t*1000)); //num sec * millisec
+    dt.setTime(dt.getTime()+(t*1000)); // num sec * millisec
     e = dt.toGMTString();
     document.cookie = n + '=' + encodeURIComponent(v) + '; path=' + p + '; expires=' + e;
 }
 
-function parseQuery(query) { //using ; or & allows this to work for cookies too
+function parseQuery(query) { // using ; or & allows this to work for cookies too
    var pairs,
        pair,
-       i,  //loop counters
+       i,  // loop counters
        params = {},
        uesc = decodeURIComponent;
 
-   //NOTE: this will NOT handle arrays of params like ?foo[]=bar&foo[]=baz   should yield foo = array(bar,baz)
+   // NOTE: this will NOT handle arrays of params like ?foo[]=bar&foo[]=baz   should yield foo = array(bar,baz)
    if (query) {
-       pairs = query.split(/; *|&/); //cookies might have spaces or not, url params will NOT
+       pairs = query.split(/; *|&/); // cookies might have spaces or not, url params will NOT
        for (i=0; i < pairs.length; i++) {
            pair = pairs[i].split('=');
-           if ( ! pair ) continue; //if the split failed for any reason skip it
+           if ( ! pair ) continue; // if the split failed for any reason skip it
            if (pair.length >= 2)
-             { params[uesc(pair[0])] = uesc(pair.slice(1).join("=")); } //incase there was an extra = in the value portion
+             { params[uesc(pair[0])] = uesc(pair.slice(1).join("=")); } // incase there was an extra = in the value portion
            else
              { params[uesc(pair[0])] = true; }
        }
-       params.length = i; //add a quick length attribute for usefulness
+       params.length = i; // add a quick length attribute for usefulness
    }
    return params;
 }
 
 var cParams = parseQuery(document.cookie);
 
-if (! cParams['vid_url'] && matches.length > 0) { //if no cookie, we'll start at the beginning ::: find the first array type entry and start with that.
+if (! cParams['vid_url'] && matches.length > 0) { // if no cookie, start at the beginning ::: find the first array type entry and start with that.
     var i = 0;
     while (i < matches.length && typeof(matches[i]) == 'string' ) {
         i++;
@@ -232,9 +233,9 @@ function setup_player(evt, idx) {
        for (var i = 0; i < all_links.length; i++) {
           all_links[i].className = ""; //clear all class names
        }
-	   // set the link that was clicked to be marked so I know which one I'm on.
+	   // set the link that was clicked to be marked so I know which one I am on.
 	   if (evt.className == 'next') {
-		  // find the appropriate element, since it's NOT the clicked-item that I want to mark in this case
+		  // find the appropriate element, since it is NOT the clicked-item that I want to mark in this case
 		  all_links[idx].className = 'most_recent';
        } else {
 	      evt.className = 'most_recent';
@@ -247,7 +248,19 @@ function setup_player(evt, idx) {
    return false;
 }
 
-//TODO: on document load setup the video that is flagged (from the cookie) so I don't have to click the button
+// TODO: on document load setup the video that is flagged (from the cookie) so that no extra click is necessary
+
+// NOTE: youtube default video resolution is determined semi-automatically based on iframe dimensions
+/*
+Based on: the network connection speed and the size of the embedded video player.
+The rules for the latter are well defined.
+
+For each quality level, there is a base width and range required:
+1080p: 1633px or more
+720p: 1089px - 1632px
+480p: 726px - 1088px
+360p: 725px or fewer
+*/
 
 </script>
 
@@ -256,7 +269,7 @@ function setup_player(evt, idx) {
 
 <label for="the_youtube_player" id="now_playing"></label><br/>
 <div style="padding:5px; float: left; background-color: #CCC;">
-<iframe id="the_youtube_player" src="about:blank" title="YouTube video player" class="youtube-player" type="text/html" width="640" height="390" frameborder="0" allowFullScreen></iframe>
+<iframe id="the_youtube_player" src="about:blank" title="YouTube video player" class="youtube-player" type="text/html" width="1280" height="720" frameborder="0" allowFullScreen></iframe>
 </div>
 <div id="reload_shortcut" style="padding:5px; display:inline;"></div>
 <br />
@@ -306,13 +319,13 @@ for (var i = 0; i < matches.length; i++) {
 	   // create the list of matches as links
        elm.innerHTML = '<a '+clazz+' href="javascript:" onclick="setup_player(this, ' + vidx + ', \'' + section + '\');">' + m[0] + '</a>';
 	   
-	   m.push(section);    // now it'll be an array of length 3
+	   m.push(section);    // now it will be an array of length 3
 	   video_array.push(m);
    }
    the_menu.appendChild(elm);
 } // end loop
 
-// If the cookie didn't exist,
+// If the cookie DNE,
 //   or if the cookied video was old, and thus not in the current list.
 if (curr_idx === null) {
 	// REM: this idx is for the video_array[], not matches[]
