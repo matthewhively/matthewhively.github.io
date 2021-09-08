@@ -23,10 +23,12 @@ label {
 // useful: https://www.youtube.com/embed/chElHV99xak?start=53&end=59   <<< specify both START and END time  (ONLY works for embedded)
 
 var video_array = []; // add videos to this array as we loop through matches, so that indexes stay consistent (without having to skip numbers)
-/* 
-https://www.youtube.com/watch?v=_XD_0QItV7s&list=PLo2fPnM8EiQxs87MR0equvPOr9nd5WsRV - GSL 2021 season 1
+/*
+https://www.youtube.com/watch?v=dGQhlCjWE7s&list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5 - GSL 2021 Season 2 <<< current
 
 https://www.youtube.com/watch?v=IFL767DZ2J0&list=PLo2fPnM8EiQwBcJiIvi1UueHhiD8sVJ3j - GSL 2021 Super Tournament 2
+
+https://www.youtube.com/watch?v=lda85qyf31k&list=PLo2fPnM8EiQw1PPVobQemGxAGw9nCBhq2 - GSL 2021 Season 3
 
 */
 // TODO: add a button to make the video into fullscreen (if possible) or style the fullscreen button larger?
@@ -41,35 +43,67 @@ https://www.youtube.com/watch?v=IFL767DZ2J0&list=PLo2fPnM8EiQwBcJiIvi1UueHhiD8sV
 var matches = [
 /*
 ['All Twitch', 'https://www.twitch.tv/videos/114595757'],
+
+TODO TODO TODO:
+Revise system so that I can add multiple videos into the same array and it will automatically treat them as part 1, part 2, part 3
+['Match 1', '', '', '']
+Ignore any empty strings (is there a compact???)
+
 */
-'GSL 2021 season 1',
+'GSL 2021 Season 2',
+'Code A',
+'Day 1', 
+['Match 1','https://youtu.be/dGQhlCjWE7s?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=681'],
+['Match 2','https://youtu.be/CIwZtP6Jerg?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=218'],
+['Match 3','https://youtu.be/bgqoA9KiqvI?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=552'],
+'Day 2', 
+['Match 1','https://youtu.be/q7AIUi2I8IM?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=400'],
+['Match 2','https://youtu.be/mMhz0WAajJ8?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=232'],
+['Match 3','https://youtu.be/e4LICIJQhS0?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=545'],
+'Day 3', 
+['Match 1','https://youtu.be/BQb27F1VR90?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=424'],
+['Match 2','https://youtu.be/z-0zkm95p_c?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=394'],
 'R.16',
+'Group A',
+['Match 1','https://youtu.be/K3gX29nibTQ?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=679'],
+['Match 2','https://youtu.be/LiTA6Y9CvqA?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=193'],
+['Match 3','https://youtu.be/c6xOFOcOI2g?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=146'],
+['Match 4','https://youtu.be/gYD0Up51lfk?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=154'],
+['Match 5','https://youtu.be/qOOUIZIIig0?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=164'],
+'Group B',
+['Match 1','https://youtu.be/LkByDAg5zh4?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=855'],
+['Match 2','https://youtu.be/r4LxgpfIBwo?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=233'],
+['Match 3','https://youtu.be/OBZqPaGDb_Q?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=119'],
+['Match 4','https://youtu.be/uRCoupvObMI?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=172'],
+['Match 5','https://youtu.be/Ejcdbh-f2T4?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=151'],
+'Group C',
+['Match 1','https://youtu.be/gpOSAiacEEU?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=711'],
+['Match 2','https://youtu.be/CjE9l8Yo43E?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=220'],
+['Match 3','https://youtu.be/8hp0qrnUVks?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=153'],
+['Match 4','https://youtu.be/whfT5WRtZjk?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=190'],
+['Match 5','https://youtu.be/Hp8lFy_EAJA?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=146'],
 'Group D',
-['Match 1','https://youtu.be/M2xlLMdWXqQ?list=PLo2fPnM8EiQxs87MR0equvPOr9nd5WsRV&t=573'],
-['Match 2','https://youtu.be/IqbRHIu18Qg?list=PLo2fPnM8EiQxs87MR0equvPOr9nd5WsRV&t=218'],
-['Match 3','https://youtu.be/SKX0aNNHDkQ?list=PLo2fPnM8EiQxs87MR0equvPOr9nd5WsRV&t=438'],
-['Match 4','https://youtu.be/LBXpzhkpet4?list=PLo2fPnM8EiQxs87MR0equvPOr9nd5WsRV&t=142'],
-['Match 5','https://youtu.be/qVjv6-pyJww?list=PLo2fPnM8EiQxs87MR0equvPOr9nd5WsRV&t=269'],
+['Match 1','https://youtu.be/p99UZjvcgec?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=564'],
+['Match 2','https://youtu.be/-Ry7SVwnsEA?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=208'],
+['Match 3','https://youtu.be/BgN8zd3xQ2g?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=425'],
+['Match 4','https://youtu.be/gQipl-4D6SI?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=132'],
+['Match 5','https://youtu.be/38KUW4KHlG0?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=180'],
 'R.8',
-['Match 1','https://youtu.be/O0kPv-TP_p4?list=PLo2fPnM8EiQxs87MR0equvPOr9nd5WsRV&t=747'],
-['Match 2','https://youtu.be/Ox1BBf-VH8s?list=PLo2fPnM8EiQxs87MR0equvPOr9nd5WsRV&t=686'],
-['Match 2 part 2','https://youtu.be/Ox1BBf-VH8s?list=PLo2fPnM8EiQxs87MR0equvPOr9nd5WsRV&t=2259'],
-['Match 3','https://youtu.be/lEsOhSCNVy4?t=652'],
-['Match 3 part 2','https://youtu.be/lEsOhSCNVy4?t=3338'],
-['Match 4','https://youtu.be/hXkzTOVOwgs?t=541'],
-['Match 4 part 2','https://youtu.be/hXkzTOVOwgs?t=2950'],
-['Match 4 part 3','https://youtu.be/hXkzTOVOwgs?t=3871'],
+['Match 1','https://youtu.be/PMCdYYuU9I4?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=729'],
+['Match 2','https://youtu.be/Xy2S0QNXBkQ?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=807'],
+['Match 3 part 1','https://youtu.be/cSPXyujlXY4?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=662'],
+['Match 3 part 2','https://youtu.be/cSPXyujlXY4?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=2735'],
+['Match 4 part 1','https://youtu.be/UPkDvjcr6-A?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=716'],
+['Match 4 part 2','https://youtu.be/UPkDvjcr6-A?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=2293'],
 'R.4',
-['Match 1','https://youtu.be/nSGgjrrzVCc?list=PLo2fPnM8EiQxs87MR0equvPOr9nd5WsRV&t=1683'],
-['Match 1 part 2','https://youtu.be/nSGgjrrzVCc?t=3611'],
-['Match 1 part 3','https://youtu.be/nSGgjrrzVCc?t=5040'],
-['Match 2','https://youtu.be/6wVZK0W0SAo?t=1660'],
-['Match 2 part 2','https://youtu.be/6wVZK0W0SAo?t=4062'],
-['Match 2 part 3','https://youtu.be/6wVZK0W0SAo?t=5770'],
+['Match 1 part 1','https://youtu.be/a3hEx_1cgLE?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=1768'],
+['Match 1 part 2','https://youtu.be/a3hEx_1cgLE?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=3538'],
+['Match 2 part 1','https://youtu.be/hVaniNQb63Q?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=1635'],
+['Match 2 part 2','https://youtu.be/hVaniNQb63Q?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=4597'],
 'Finals',
-['Part 1','https://youtu.be/BS0v_yEASb4?t=3241'],
-['Part 2','https://youtu.be/BS0v_yEASb4?t=5572'],
-['Part 3','https://youtu.be/BS0v_yEASb4?t=7548'],
+['Part 1','https://youtu.be/Tcf8-X0fpoo?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=3248'],
+['Part 2','https://youtu.be/Tcf8-X0fpoo?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=6269'],
+['Part 3','https://youtu.be/Tcf8-X0fpoo?list=PLo2fPnM8EiQxKLQGv8sDvIvVkrMnheCL5&t=9065'],
 ];
 /*
 'R.32',
@@ -113,6 +147,10 @@ ALT
 ['Match 4 Part 4+',''],
 
 'Finals',
+['Part 1',''],
+['Part 2',''],
+['Part 3',''],
+OR
 ['Game 1,2',''],
 ['Game 3,4',''],
 ['Game 5,6,7',''],
@@ -120,10 +158,6 @@ OR
 ['until X',''],
 ['until Y',''],
 ['until Z',''],
-OR
-['Part 1',''],
-['Part 2',''],
-['Part 3',''],
 */
 
 
