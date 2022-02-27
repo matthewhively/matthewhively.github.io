@@ -240,7 +240,7 @@ if (! cParams['vid_url'] && matches.length > 0) { // if no cookie, start at the 
 
 function update_elements(idx, now_playing) {
 	// Update the reload player button
-	document.getElementById('reload_shortcut').innerHTML = '<a href="javascript:" onclick="setup_player(this, ' + idx + ');">reload player</a>';
+	document.getElementById('reload_shortcut').innerHTML = '<a href="javascript:" onclick="setup_player(this, ' + idx + ');">Reload Player</a>';
 
 	// Update the next video button (if there is a next video)
 	if (idx < video_array.length-1) {
@@ -336,13 +336,14 @@ For each quality level, there is a base width and range required:
 <body bgcolor="white">
 
 <label for="the_youtube_player" id="now_playing"></label><br/>
-<div style="padding:5px; float: left; background-color: #CCC;">
-<iframe id="the_youtube_player" src="about:blank" title="YouTube video player" class="youtube-player" type="text/html" width="1280" height="720" frameborder="0" allowFullScreen></iframe>
+<div style="padding:5px; margin-bottom:10px; background-color: #CCC;">
+    <iframe id="the_youtube_player" src="about:blank" title="YouTube video player" class="youtube-player" type="text/html" width="1280" height="720" frameborder="0" allowFullScreen></iframe>
 </div>
-<div id="reload_shortcut" style="padding:5px; display:inline;"></div>
-<br />
-<br />
-<div id="next_shortcut" style="padding:5px; display:inline;"></div>
+<div style="text-align: center;">
+    <div id="reload_shortcut" style="padding:5px; display:inline;"></div>
+    <span style="padding-left:10px;">&nbsp;</span>
+    <div id="next_shortcut" style="padding:5px; display:inline;"></div>
+</div>
 <br />
 <br />
 Videos Remaining: <span id="count_down"></span>
