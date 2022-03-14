@@ -24,8 +24,6 @@ label {
 
 var video_array = []; // add videos to this array as we loop through matches, so that indexes stay consistent (without having to skip numbers)
 /*
-https://www.youtube.com/watch?v=lda85qyf31k&list=PLo2fPnM8EiQw1PPVobQemGxAGw9nCBhq2 - GSL 2021 Season 3
-https://www.youtube.com/watch?v=y2uHya-lyH4&list=PLo2fPnM8EiQxXtK2N11JHC9Q1NBSdBpDU - GSL 2021 Super Tournament 3
 https://www.youtube.com/watch?v=qCOAEDMqSSI&list=PLo2fPnM8EiQxQfRO4rn8L39vNzC2SF2fl - GSL 2022 Super Tournament 1
 
 */
@@ -48,32 +46,31 @@ Revise system so that I can add multiple videos into the same array and it will 
 Ignore any empty strings (is there a compact???)
 
 */
-'GSL 2021 Season 3',
-'Finals',
-['Part 1','https://youtu.be/NlVbLCY7jQk?list=PLo2fPnM8EiQw1PPVobQemGxAGw9nCBhq2&t=3447'],
-['Part 2','https://youtu.be/NlVbLCY7jQk?list=PLo2fPnM8EiQw1PPVobQemGxAGw9nCBhq2&t=5299'],
-['Part 3','https://youtu.be/NlVbLCY7jQk?list=PLo2fPnM8EiQw1PPVobQemGxAGw9nCBhq2&t=6487'],
 'GSL 2021 Super Tournament 3',
-'R.16',
-['Match 1','https://youtu.be/y2uHya-lyH4?list=PLo2fPnM8EiQxXtK2N11JHC9Q1NBSdBpDU&t=641'],
-['Match 2','https://youtu.be/BCHO0rX8RfQ?list=PLo2fPnM8EiQxXtK2N11JHC9Q1NBSdBpDU&t=219'],
-['Match 3','https://youtu.be/XPa8EtIpVWw?list=PLo2fPnM8EiQxXtK2N11JHC9Q1NBSdBpDU&t=409'],
-['Match 4','https://youtu.be/iQv00N5wSME?list=PLo2fPnM8EiQxXtK2N11JHC9Q1NBSdBpDU&t=196'],
-['Match 5','https://youtu.be/DqemDBUFOkU?list=PLo2fPnM8EiQxXtK2N11JHC9Q1NBSdBpDU&t=417'],
-['Match 6','https://youtu.be/ntsa8Pur_sk?list=PLo2fPnM8EiQxXtK2N11JHC9Q1NBSdBpDU&t=181'],
-['Match 7','https://youtu.be/miY4VJgXiTE?list=PLo2fPnM8EiQxXtK2N11JHC9Q1NBSdBpDU&t=366'],
-['Match 8','https://youtu.be/B04q0M3iS10?list=PLo2fPnM8EiQxXtK2N11JHC9Q1NBSdBpDU&t=179'],
-'R.8',
-['Match 1 part 1','https://youtu.be/Nm4iLIpdKmM?list=PLo2fPnM8EiQxXtK2N11JHC9Q1NBSdBpDU&t=251'],
-['Match 2 part 1','https://youtu.be/Uzm6mgNkgqw?list=PLo2fPnM8EiQxXtK2N11JHC9Q1NBSdBpDU&t=423'],
-['Match 3 part 1','https://youtu.be/X7ZqjNVWHZM?list=PLo2fPnM8EiQxXtK2N11JHC9Q1NBSdBpDU&t=186'],
-['Match 4 part 1','https://youtu.be/GoER737jsu4?list=PLo2fPnM8EiQxXtK2N11JHC9Q1NBSdBpDU&t=190'],
-'R.4',
-['Match 1 part 1','https://youtu.be/hsdYVSrMN_k?list=PLo2fPnM8EiQxXtK2N11JHC9Q1NBSdBpDU&t=462'],
-['Match 2 part 1','https://youtu.be/RD1xs8Gwpew?list=PLo2fPnM8EiQxXtK2N11JHC9Q1NBSdBpDU&t=218'],
 'Finals',
 ['Part 1','https://youtu.be/CQ1eNyUYYJk?list=PLo2fPnM8EiQxXtK2N11JHC9Q1NBSdBpDU&t=528'],
 ['Part 2','https://youtu.be/CQ1eNyUYYJk?list=PLo2fPnM8EiQxXtK2N11JHC9Q1NBSdBpDU&t=3184'],
+'GSL 2022 Super Tournament 1',
+'R.16',
+['Match 1','https://youtu.be/qCOAEDMqSSI?list=PLo2fPnM8EiQxQfRO4rn8L39vNzC2SF2fl&t=590'],
+['Match 2','https://youtu.be/Ly5cdNeOpko?list=PLo2fPnM8EiQxQfRO4rn8L39vNzC2SF2fl&t=250'],
+['Match 3','https://youtu.be/XwQcui8WCqI?list=PLo2fPnM8EiQxQfRO4rn8L39vNzC2SF2fl&t=313'],
+['Match 4','https://youtu.be/cHC-nvK-jxo?list=PLo2fPnM8EiQxQfRO4rn8L39vNzC2SF2fl&t=205'],
+['Match 5','https://youtu.be/5Bzu1CNSARo?list=PLo2fPnM8EiQxQfRO4rn8L39vNzC2SF2fl&t=506'],
+['Match 6','https://youtu.be/neUgnQsGuFE?list=PLo2fPnM8EiQxQfRO4rn8L39vNzC2SF2fl&t=225'],
+['Match 7','https://youtu.be/uue2zWG8gMw?list=PLo2fPnM8EiQxQfRO4rn8L39vNzC2SF2fl&t=207'],
+['Match 8','https://youtu.be/lHbXL-ur35o?list=PLo2fPnM8EiQxQfRO4rn8L39vNzC2SF2fl&t=198'],
+'R.8',
+['Match 1','https://youtu.be/jJavdp5uQfU?list=PLo2fPnM8EiQxQfRO4rn8L39vNzC2SF2fl&t=475'],
+['Match 2','https://youtu.be/OygnYMSR7Wk?list=PLo2fPnM8EiQxQfRO4rn8L39vNzC2SF2fl&t=179'],
+['Match 3','https://youtu.be/lobD0f36zTo?list=PLo2fPnM8EiQxQfRO4rn8L39vNzC2SF2fl&t=236'],
+['Match 4','https://youtu.be/gFi0KwIB7Hg?list=PLo2fPnM8EiQxQfRO4rn8L39vNzC2SF2fl&t=195'],
+'R.4',
+['Match 1','https://youtu.be/Vr3YcXCwJhU?list=PLo2fPnM8EiQxQfRO4rn8L39vNzC2SF2fl&t=426'],
+['Match 2','https://youtu.be/IZz1XR5fTdc?list=PLo2fPnM8EiQxQfRO4rn8L39vNzC2SF2fl&t=183'],
+'Finals',
+['Part 1','https://youtu.be/Am_NtxsCesI?list=PLo2fPnM8EiQxQfRO4rn8L39vNzC2SF2fl&t=452'],
+['Part 2','https://youtu.be/Am_NtxsCesI?list=PLo2fPnM8EiQxQfRO4rn8L39vNzC2SF2fl&t=3127'],
 /*
 // Template
 '',
