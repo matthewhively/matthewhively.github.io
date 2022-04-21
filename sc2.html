@@ -16,13 +16,55 @@ label {
 }
 </style>
 
+<!-- Helper scripts -->
+<script type="text/javascript">
+
+function setC(n,v,p,t) {  //set cookie
+    if (arguments.length < 2) {return;} //no cookie without name+value pair
+    p = p || '/';
+    t = t || 30*60; //30min default
+    var e,
+        dt = new Date();
+    dt.setTime(dt.getTime()+(t*1000)); // num sec * millisec
+    e = dt.toGMTString();
+    document.cookie = n + '=' + encodeURIComponent(v) + '; path=' + p + '; expires=' + e;
+}
+
+function parseQuery(query) { // using ; or & allows this to work for cookies too
+   var pairs,
+       pair,
+       i,  // loop counters
+       params = {},
+       uesc = decodeURIComponent;
+
+   // NOTE: this will NOT handle arrays of params like ?foo[]=bar&foo[]=baz   should yield foo = array(bar,baz)
+   if (query) {
+       pairs = query.split(/; *|&/); // cookies might have spaces or not, url params will NOT
+       for (i=0; i < pairs.length; i++) {
+           pair = pairs[i].split('=');
+           if ( ! pair ) continue; // if the split failed for any reason skip it
+           if (pair.length >= 2)
+             { params[uesc(pair[0])] = uesc(pair.slice(1).join("=")); } // incase there was an extra = in the value portion
+           else
+             { params[uesc(pair[0])] = true; }
+       }
+       params.length = i; // add a quick length attribute for usefulness
+   }
+   return params;
+}
+
+var cParams = parseQuery(document.cookie);
+
+</script>
+
+<!-- Videos List -->
 <script type="text/javascript">
 
 // Access page via https://matthewhively.github.io/
 
 // useful: https://www.youtube.com/embed/chElHV99xak?start=53&end=59   <<< specify both START and END time  (ONLY works for embedded)
 
-var video_array = []; // add videos to this array as we loop through matches, so that indexes stay consistent (without having to skip numbers)
+
 /*
 https://www.youtube.com/watch?v=qCOAEDMqSSI&list=PLo2fPnM8EiQxQfRO4rn8L39vNzC2SF2fl - GSL 2022 Super Tournament 1
 
@@ -189,51 +231,10 @@ OR
 ['until Y',''],
 ['until Z',''],
 */
+</script>
 
-
-function setC(n,v,p,t) {  //set cookie
-    if (arguments.length < 2) {return;} //no cookie without name+value pair
-    p = p || '/';
-    t = t || 30*60; //30min default
-    var e,
-        dt = new Date();
-    dt.setTime(dt.getTime()+(t*1000)); // num sec * millisec
-    e = dt.toGMTString();
-    document.cookie = n + '=' + encodeURIComponent(v) + '; path=' + p + '; expires=' + e;
-}
-
-function parseQuery(query) { // using ; or & allows this to work for cookies too
-   var pairs,
-       pair,
-       i,  // loop counters
-       params = {},
-       uesc = decodeURIComponent;
-
-   // NOTE: this will NOT handle arrays of params like ?foo[]=bar&foo[]=baz   should yield foo = array(bar,baz)
-   if (query) {
-       pairs = query.split(/; *|&/); // cookies might have spaces or not, url params will NOT
-       for (i=0; i < pairs.length; i++) {
-           pair = pairs[i].split('=');
-           if ( ! pair ) continue; // if the split failed for any reason skip it
-           if (pair.length >= 2)
-             { params[uesc(pair[0])] = uesc(pair.slice(1).join("=")); } // incase there was an extra = in the value portion
-           else
-             { params[uesc(pair[0])] = true; }
-       }
-       params.length = i; // add a quick length attribute for usefulness
-   }
-   return params;
-}
-
-var cParams = parseQuery(document.cookie);
-
-if (! cParams['vid_url'] && matches.length > 0) { // if no cookie, start at the beginning ::: find the first array type entry and start with that.
-    var i = 0;
-    while (i < matches.length && typeof(matches[i]) == 'string' ) {
-        i++;
-    }
-    cParams['vid_url'] = matches[i][1];
-}
+<!-- Core Logic -->
+<script type="text/javascript">
 
 function update_elements(idx, now_playing) {
 	// Update the reload player button
@@ -260,10 +261,8 @@ function setup_player(evt, idx) {
    var title              = data[0]; // the text
    var url                = data[1];
    var the_youtube_player = document.getElementById('the_youtube_player'); // the iframe
-   //var now_playing        = document.getElementById('now_playing');
-   //now_playing.innerHTML  = section + " :: " + title;
 
-   if (url.indexOf('embed') > -1) { //already the correct URL no parsing needed
+   if (url.indexOf('embed') > -1) { // already the correct URL no parsing needed
       the_youtube_player.src = url;
    } else if (url.indexOf('twitch') > -1) { //a correct embeded twitch player URL
       the_youtube_player.src = url;
@@ -351,11 +350,28 @@ Videos Remaining: <span id="count_down"></span>
 <ol id="the_menu" style="margin-left: 20px;">
 </ol>
 
+<!-- Startup logic (effectively onready preprocessing) -->
 <script type="text/javascript">
 
-var the_menu = document.getElementById('the_menu');
-var elm, clazz, vidx, section = '', curr_idx = null, curr_title = null;
-var first_match_idx = null; // Placeholder in case the cookied video url was old, or didn't exist.
+var elm, clazz, vidx,
+    the_menu = document.getElementById('the_menu'),
+    section = '',
+    curr_idx = null,
+    curr_title = null,
+    first_match_idx = null, // Placeholder in case the cookied video url was old, or didn't exist.
+    video_array = [] // add videos to this array as we loop through matches, so that indexes stay consistent (without having to skip numbers)
+;
+
+// if no actual cookie exists ...
+if (!cParams['vid_url'] && matches.length > 0) {
+    var i = 0;
+    // ... find the first array type entry url ...
+    while (i < matches.length && typeof(matches[i]) == 'string' ) {
+        i++;
+    }
+    // ... and pretend a cookie exists with that url.
+    cParams['vid_url'] = matches[i][1];
+}
 
 if (matches.length == 0) {
 	elm = document.createElement('li');
@@ -364,14 +380,17 @@ if (matches.length == 0) {
 }
 // don't need the else case really.
 
-// create the menu of videos from the list of matches
+// create the menu of video links from the list of matches
 for (var i = 0; i < matches.length; i++) {
    var m = matches[i];
-   // REM there could be one or more sections before an actual video
+   // REM: there could be one or more sections before an actual video
    if (typeof(m) == 'string') {
        elm = document.createElement('h4');
-	   section       = m; //for group labeling, keep the section until it gets overwritten again later
+       // for group labeling, keep the section until it gets overwritten again later
+	   section       = m; 
        elm.innerHTML = section;
+
+   // An array of 2 values [name, video_url]
    } else {
 	   if (first_match_idx === null) { first_match_idx = i; }  // save for later
    
@@ -380,7 +399,8 @@ for (var i = 0; i < matches.length; i++) {
        clazz = '';
 	   
 	   // if this is the video that is marked as "current" via the cookie
-       if ( m[1] == cParams['vid_url'] ) { // NOTE: cParams will always have a value (even if there was no cookie set)
+       // REM: cParams will always have a value (even if there was no cookie set)
+       if ( m[1] == cParams['vid_url'] ) { 
            clazz = 'class="most_recent"';
 		   curr_idx = vidx; // save this for later
 		   curr_title = section + " :: " + m[0];
@@ -391,6 +411,7 @@ for (var i = 0; i < matches.length; i++) {
 	   m.push(section);    // now it will be an array of length 3
 	   video_array.push(m);
    }
+
    the_menu.appendChild(elm);
 } // end loop
 
