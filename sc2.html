@@ -339,22 +339,27 @@ For each quality level, there is a base width and range required:
 </head>
 <body bgcolor="white">
 
-<label for="the_youtube_player" id="now_playing"></label><br/>
+<label for="the_youtube_player" id="now_playing"></label>
+<br/>
+<!-- inline it so it doesn't extend full page width -->
 <div style="display: inline-block;">
     <div style="display: inline-block; padding:5px; margin-bottom:10px; background-color: #CCC;">
         <iframe id="the_youtube_player" src="about:blank" title="YouTube video player" class="youtube-player" type="text/html" width="1280" height="720" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen></iframe>
     </div>
-    <div style="text-align: center;">
-        <div id="reload_shortcut" style="padding:5px; display:inline;"></div>
+    <br />
+    <div style="float: left;">
+      Videos Remaining: <span id="count_down"></span>
+    </div>
+    <div style="text-align: center; width: 100%;">
+        <span id="reload_shortcut" style="padding:5px;"></span>
         <span style="padding-left:10px;">&nbsp;</span>
-        <div id="next_shortcut" style="padding:5px; display:inline;"></div>
+        <span id="next_shortcut" style="padding:5px;"></span>
     </div>
 </div>
-<br />
-<br />
-Videos Remaining: <span id="count_down"></span>
 
 <br style="clear:both;" />
+
+<br />
 <ol id="the_menu" style="margin-left: 20px;">
 </ol>
 
