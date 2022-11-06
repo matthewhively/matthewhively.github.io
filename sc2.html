@@ -66,7 +66,9 @@ var cParams = parseQuery(document.cookie);
 
 
 /*
-https://www.youtube.com/watch?v=AfpK0-EWJPY&list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk - GSL Season 3 - 2022
+https://www.youtube.com/watch?v=R7VV50Nad14&list=PLwU0vD5iIN0OSZxGVecuvNbNrXub5z9GH&index=2 - TSL5 (2 years old)
+https://www.youtube.com/watch?v=cMVob12T8g0&list=PLwU0vD5iIN0PnTfjkLMu-GrhLTdzBdFof - TSL9 (recent)
+ASL doesn't have a playlist for some reason.
 
 */
 // TODO: add a button to make the video into fullscreen (if possible) or style the fullscreen button larger?
@@ -89,44 +91,26 @@ Ignore any empty strings (is there a compact???)
 
 */
 'GSL Season 3 - 2022',
-'R.20',
-'Group D',
-['Match 1','https://youtu.be/nU4XBgjlUR0?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=365'],
-['Match 2','https://youtu.be/uWh2WKeTMFE?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=580'],
-['Match 3','https://youtu.be/0EJFmLUnsuQ?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=418'],
-['Match 4','https://youtu.be/lrftvF-g77I?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=117'],
-['Match 5','https://youtu.be/pDbOPO5ulGI?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=134'],
-'Group E',
-['Match 1','https://youtu.be/27mAdUrUJm4?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=375'],
-['Match 2','https://youtu.be/9ycaKrLPry0?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=168'],
-['Match 3','https://youtu.be/n8I9-yKmDZI?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=412'],
-['Match 4','https://youtu.be/5IfMEh4XrEQ?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=149'],
-['Match 5','https://youtu.be/MqIMJ1Pv1Bw?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=136'],
-'R.10',
-'Group A Day 1',
-['Match 1','https://youtu.be/l65w8K0D9kA?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=988'],
-['Match 2','https://youtu.be/ihq76V5jNLo?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=210'],
-['Match 3','https://youtu.be/20n9sfFkZV4?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=237'],
-['Match 4','https://youtu.be/WCDnsvgxw68?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=193'],
-['Match 5','https://youtu.be/InXH2sJgO-U?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=145'],
-'Group B Day 1',
-['Match 1','https://youtu.be/m5pqJUC58uk?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=791'],
-['Match 2','https://youtu.be/bRBy2Gj3wd8?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=169'],
-['Match 3','https://youtu.be/NWW8FB2mU74?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=221'],
-['Match 4','https://youtu.be/jUmPkAcc2-g?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=159'],
-['Match 5','https://youtu.be/qejFR5zBOrE?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=190'],
-'Group A Day 2',
-['Match 1','https://youtu.be/-ygHP6TDM8o?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=318'],
-['Match 2','https://youtu.be/fB7bWJnyI-Q?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=203'],
-['Match 3','https://youtu.be/4sXlMvvKEqY?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=190'],
-['Match 4','https://youtu.be/fC0ZsCY8IHw?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=186'],
-['Match 5','https://youtu.be/qMZ-ZqKKo_Q?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=185'],
 'Group B Day 2',
 ['Match 1','https://youtu.be/oCKEXrnW_S8?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=343'],
 ['Match 2','https://youtu.be/CN22OgtKmLw?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=179'],
 ['Match 3','https://youtu.be/mtGKEi9qIq4?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=215'],
 ['Match 4','https://youtu.be/lGt5tY8IwZE?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=200'],
 ['Match 5','https://youtu.be/sYmuTFpUCjI?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=191'],
+
+'R.6',
+['Match 1','https://youtu.be/rIw3tmxHPDw?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=407'],
+['Match 2','https://youtu.be/6sXsZ-BV9lc?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=192'],
+['Match 3','https://youtu.be/U4l2svLoErU?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=247'],
+'R.4',
+['Match 1 part 1','https://youtu.be/fCLw3sTdsNI?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=919'],
+['Match 1 part 2','https://youtu.be/fCLw3sTdsNI?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=3664'],
+['Match 2 part 1','https://youtu.be/1BkiQr7cxww?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=679'],
+['Match 2 part 2','https://youtu.be/1BkiQr7cxww?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=2779'],
+'Finals',
+['Part 1','https://youtu.be/UAA-VKoz1ow?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=2210'],
+['Part 2','https://youtu.be/UAA-VKoz1ow?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=4899'],
+['Part 3','https://youtu.be/UAA-VKoz1ow?list=PLo2fPnM8EiQyT0kicBS5C-XRc6EHcyaUk&t=6981'],
 ];
 /*
 // Template
