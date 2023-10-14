@@ -831,7 +831,7 @@ con_viz_ectwo()
   # $3 - ssh arguments
 
   if [ -z "$1" ]; then
-    echo "USAGE: con_viz_ec2 <public_ip> [user_name] [ssh_args]"
+    echo "USAGE: con_viz_ectwo <public_ip> [user_name] [ssh_args]"
     return 1
   fi
 
