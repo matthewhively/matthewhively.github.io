@@ -438,6 +438,15 @@ git_fp()
   git push origin $1 -f
 }
 
+# spp = stash, pull, pop
+# for when there are local changes that prevent a pull
+git_spp()
+{
+  git stash save spp
+  git pull
+  git stash pop
+}
+
 git_rebase()
 {
   # git rebase --onto <place-to-put-it> <last-change-that-should-NOT-move> <(branch_name OR change_hash) to move>
