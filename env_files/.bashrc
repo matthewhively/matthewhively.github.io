@@ -83,8 +83,8 @@ RESET="$(tput sgr0)"
 
 #export PS1="\[$(tput sc; rightprompt; tput rc)\]\n\[${BOLD}\]bash\[${RESET}\] > "  # NOTE: cannot figure out why the wrap is so strange
 
-#SN=${0} # get the name of the currently running program (in this case bash)
-SN=${0:1} #trims the shell name from "-bash" -> "bash"
+SN=${0} # get the name of the currently running program (in this case bash)
+#SN=${0:1} #trims the shell name from "-bash" -> "bash"
 SV=$(echo ${BASH_VERSION} | awk -F'(' '{print $1}')
 
 # Set the prompt
