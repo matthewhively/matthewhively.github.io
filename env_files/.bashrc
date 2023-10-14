@@ -844,6 +844,60 @@ con_viz_ectwo()
   ssh $3 -i ~/.ssh/mhively_rsa $UN@$1
 }
 
+# New version of the ectwo connection helper function
+# Relies on properly configured AWS profiles in your home folder
+con_ssm_ectwo()
+{
+  # $1 - application name: vizmule/sublime/insights
+  # $2 - layer name:       group1/group2/admin/bg/test/pre/pre1/approvals
+  # TODO: make "layer name" synonym "prod"
+  #       will connect to the first online instance in group1/group2
+  #       this will solve the insights problem, but introduces new ambiguity with admin/bg?
+
+  if [ -z "$2" ]; then
+    echo "USAGE: con_ssm_ectwo FIXME"
+    return 1
+  fi
+
+  APP_NAME=$1
+  LAYER_NAME=$2
+
+  # TODO: allow arg1 to be directly an instance-id? (for experimental instances etc)
+
+  # 0) validate app name
+  # FIXME: allowed: sublime/vizmule/insights
+
+  # 1) intelligently choose which AWS account to query
+  if [ 'prod' == "${LAYER_NAME}" ]; then
+    # NOTE: insights will use this
+    PROFILE='vizprod'
+    LAYER_NAME='group1,group2'
+  elif [ 0 -eq 2 ]; then
+    # FIXME: allowed: group1/group2/admin/bg
+    PROFILE='vizprod'
+  elif [ 0 -eq 1 ]; then
+    # FIXME: allowed: test/pre/pre1/approvals/staging
+    PROFILE='vizlabs'
+  else
+    echo "unrecognized layer. Got '${LAYER_NAME}'. ABORT"
+    return 1
+  fi
+
+  # 2) get the first running instance-id
+  INSTANCE_ID=$(aws ec2 describe-instances --profile $PROFILE --filters "Name=instance-state-name,Values=running" "Name=tag:ApplicationName,Values=${APP_NAME}" "Name=tag:LayerName,Values=${LAYER_NAME}" --query "Reservations[].Instances[].InstanceId" --output text | awk '{print $1}')
+
+  # if empty, print an error
+  if [ -z "${INSTANCE_ID}" ]; then
+    echo "All instances for app ${} in layer ${} are not ready for connections (maybe offline?)"
+    return 1
+    # Maybe useful Query:
+    # aws ec2 describe-instances --profile $PROFILE --filters "Name=tag-key,Values=opsworks:instance" --query "Reservations[].Instances[].{Name: Tags[?Key=='Name'].Value | [0], Id: InstanceId, State: State.Name}" --output table
+  fi
+
+  # 3) connect to the instance
+  aws ssm start-session --profile $PROFILE --target "${INSTANCE_ID}"
+}
+
 # ---- OLD ----
 
 # Assuming csshX is installed and working:
