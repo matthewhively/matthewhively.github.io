@@ -866,8 +866,32 @@ con_viz_ectwo()
 
 ##############################
 
-export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+# Adjust path
+# TODO: if yarn or rvm are not in their proper path locations, move them there
+
+YARN_PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin"
+
+# Check if the directory is already in the PATH
+if [[ ":$PATH:" != *":$YARN_PATH:"* ]]; then
+    # Add the directory to the PATH
+    export PATH="$YARN_PATH:$PATH"
+    echo "Added '$YARN_PATH' to the PATH."
+else
+    echo "$YARN_PATH is already in the PATH."
+fi
+
 
 # Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"
+
+RVM_PATH="$HOME/.rvm/bin"
+
+# Check if the directory is already in the PATH
+if [[ ":$PATH:" != *":$RVM_PATH:"* ]]; then
+    # Add the directory to the PATH
+    export PATH="$PATH:$RVM_PATH"
+    echo "Added '$RVM_PATH' to the PATH."
+else
+    echo "$RVM_PATH is already in the PATH."
+fi
+
 
