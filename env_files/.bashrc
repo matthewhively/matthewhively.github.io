@@ -788,7 +788,8 @@ con_sub_admin()
 con_sub_prod()
 {
   hostname=$(curl -s -k 'https://www.sublimemanga.com/info' | jq .host)
-  group=${hostname: -5:1} # 1 or 2
+  [[ $hostname =~ group([0-9]) ]]
+  group=${BASH_REMATCH[1]}
   if [ $group -eq 1 ]; then
     con_viz_ectwo "ec2-35-174-206-170.compute-1.amazonaws.com" "matthew" $1
     # ALT: ec2-100-25-126-173.compute-1.amazonaws.com
