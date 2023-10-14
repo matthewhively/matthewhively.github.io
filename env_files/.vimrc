@@ -87,3 +87,10 @@ set listchars=tab:→\ ,eol:↲,nbsp:␣,space:•,extends:⟩,precedes:⟨
 " https://vim.fandom.com/wiki/Modeline_magic
 set nomodeline
 
+" Fix clipboard for OSX
+if system('uname -s') == "Darwin\n"
+  set clipboard=unnamed "OSX
+else
+  set clipboard=unnamedplus "Linux
+endif
+
