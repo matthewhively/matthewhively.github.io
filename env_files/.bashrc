@@ -844,57 +844,109 @@ con_viz_ectwo()
   ssh $3 -i ~/.ssh/mhively_rsa $UN@$1
 }
 
-# New version of the ectwo connection helper function
-# Relies on properly configured AWS profiles in your home folder
+# "aws ssm start-session" requires:
+# https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html
+
+# Connect directly via instance_id
+# automatically tries both vizlabs and vizprod before giving up
+# NOTE: its not clear whether both prod/labs accounts could have an instance with
+#       the same ID concurrently, but it seems so rare as to be ignorable
 con_ssm_ectwo()
 {
-  # $1 - application name: vizmule/sublime/insights
-  # $2 - layer name:       group1/group2/admin/bg/test/pre/pre1/approvals
-  # TODO: make "layer name" synonym "prod"
-  #       will connect to the first online instance in group1/group2
-  #       this will solve the insights problem, but introduces new ambiguity with admin/bg?
+  if [ -z "$1" ]; then
+    echo "USAGE: con_ssm_ectwo <instance-id>"
+    return 1
+  fi
+  INSTANCE_ID=$1
 
+  # NOTE: instance MUST be managed through ssm for this to work
+  # REM: always throw out default obtuse error messaging
+
+  aws ssm start-session --profile vizprod --target "${INSTANCE_ID}" 2>/dev/null
+  RES1=$?
+
+  # Retry for vizlabs
+  if [ $RES1 -ne 0 ]; then
+    aws ssm start-session --profile vizlabs --target "${INSTANCE_ID}" 2>/dev/null
+    RES2=$?
+
+    if [ $RES2 -ne 0 ]; then
+      echo "ERROR: Cannot connect to instance: '${INSTANCE_ID}'. VizLabs(${RES1}) nor VizProd(${RES2})"
+      return 1
+    fi
+  fi
+}
+
+# New version of the ectwo connection helper function
+# REM: Relies on properly configured AWS profiles in your home folder
+con_ssm_app_layer()
+{
   if [ -z "$2" ]; then
-    echo "USAGE: con_ssm_ectwo FIXME"
+    echo "USAGE: con_ssm_ectwo <APP vizmule/sublime/insights/pb> <LAYER>"
+    echo "Recognized layers:"
+    echo "  group1/group2/admin/bg/test/pre/pre1/approvals"
+    echo "  + prod => group1 & group2"
+    # NOTE: for insights, just type any layer
     return 1
   fi
 
   APP_NAME=$1
   LAYER_NAME=$2
 
-  # TODO: allow arg1 to be directly an instance-id? (for experimental instances etc)
-
   # 0) validate app name
-  # FIXME: allowed: sublime/vizmule/insights
+  if [[ ! " sublime vizmule insights pb " =~ " ${APP_NAME} " ]]; then
+    echo "urecognized app. Got '${APP_NAME}'. ABORT"
+    return 1
+  fi
 
   # 1) intelligently choose which AWS account to query
-  if [ 'prod' == "${LAYER_NAME}" ]; then
-    # NOTE: insights will use this
+  if [ 'insights' == "${APP_NAME}" ]; then
+    PROFILE='vizprod'
+    # Layer is irrelevant for insights -- 2023-10-16
+
+  elif [ 'prod' == "${LAYER_NAME}" ]; then
     PROFILE='vizprod'
     LAYER_NAME='group1,group2'
-  elif [ 0 -eq 2 ]; then
-    # FIXME: allowed: group1/group2/admin/bg
+
+  elif [[ " group1 group2 admin bg " =~ " ${LAYER_NAME} " ]]; then
     PROFILE='vizprod'
-  elif [ 0 -eq 1 ]; then
-    # FIXME: allowed: test/pre/pre1/approvals/staging
+
+  elif [[ " test pre pre1 approvals staging " =~ " ${LAYER_NAME} " ]]; then
     PROFILE='vizlabs'
+
   else
     echo "unrecognized layer. Got '${LAYER_NAME}'. ABORT"
     return 1
   fi
 
+  FILTERS="Name=instance-state-name,Values=running Name=tag:ApplicationName,Values=${APP_NAME}"
+  if [ 'insights' != "${APP_NAME}" ]; then
+    # NOTE: insights only has a single layer. For all other apps also include a layer filter
+    FILTERS="${FILTERS} Name=tag:LayerName,Values=${LAYER_NAME}"
+  fi
+
+  # DEBUGGING:
+  #echo $FILTERS
+  #echo aws ec2 describe-instances --profile $PROFILE --filters $FILTERS --query "Reservations[].Instances[].InstanceId" --output text
+  #return 1
+
   # 2) get the first running instance-id
-  INSTANCE_ID=$(aws ec2 describe-instances --profile $PROFILE --filters "Name=instance-state-name,Values=running" "Name=tag:ApplicationName,Values=${APP_NAME}" "Name=tag:LayerName,Values=${LAYER_NAME}" --query "Reservations[].Instances[].InstanceId" --output text | awk '{print $1}')
+  INSTANCE_ID=$(aws ec2 describe-instances --profile $PROFILE --filters $FILTERS --query "Reservations[].Instances[].InstanceId" --output text | awk '{print $1}')
 
   # if empty, print an error
   if [ -z "${INSTANCE_ID}" ]; then
-    echo "All instances for app ${} in layer ${} are not ready for connections (maybe offline?)"
+    echo "All instances for app ${APP_NAME} in layer ${LAYER_NAME} are not ready for connections (maybe offline?)"
     return 1
     # Maybe useful Query:
-    # aws ec2 describe-instances --profile $PROFILE --filters "Name=tag-key,Values=opsworks:instance" --query "Reservations[].Instances[].{Name: Tags[?Key=='Name'].Value | [0], Id: InstanceId, State: State.Name}" --output table
+    # aws ec2 describe-instances --profile $PROFILE --filters Name=tag-key,Values=opsworks:instance --query "Reservations[].Instances[].{Name: Tags[?Key=='Name'].Value | [0], Id: InstanceId, State: State.Name}" --output table
   fi
 
+  # DEBUGGING:
+  #echo "Found instance id: ${INSTANCE_ID}"
+  #return 1
+
   # 3) connect to the instance
+  # NOTE: we could use con_ssm_ectwo, but lets not complicated things further
   aws ssm start-session --profile $PROFILE --target "${INSTANCE_ID}"
 }
 
