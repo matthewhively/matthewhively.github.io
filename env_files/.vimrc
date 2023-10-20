@@ -87,10 +87,32 @@ set listchars=tab:→\ ,eol:↲,nbsp:␣,space:•,extends:⟩,precedes:⟨
 " https://vim.fandom.com/wiki/Modeline_magic
 set nomodeline
 
-" Fix clipboard for OSX
-if system('uname -s') == "Darwin\n"
-  set clipboard=unnamed "OSX
-else
-  set clipboard=unnamedplus "Linux
-endif
+" Remember that in vim:
+"   y => yank   => copy (ish)
+"   d => delete => cut (ish)
+"   p => put    => paste (ish)
+"   c => change => delete (ish)
+" These all use internal registers not the system clipboard (unless configured to do so? see below)
+
+" Fix clipboard for OSX - allows yy (copy) & dd (cut) to work
+" TODO: why did I want this?
+"if system('uname -s') == 'Darwin\n'
+"  set clipboard=unnamed "OSX
+"else
+"  set clipboard=unnamedplus "Linux
+"endif
+
+" Understanding remappings: https://stackoverflow.com/a/3776182/6716352
+" Add shorthands to just delete a line without cutting it (and overwritting the clipboard)
+" see: https://stackoverflow.com/a/11993928/6716352
+" \d in normal modes - throw away the text, don't cut it
+"nnoremap <leader>d "_d
+" same for visual
+"xnoremap <leader>d "_d
+" \p in visual mode - throw away the current line and replace it with clipboard
+"nnoremap <leader>p "_d$p
+
+" maybe use 'C' to delete from the cursor position to the end of the line?
+" it seems like c (delete) and d (cut) are opposite meanings?
+" TODO: maybe I should change my own internal bindings to flip these?
 
