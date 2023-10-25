@@ -1,0 +1,9 @@
+[user]
+	name = Matthew Hively
+	email = matthewhively@viz.com
+[color]
+	ui = auto
+[core]
+	editor = vim
+[push]
+	default = simple
