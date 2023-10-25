@@ -133,7 +133,7 @@ free()
 alias sensible-pager='less'
 
 # override "man" command so it will work with built-ins as well
-man () {
+man() {
     case "$(type -t -- "$1")" in
     builtin|keyword)
         help -m "$1" | sensible-pager
@@ -321,14 +321,19 @@ make_site_page_dump()
 #    MySQL connection shortcuts            #
 ############################################
 
+# ??? what was this needed for ???
+# --ssl-mode=disabled
+# why not?
+# --ssl-mode=prefer
+
 con_prod_db()
 {
-  mysql --ssl-mode=disabled -h $PROD_CLUSTER_HOST -u ${MYSQL_VIZ_PROD_USER} -p${MYSQL_VIZ_PROD_PASS} viz2
+  mysql -h $PROD_CLUSTER_HOST -u ${MYSQL_VIZ_PROD_USER} -p${MYSQL_VIZ_PROD_PASS} viz2
 }
 
 con_prod_yaoi_db()
 {
-  mysql --ssl-mode=disabled -h $PROD_CLUSTER_HOST -u ${MYSQL_YAOI_PROD_USER} -p${MYSQL_YAOI_PROD_PASS} yaoi
+  mysql -h $PROD_CLUSTER_HOST -u ${MYSQL_YAOI_PROD_USER} -p${MYSQL_YAOI_PROD_PASS} yaoi
 }
 
 # NOTE: writable DB only
@@ -341,7 +346,7 @@ con_insights_db()
 # TODO: not currently working from dev machine... some kinda permissions issue
 con_test_db()
 {
-  #mysql --ssl-mode=disabled -h $LABS_CLUSTER_HOST -u ${MYSQL_LABS_USER} -p${MYSQL_LABS_PASS}
+  #mysql -h $LABS_CLUSTER_HOST -u ${MYSQL_LABS_USER} -p${MYSQL_LABS_PASS}
   echo "permissions issue! Connect from EC2 instance"
   echo "mysql -h ${LABS_CLUSTER_HOST} -u ${MYSQL_LABS_USER} -p${MYSQL_LABS_PASS}"
 }
@@ -351,7 +356,7 @@ con_test_db()
 #       https://github.com/PyMySQL/mysqlclient/issues/504
 con_pb_db()
 {
-  mysql --init-command="SET NAMES utf8mb4;" --ssl-mode=disabled -h $PROD_CLUSTER_HOST -u ${MYSQL_PB_USER} -p${MYSQL_PB_PASS} productbible
+  mysql --init-command="SET NAMES utf8mb4;" -h $PROD_CLUSTER_HOST -u ${MYSQL_PB_USER} -p${MYSQL_PB_PASS} productbible
 }
 
 ############################################
