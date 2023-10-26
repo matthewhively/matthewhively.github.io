@@ -101,12 +101,29 @@ export PB_PASS="NONE"
 #    General Helpers                       #
 ############################################
 
+# NOTE: methods that should not be listed in rem() should have { on the same line as the method name
+
 # helper in case I forget what exists, should just list all the functions
-rem()
-{       
+rem() {
     egrep '^[a-zA-Z_]+\(\)$' ~/.bashrc
+    echo
     echo "Ruby Gem Dir: $(SHELL_SESSION_FILE= && rvm gemdir)" # NOTE: workaround to prevent apple session saving for subshells
     echo "crontab -e is written here /var/spool/cron/"
+}
+
+# This utility is not installed on macos, but is on our linux machines
+alias sensible-pager='less'
+
+# override "man" command so it will work with built-ins as well
+man() {
+    case "$(type -t -- "$1")" in
+    builtin|keyword)
+        help -m "$1" | sensible-pager
+        ;;
+    *)
+        command man "$@"
+        ;;
+    esac
 }
 
 # https://www.folkstalk.com/2013/03/sed-remove-lines-file-unix-examples.html
@@ -129,19 +146,13 @@ free()
    python ~/scripts/free_mem.py
 }
 
-# This utility is not installed on macos, but is on our linux machines
-alias sensible-pager='less'
+symlink()
+{
+  # TODO: can I make dest/source interchangable in a safe way?
+  [ -z "$2" ] && echo "USAGE: symlink <source> <dest>" && return 1
 
-# override "man" command so it will work with built-ins as well
-man() {
-    case "$(type -t -- "$1")" in
-    builtin|keyword)
-        help -m "$1" | sensible-pager
-        ;;
-    *)
-        command man "$@"
-        ;;
-    esac
+  # TODO: allow force?
+  ln -s $(realpath $1) $2
 }
 
 # for bummr
