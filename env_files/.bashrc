@@ -3,7 +3,7 @@
 ############################################
 alias ls='ls -a -G -p -F'
 alias ll='ls -a -G -p -F -l'
-alias grep='/usr/bin/egrep -n -S --color --exclude-dir=coverage --exclude-dir=vizmule_cache_fldr --exclude=*.swp'
+alias grep='/usr/bin/egrep -n -S --color --exclude-dir=coverage --exclude-dir=vizmule_cache_fldr --exclude-dir=sublime_cache_fldr --exclude=*.swp'
 # skip the coverage directory when I'm looking for variables/methods/etc
 # skip the vizmule_cache_fldr symlink from inside shopping_cart
 # follow symlinks when recursive searching
@@ -206,6 +206,7 @@ restart_unicorn()
    # TODO: make this generic for sublime and vizmule  (insights doesn't matter, but is a bonus)
    pushd /srv/vizmule_rails/railsapp
 
+   # TODO: maybe instead do 1 step of restart/reload unicorn? 
    # from railsapp/bin/stop_unicorn.sh
    bundle exec /etc/init.d/unicorn stop /etc/unicorn/vizmule.conf
    echo 'stopped...'
@@ -338,20 +339,22 @@ make_site_page_dump()
 # why not?
 # --ssl-mode=prefer
 
+# TODO: more configs found in ~/.my.cnf
+
 con_prod_db()
 {
-  mysql -h $PROD_CLUSTER_HOST -u ${MYSQL_VIZ_PROD_USER} -p${MYSQL_VIZ_PROD_PASS} viz2
+  mysql --init-command="SET collation_connection = 'utf8mb4_general_ci';" -h $PROD_CLUSTER_HOST -u ${MYSQL_VIZ_PROD_USER} -p${MYSQL_VIZ_PROD_PASS} viz2
 }
 
 con_prod_yaoi_db()
 {
-  mysql -h $PROD_CLUSTER_HOST -u ${MYSQL_YAOI_PROD_USER} -p${MYSQL_YAOI_PROD_PASS} yaoi
+  mysql --init-command="SET collation_connection = 'utf8mb4_general_ci';" -h $PROD_CLUSTER_HOST -u ${MYSQL_YAOI_PROD_USER} -p${MYSQL_YAOI_PROD_PASS} yaoi
 }
 
 # NOTE: writable DB only
 con_insights_db()
 {
-  mysql -h $PROD_CLUSTER_HOST -u ${MYSQL_INSIGHT_PROD_USER} -p${MYSQL_INSIGHT_PROD_PASS} insight
+  mysql --init-command="SET collation_connection = 'utf8mb4_general_ci';" -h $PROD_CLUSTER_HOST -u ${MYSQL_INSIGHT_PROD_USER} -p${MYSQL_INSIGHT_PROD_PASS} insight
 }
 
 # for test/pre/staging etc
@@ -394,6 +397,9 @@ cd ${VIZ_REPO_DIR}/sublime/railsapp
 #    Git Helpers                           #
 ############################################
 
+alias vdgd="git difftool --tool=vimdiff --no-prompt"
+alias vdgds="git difftool --tool=vimdiff --no-prompt --staged"
+
 # easily start a bisect in 1 command
 git_bisect()
 {
@@ -426,17 +432,6 @@ git_revert()
    git checkout .
    git clean -f
 }
-
-git_help()
-{
-  echo "USEFUL GIT COMMANDS"
-  echo "git push origin --delete <BRANCH>   ::: delete remote branch"
-  echo "git remote prune origin (git_prune) ::: cleanup remote refrences to branches that no longer exist"
-  #echo ""
-}
-
-alias vdgd="git difftool --tool=vimdiff --no-prompt"
-alias vdgds="git difftool --tool=vimdiff --no-prompt --staged"
 
 git_prune()
 {
@@ -546,6 +541,54 @@ diff_sublime_to_vizmule()
   sleep 2
   vimdiff $path $VIZ_REPO_DIR/vizmule_rails/railsapp/$path
 }
+
+# Track a blame backward in time
+git_blame()
+{
+  echo "Non functional"
+  exit 1
+  USAGE="USAGE: git_blame <file>[:line_num[~around_lines]] [revision]"
+
+  tmp=$1
+  arr=(${tmp//':'/ }) # split by ":"
+  FILE=${arr[0]}
+  tmp=${arr[1]}
+  arr=(${tmp//'~'/ }) # split by "~"
+  line_num=${arr[0]}     # maybe empty
+  around_lines=${arr[1]} # maybe empty
+
+  if [ -z "$FILE" ]; then
+    echo $USAGE && return 1 
+  fi
+  # TODO: enforce numeric type on line_num and around_lines if given
+  if [ -z "$line_num" -a -n "$around_lines" ]; then
+    echo $USAGE && return 1
+  fi
+
+  REV=""
+  if [ -n "$2" ]; then
+    REV="${2}^" # ^ = the parent of
+  fi
+
+  #echo "GOT >> file:'${FILE}' REV:'${REV}' line_num:'${line_num}' around_lines:'${around_lines}'"
+
+  ARGS=""
+  if [ -n "$line_num" ]; then
+    [ -z "$around_lines" ] && around_lines=10
+
+    first=$((line_num - around_lines))
+    [ $first -lt 0 ] && first=0
+    last=$((line_num + around_lines))
+
+    ARGS="-L ${first},${last}"
+  fi
+
+  # TODO: we need to properly track this back in time even though the line number may change
+  #       ??? is this even possible ???
+  #echo "git blame $ARGS $REV $FILE"
+  git blame $ARGS $REV $FILE
+}
+
 
 ############################################
 #    Dev Shortcuts                         #
@@ -798,6 +841,10 @@ con_sub_admin()
 {
   con_viz_ectwo "ec2-54-85-245-174.compute-1.amazonaws.com" "matthew" $1
 }
+con_sub_pre()
+{
+  con_viz_ectwo "ec2-52-2-241-203.compute-1.amazonaws.com" "matthewhively" $1
+}
 
 # For sublime
 # Either group 1 or group 2 may be online.
@@ -830,7 +877,7 @@ con_lightsail()
 # insights.viz.com (aws version)
 con_viz_insights()
 {
-  con_viz_ectwo "ec2-35-170-154-4.compute-1.amazonaws.com" "matthew" $1
+  con_viz_ectwo "ec2-54-146-49-109.compute-1.amazonaws.com" "matthew" $1
 } 
   
 # Just as a reminder
@@ -1016,5 +1063,24 @@ if [[ ":$PATH:" != *":$RVM_PATH:"* ]]; then
 else
     echo "$RVM_PATH is already in the PATH."
 fi
+
+# TODO: it looks like this path adjustment is performed here & in .profile (maybe also elsewhere?)
+# FIXME: where do these paths for ruby 2.5.5 come from?
+
+# EXPERIMENTAL chruby
+# prep:
+#    mv ~/.rvm ~/.silenced-rvm; mv ~/.rvm-rubies ~/.rvm
+#    mkdir ~/.rvm
+#    cp -a ~/.silenced-rvm/rubies ~/.rvm/.
+
+#source $(brew --prefix)/opt/chruby/share/chruby/chruby.sh
+#RUBIES+=(~/.rvm/rubies/*)
+#source $(brew --prefix)/opt/chruby/share/chruby/auto.sh
+#chruby ruby-2.5.3
+
+# restore:
+#    mv ~/.rvm ~/.rvm-chruby
+#    mv ~/.silenced-rvm ~/.rvm
+#    rm -rf ~/.rvm-chruby
 
 
