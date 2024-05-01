@@ -5,7 +5,6 @@
 <script type="text/javascript" src="./scripts/jquery-3.4.1.min.js"></script>
 <script type="text/javascript" src="./scripts/chosen/chosen.jquery.js"></script>
 <link rel="stylesheet" href="./scripts/chosen/chosen.css"/>
-<!--link rel="stylesheet" media="all" href="https://assets.viz.com/assets/manifest-viz-ui-ff98d880cd859eb469620f19e469be7ea0dccd59dcf76faa76c3dcc434ef3999.css" /-->
 
 <style type="text/css">
 #controls { 
@@ -80,62 +79,92 @@
 <script type="text/javascript">
 
 function paired_role_toggle(role, state, active_roles) {
-  var $role_select = $('#role_select');
+  var $role_select = $('#role_select'),
+      role_removed = (state == 'deselected'),
+      role_added   = (state == 'selected')
+  ;
   
   // TODO: use fall-through if practical
   switch(role) {
     case 'cave':
-      if (state == 'deselected' && active_roles.includes('ghost')) { break; } 
-      $role_select.find('option.cave_ghost').attr('disabled', (state == 'selected'));
+      // when clearing cave, if ghost is still active => cave_ghost shall remain disabled
+      if (role_removed && active_roles.includes('ghost')) { break; } 
+      $role_select.find('option.cave_ghost').attr('disabled', role_added);
       break;
     case 'ghost':
-      // if clearing ghost | cave  && the other is still in-effect, do NOT clear cave_ghost
-      if (state == 'deselected' && active_roles.includes('cave')) { break; } 
-      $role_select.find('option.cave_ghost').attr('disabled', (state == 'selected'));
+      // when clearing ghost, if cave is still active => cave_ghost shall remain disabled
+      if (role_removed && active_roles.includes('cave')) { break; } 
+      $role_select.find('option.cave_ghost').attr('disabled', role_added);
       break;
     case 'cave_ghost': 
-      $role_select.find('option.cave, option.ghost').attr('disabled', (state == 'selected'));
+      $role_select.find('option.cave, option.ghost').attr('disabled', role_added);
       break;
       
     case 'nightmare_unicorn':
-      $role_select.find('option.shadow_unicorn').attr('disabled', (state == 'selected'));
+      $role_select.find('option.shadow_unicorn').attr('disabled', role_added);
       break;
     case 'shadow_unicorn':
       // NOTE: cannot disable something that is also "result-selected" or it will become STUCK as selected
-      $role_select.find('option.nightmare_unicorn').attr('disabled', (state == 'selected'));
+      $role_select.find('option.nightmare_unicorn').attr('disabled', role_added);
       break;
       
     case 'goblins':
-      if (state == 'deselected' && active_roles.includes('ghoul')) { break; } 
-      $role_select.find('option.vile_ghoul').attr('disabled', (state == 'selected'));
+      if (role_removed && active_roles.includes('ghoul')) { break; } 
+      $role_select.find('option.vile_ghoul').attr('disabled', role_added);
       break;
     case 'ghoul':
-      if (state == 'deselected' && active_roles.includes('goblins')) { break; } 
-      $role_select.find('option.vile_ghoul').attr('disabled', (state == 'selected'));
+      if (role_removed && active_roles.includes('goblins')) { break; } 
+      $role_select.find('option.vile_ghoul').attr('disabled', role_added);
       break;
     case 'vile_ghoul':
-      $role_select.find('option.goblins, option.ghoul').attr('disabled', (state == 'selected'));
+      $role_select.find('option.goblins, option.ghoul').attr('disabled', role_added);
       break;
   }
-     
-  num_players = active_roles.length;
-  if (active_roles.includes('shadow_unicorn')) { num_players--; } // This is a non player role!
-  $("#num_players").html(num_players);
+
+  var num_p = active_roles.length;
+  if (active_roles.includes('shadow_unicorn')) { num_p--; } // This is a non player role!
+
+  // --- Selectively disable if maximum number of players is reached ---
+  // NOTE: leave num_players calc here because we need chosen:updated to happen after any max player disables
+
   // "knight", "goblins", "dragon", "cave", "thief", "ghoul", "ghost", "nightmare_unicorn" == 8 --- TODO: should be disallowed!!!
-  if (num_players == 7) {
-    // find the remaining enabled options
-    // disable anything EXCEPT shadow_unicorn (still valid)
+  if (num_p == 7) {
+    // NOTE: cannot use max_selected_options, since we need to ALLOW 8 for shadow_unicorn
+    // FIXME: find the remaining enabled options
+    //        do it the dumb way: loop over all <options>, any that are not :selected and not :disabled
+    //        and is NOT shadow_unicorn (valid NPC option)
+    //        add class = "max_players_reached" and disable it.
+  } else if (num_players == 7 && num_p < 7) {
+    // FIXME: if number_players then drops below 7 again, need to remove the disability
+    //        find everything with class "max_players_reached" and remove that class + disabled = false
   }
-  // cannot use max_selected_options, since we need to ALLOW 8 for shadow_unicorn
-  
-  // Force the chosen to update its options based on the current select status
+
+  // Update the global and the UI
+  num_players = num_p;
+  $("#num_players").html(num_p);
+
+  // Force the chosen to update its options based on the current <select><option> states
   $role_select.trigger("chosen:updated");
+} // paired_role_toggle
+
+// From the "Clear" button
+function reset_all() {
+  document.location.reload();
+  // TODO: is there any real benefit to avoiding a full page refresh?
+  // deselect ALL roles
+  // set num_players = 0
+  //  ??? more ???
 }
 
 function flag_helper(active_roles) {
+  // FIXME: I think this is where the MASSIVE conditional is supposed to be
   //$.each(active_roles, function(key, clazz){
   //  window[clazz] = true;
   //});
+  // TODO: use javascript string interpolation via ``
+  // Rather than trying to show hide sections of the page, just construct the final string and write it to the appropriate place on the page.
+  // Should have a "starting conditions" field && a "rules" field.
+  // TODO: how to handle standard rules + a few modifications?
 }
 
 // setup
@@ -188,27 +217,27 @@ $(document).ready(function(){
      // set helper flag
      window[role] = (state == 'selected');
      
-     
-
-     
-     //flag_helper(active_roles);
+     //flag_helper(active_roles); FIXME FIXME
      
      
      // re-focus the input box so that the menu stays open
      // TODO: has a flicker, is there a better way?
      if (state == 'deselected') { setTimeout(function(){$('.search-field').click();}, 100); }
-   });
+   }); // chosen.change
    
    // Fix the height of the chosen dropdown
    // .chosen-results { max-height: 300px; }
    $('.chosen-results').css({"maxHeight": "300px"})
-   
+
+  $('#reset').click(reset_all);
+}); // document.ready
+
    // Logic for choosing the various rule options based on the chosen-select value
    // TODO
    /*
 	Crowded house should automatically apply when relevant:
-		<=4 players + NO:cave
-		<=6 players + cave
+		Players <= 4 & NO:cave
+		Players <= 6 & cave
    
 	What I need to do is write down a list of all possible role + varient cards
 	  EG: flare -> knight, flare -> goblins, + Ash_Dragon, Past_Plunder -> Dragon, etc
@@ -216,51 +245,51 @@ $(document).ready(function(){
 	  EG: no one will have Past_Plunder if there is a thief in the game, regardless of what other rules are in play.
 	  
 	  (NOTE: multiple players could gain the flare ability)
-	  Thief gets Flare - thief + < 4player
-	  Goblins get Flare - solo || goblins+cave+thief, goblins+cave, goblins+thief
-	  Knight gets Flare - knight+goblins+cave+thief, knight+goblins+cave, knight+cave+thief, knight+cave, 
-	  Ghoul gets Flare - 
+	  Thief gets Flare  <<when>> thief + < 4player
+	  Goblins get Flare <<when>> solo || goblins+cave+thief, goblins+cave, goblins+thief
+	  Knight gets Flare <<when>> knight+goblins+cave+thief, knight+goblins+cave, knight+cave+thief, knight+cave, 
+	  Ghoul gets Flare  <<when>> ? 
 	  xyz_flare
 	  
-	  Knight gets Infestation - knight    +    NO:goblins (A if dragon,  C if vs thief, B otherwise, solo == choose)
+	  Knight gets Infestation <<when>> knight  +  NO:goblins (StrA if dragon,  StrC if vs thief,  StrB otherwise, solo ~> choose A/B/C)
 	  infestation
 	  
-	  Ash-Dragon Active - goblins+dragon+cave+thief, goblins+dragon+cave, goblins+dragon+thief, goblins+dragon, dragon+thief
+	  Ash-Dragon Active <<when>> goblins+dragon+cave+thief, goblins+dragon+cave, goblins+dragon+thief, goblins+dragon, dragon+thief
 	  ash_dragon
 	  
 	  "In most of the variants Past Plunder does go to the last player" (with a few exceptions)
-	  Past_plunder to last in turn-order - NO:cave + ignores/skips positions: (1)knight, (5)thief.  ??does it also skip (3)unicorn if dragon is replaced??
-	  Dragon gets Plunder - knight+goblins+dragon+thief,  knight+goblins+dragon, knight+dragon
-	  Goblins gets Plunder - knight+goblins, goblins+dragon
+	  Past_plunder goes to last in turn-order <<when>> NO:cave + ignores/skips positions: (1)knight, (5)thief.
+       QUESTION: does it also skip (3)unicorn if dragon is replaced ?
+	  Dragon gets Plunder  <<when>> knight+goblins+dragon+thief,  knight+goblins+dragon, knight+dragon
+	  Goblins gets Plunder <<when>> knight+goblins, goblins+dragon
 	  xyz_plunder
 	  
-	  2 Sloth cubes moved - (knight+dragon+cave, knight+dragon, dragon+cave) +/- thief
+	  2 Sloth cubes moved <<when>> (knight+dragon+cave, knight+dragon, dragon+cave) +/- thief
 	  
 	  
-	  Knight break 5 crystals - knight   +   NO:dragon
-	  Knight break 5 or 6 crystals - knight+thief
-	  Goblins break 5 crystals - goblins   +   NO:knight & NO:dragon
+	  Knight victory is break 5 crystals <<when>> knight   +   NO:dragon
+	  Knight break 5 or 6 crystals <<when>> knight+thief
+	  Goblins break 5 crystals <<when>> goblins   +   NO:knight & NO:dragon
 	  xyz_#_crystals
 
-	  automated_cave - NO:cave
-	  cave_place_treasure_optional - cave+thief & < 4player
-	  knight_daring_eagle_cards - solo
-	  alone_in_the_dark - solo
+	  automated_cave <<when>> NO:cave
+	  cave_place_treasure_optional <<when>> cave+thief & < 4player
+	  knight_daring_eagle_cards <<when>> solo
+	  alone_in_the_dark <<when>> solo
 	  
-	  nightmare_unicorn_extra_cube - if ash_dragon & NO:dragon ???
-	  nightmare_unicorn_tile_mod   - NO:cave
+	  nightmare_unicorn_extra_cube <<when>> if ash_dragon & NO:dragon ???
+	  nightmare_unicorn_tile_mod   <<when>> NO:cave
 	  unicorn+dragon+ANY = ???
 	  unicorn+thief +- cave  =   thief can kill unicorn instead of treasures
 	  
-	  goal_kill_shadow_unicorn - shadow unicorn is present (how to model someone electing to change victory condition??? this also shifts other victory conditions)
+	  goal_kill_shadow_unicorn <<when>> shadow unicorn is present (how to model someone electing to change victory condition??? this also shifts other victory conditions)
 	  
-	  ghost + > 3players = ghost gets past_plunder (always)
-	  ghost + > 2players = ghost gets past_plunder (if included in other rules) ???
+	  ghost + (players > 3) = ghost gets past_plunder (always)
+	  ghost + (players > 2) = ghost gets past_plunder (if included in other rules) ???
 	  goblins+ghost = goblins break 4 crystals & ghost unlocks 5 artifacts
 		       or goblins break 5 crystals & ghost unlocks 6 artifacts
 	  
    */
-});
 </script>
 </head>
 <body>
@@ -343,7 +372,7 @@ $(document).ready(function(){
     </ul>
   </div>
   
-  <!-- solo cave or cave-ghost or shadow unicorn -->
+  <!-- solo: cave, cave-ghost, shadow unicorn -->
   <div class="impossible">
     &bullet; This setup is not possible &bullet;
   </div>
