@@ -546,7 +546,7 @@ diff_sublime_to_vizmule()
 git_blame()
 {
   echo "Non functional"
-  exit 1
+  return 1
   USAGE="USAGE: git_blame <file>[:line_num[~around_lines]] [revision]"
 
   tmp=$1
@@ -822,7 +822,7 @@ con_viz_pre()
 
 con_viz_pre1()
 {
-  con_viz_ectwo "ec2-54-81-181-200.compute-1.amazonaws.com" "matthewhively" $1
+  con_viz_ectwo "ec2-18-235-223-238.compute-1.amazonaws.com" "matthewhively" $1
 }
 
 con_pb_pre()
@@ -946,36 +946,41 @@ con_ssm_ectwo()
 con_ssm_app_layer()
 {
   if [ -z "$2" ]; then
-    echo "USAGE: con_ssm_ectwo <APP vizmule/sublime/insights/pb> <LAYER>"
+    echo "USAGE: con_ssm_ectwo <APP Vizmule/Sublime/Insights/Pb> <LAYER>"
     echo "Recognized layers:"
-    echo "  group1/group2/admin/bg/test/pre/pre1/approvals"
-    echo "  + prod => group1 & group2"
+    echo "  Group1/Group2/Admin/Bg/Test/Pre/Pre1/Approvals"
+    echo "  + Prod => Group1 & Group2"
     # NOTE: for insights, just type any layer
     return 1
   fi
 
   APP_NAME=$1
   LAYER_NAME=$2
+  # Capitalize the first letter of each var.
+  # NOTE: if you use ALL CAPS it will not correct that
+  APP_NAME=${APP_NAME^}
+  LAYER_NAME=${LAYER_NAME^}
+  #echo "${APP_NAME^} - ${LAYER_NAME^}"
 
   # 0) validate app name
-  if [[ ! " sublime vizmule insights pb " =~ " ${APP_NAME} " ]]; then
+  if [[ ! " Sublime Vizmule Insights Pb " =~ " ${APP_NAME} " ]]; then
     echo "urecognized app. Got '${APP_NAME}'. ABORT"
     return 1
   fi
 
   # 1) intelligently choose which AWS account to query
-  if [ 'insights' == "${APP_NAME}" ]; then
+  if [ 'Insights' == "${APP_NAME}" ]; then
     PROFILE='vizprod'
     # Layer is irrelevant for insights -- 2023-10-16
 
-  elif [ 'prod' == "${LAYER_NAME}" ]; then
+  elif [ 'Prod' == "${LAYER_NAME}" ]; then
     PROFILE='vizprod'
-    LAYER_NAME='group1,group2'
+    LAYER_NAME='Group1,Group2'
 
-  elif [[ " group1 group2 admin bg " =~ " ${LAYER_NAME} " ]]; then
+  elif [[ " Group1 Group2 Admin Bg " =~ " ${LAYER_NAME} " ]]; then
     PROFILE='vizprod'
 
-  elif [[ " test pre pre1 approvals staging " =~ " ${LAYER_NAME} " ]]; then
+  elif [[ " Test Pre Pre1 Approvals Staging " =~ " ${LAYER_NAME} " ]]; then
     PROFILE='vizlabs'
 
   else
@@ -984,7 +989,7 @@ con_ssm_app_layer()
   fi
 
   FILTERS="Name=instance-state-name,Values=running Name=tag:ApplicationName,Values=${APP_NAME}"
-  if [ 'insights' != "${APP_NAME}" ]; then
+  if [ 'Insights' != "${APP_NAME}" ]; then
     # NOTE: insights only has a single layer. For all other apps also include a layer filter
     FILTERS="${FILTERS} Name=tag:LayerName,Values=${LAYER_NAME}"
   fi
