@@ -162,6 +162,9 @@ symlink()
 # NOTE: not every repo that can make use of bummr has a "dev" branch (example insights)
 export BASE_BRANCH='dev'
 
+# Disable homebrew auto-updating of all installed kegs
+export HOMEBREW_NO_AUTO_UPDATE=1
+
 ############################################
 #    REMOTE SCRIPT STORAGE                 #
 ############################################
@@ -358,12 +361,14 @@ con_insights_db()
 }
 
 # for test/pre/staging etc
-# TODO: not currently working from dev machine... some kinda permissions issue
+# TODO: from dev machine only works with direct IP address (see etc/hosts)
 con_test_db()
 {
-  #mysql -h $LABS_CLUSTER_HOST -u ${MYSQL_LABS_USER} -p${MYSQL_LABS_PASS}
-  echo "permissions issue! Connect from EC2 instance"
-  echo "mysql -h ${LABS_CLUSTER_HOST} -u ${MYSQL_LABS_USER} -p${MYSQL_LABS_PASS}"
+  #echo "permissions issue! Connect from EC2 instance"
+  #echo "mysql -h ${LABS_CLUSTER_HOST} -u ${MYSQL_LABS_USER} -p${MYSQL_LABS_PASS}"
+  mysql -h $LABS_CLUSTER_HOST -u ${MYSQL_LABS_USER} -p${MYSQL_LABS_PASS}
+
+  #mysql -h 172.30.1.139 -u ${MYSQL_LABS_USER} -p${MYSQL_LABS_PASS}
 }
 
 # REM: the AWS version
@@ -737,6 +742,20 @@ dockerlogin()
 #    docker exec -i -t  $NEW  tail -n0 -q -f  log/development.log  log/test.log
 #}
 
+sync_env_files()
+{
+  # WIP
+  cp ~/.bashrc    ~/misc_repos/matthewhively.github.io/env_files/.
+  cp ~/.gemrc     ~/misc_repos/matthewhively.github.io/env_files/.
+  cp ~/.gitconfig ~/misc_repos/matthewhively.github.io/env_files/.
+  cp ~/.inputrc   ~/misc_repos/matthewhively.github.io/env_files/.
+  cp ~/.irbrc     ~/misc_repos/matthewhively.github.io/env_files/.
+  cp ~/.vimrc     ~/misc_repos/matthewhively.github.io/env_files/.
+
+  # TODO: sync some of .vim, but not all of it
+  #cp -a ~/.vim    ~/misc_repos/matthewhively.github.io/env_files/.
+}
+
 # start rails with its network binding setup so that I can load it locally on a mobile device
 rails_bind()
 {
@@ -781,132 +800,6 @@ export APPLE_SUBS_PASS="$(egrep 'subscription_password' ${VIZ_REPO_DIR}/chef-aws
 ############################################
 #    ssh shortcuts for AWS                 #
 ############################################
-
-# ---- VizMule ----
-
-con_viz_prod()
-{
-  # viz-group-1-1b
-  con_viz_ectwo "ec2-34-203-23-255.compute-1.amazonaws.com" "matthew" $1
-}
-
-con_viz_admin()
-{
-  con_viz_ectwo "ec2-34-234-251-231.compute-1.amazonaws.com" "matthew" $1
-}
-con_viz_bg()
-{
-  con_viz_ectwo "ec2-34-203-157-204.compute-1.amazonaws.com" "matthew" $1
-}
-
-con_viz_staging()
-{
-  con_viz_ectwo "ec2-34-207-48-42.compute-1.amazonaws.com" "matthewhively" $1
-}
-
-con_viz_approvals()
-{
-  con_viz_ectwo "ec2-3-229-246-66.compute-1.amazonaws.com" "matthewhively" $1
-}
-
-# ---- long term testing instances ----
-con_viz_test()
-{
-  con_viz_ectwo "ec2-35-172-31-109.compute-1.amazonaws.com" "matthewhively" $1
-}
-
-con_viz_pre()
-{
-  con_viz_ectwo "ec2-35-171-120-154.compute-1.amazonaws.com" "matthewhively" $1
-}
-
-con_viz_pre1()
-{
-  con_viz_ectwo "ec2-18-235-223-238.compute-1.amazonaws.com" "matthewhively" $1
-}
-
-con_pb_pre()
-{
-  con_viz_ectwo "ec2-34-203-80-109.compute-1.amazonaws.com" "matthewhively" $1
-}
-
-
-# ---- SUBLIME ----
-
-con_sub_staging()
-{
-  con_viz_ectwo "ec2-34-235-11-133.compute-1.amazonaws.com" "matthewhively" $1
-}
-con_sub_admin()
-{
-  con_viz_ectwo "ec2-54-85-245-174.compute-1.amazonaws.com" "matthew" $1
-}
-con_sub_pre()
-{
-  con_viz_ectwo "ec2-52-2-241-203.compute-1.amazonaws.com" "matthewhively" $1
-}
-
-# For sublime
-# Either group 1 or group 2 may be online.
-# only need to connect to one of the 2 hosts in the group.
-con_sub_prod()
-{
-  hostname=$(curl -s -k 'https://www.sublimemanga.com/info' | jq .host)
-  [[ $hostname =~ group([0-9]) ]]
-  group=${BASH_REMATCH[1]}
-  if [ $group -eq 1 ]; then
-    con_viz_ectwo "ec2-35-174-206-170.compute-1.amazonaws.com" "matthew" $1
-    # ALT: ec2-100-25-126-173.compute-1.amazonaws.com
-  elif [ $group -eq 2 ]; then
-    con_viz_ectwo "ec2-52-205-32-217.compute-1.amazonaws.com" "matthew" $1
-    # ALT: ec2-18-235-5-53.compute-1.amazonaws.com
-  else
-    echo "Unknown host: host: '${hostname}', group: '${group}'"
-    return 1
-  fi
-}
-
-# ---- OTHER ----
-
-# sid's special lightsail instance for interviewees
-con_lightsail()
-{ 
-  ssh -i ~/.ssh/viz_external_lightsail_key1.pem  centos@54.244.63.48
-}
-
-# insights.viz.com (aws version)
-con_viz_insights()
-{
-  con_viz_ectwo "ec2-54-146-49-109.compute-1.amazonaws.com" "matthew" $1
-} 
-  
-# Just as a reminder
-con_insights_internal()
-{
-  ssh insightsinternal
-}
-
-# ---- GENERIC ----
-# REM: use the same user_name as for logging into AWS console 
-con_viz_ectwo()
-{
-  # $1 - public IP
-  # $2 - user_name
-  # $3 - ssh arguments
-
-  if [ -z "$1" ]; then
-    echo "USAGE: con_viz_ectwo <public_ip> [user_name] [ssh_args]"
-    return 1
-  fi
-
-  UN='matthew' # productionAWS
-  if [ -n "$2" ]; then
-    UN=$2
-  fi
-
-  #echo "ssh $3 -i ~/.ssh/mhively_rsa.pub $UN@$1"
-  ssh $3 -i ~/.ssh/mhively_rsa $UN@$1
-}
 
 # "aws ssm start-session" requires:
 # https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html
@@ -1017,6 +910,12 @@ con_ssm_app_layer()
   # 3) connect to the instance
   # NOTE: we could use con_ssm_ectwo, but lets not complicated things further
   aws ssm start-session --profile $PROFILE --target "${INSTANCE_ID}"
+}
+
+# Just as a reminder
+con_insights_internal()
+{ 
+  ssh insightsinternal
 }
 
 # ---- OLD ----

@@ -7,3 +7,6 @@
 	editor = vim
 [push]
 	default = simple
+  autoSetupRemote
+[merge]
+	conflictstyle = diff3
