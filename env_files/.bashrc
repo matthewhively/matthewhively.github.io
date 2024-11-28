@@ -346,18 +346,18 @@ make_site_page_dump()
 
 con_prod_db()
 {
-  mysql --init-command="SET collation_connection = 'utf8mb4_general_ci';" -h $PROD_CLUSTER_HOST -u ${MYSQL_VIZ_PROD_USER} -p${MYSQL_VIZ_PROD_PASS} viz2
+  mysql -A --init-command="SET collation_connection = 'utf8mb4_general_ci';" -h $PROD_CLUSTER_HOST -u ${MYSQL_VIZ_PROD_USER} -p${MYSQL_VIZ_PROD_PASS} viz2
 }
 
 con_prod_yaoi_db()
 {
-  mysql --init-command="SET collation_connection = 'utf8mb4_general_ci';" -h $PROD_CLUSTER_HOST -u ${MYSQL_YAOI_PROD_USER} -p${MYSQL_YAOI_PROD_PASS} yaoi
+  mysql -A --init-command="SET collation_connection = 'utf8mb4_general_ci';" -h $PROD_CLUSTER_HOST -u ${MYSQL_YAOI_PROD_USER} -p${MYSQL_YAOI_PROD_PASS} yaoi
 }
 
 # NOTE: writable DB only
 con_insights_db()
 {
-  mysql --init-command="SET collation_connection = 'utf8mb4_general_ci';" -h $PROD_CLUSTER_HOST -u ${MYSQL_INSIGHT_PROD_USER} -p${MYSQL_INSIGHT_PROD_PASS} insight
+  mysql -A --init-command="SET collation_connection = 'utf8mb4_general_ci';" -h $PROD_CLUSTER_HOST -u ${MYSQL_INSIGHT_PROD_USER} -p${MYSQL_INSIGHT_PROD_PASS} insight
 }
 
 # for test/pre/staging etc
@@ -366,7 +366,7 @@ con_test_db()
 {
   #echo "permissions issue! Connect from EC2 instance"
   #echo "mysql -h ${LABS_CLUSTER_HOST} -u ${MYSQL_LABS_USER} -p${MYSQL_LABS_PASS}"
-  mysql -h $LABS_CLUSTER_HOST -u ${MYSQL_LABS_USER} -p${MYSQL_LABS_PASS}
+  mysql -A -h $LABS_CLUSTER_HOST -u ${MYSQL_LABS_USER} -p${MYSQL_LABS_PASS}
 
   #mysql -h 172.30.1.139 -u ${MYSQL_LABS_USER} -p${MYSQL_LABS_PASS}
 }
@@ -376,7 +376,7 @@ con_test_db()
 #       https://github.com/PyMySQL/mysqlclient/issues/504
 con_pb_db()
 {
-  mysql --init-command="SET NAMES utf8mb4;" -h $PROD_CLUSTER_HOST -u ${MYSQL_PB_USER} -p${MYSQL_PB_PASS} productbible
+  mysql -A --init-command="SET NAMES utf8mb4;" -h $PROD_CLUSTER_HOST -u ${MYSQL_PB_USER} -p${MYSQL_PB_PASS} productbible
 }
 
 ############################################
