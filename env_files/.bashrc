@@ -547,51 +547,115 @@ diff_sublime_to_vizmule()
   vimdiff $path $VIZ_REPO_DIR/vizmule_rails/railsapp/$path
 }
 
-# Track a blame backward in time
+# Not as easy to use as it could be, but it mostly works
 git_blame()
 {
-  echo "Non functional"
-  return 1
-  USAGE="USAGE: git_blame <file>[:line_num[~around_lines]] [revision]"
+  # modes for specifying line numbers
+  #   120 => just line 120
+  #   120,200 is from line 120 up to line 200
+  #   120+5   is from line 120 up to line 125
+  #   120-5   is from line 115 up to line 120
+  #   120~5   is from line 115 up to line 125
+  # FUTURE-TODO: add an easy way to backtrace to get around silly changes (like spacing etc)
+  read -r -d '' USAGE <<'EOF'
+USAGE: git_blame <file>[:line_num[<sep>num]] [revision_to_ignore [...]]
+       where <sep> can be:
+         , => from,to_x
+         + => from,from+x
+         - => from-x,from
+         ~ => from-x,from+
+EOF
+
+  if [ -z "$1" ]; then
+    echo "$USAGE" && return 1
+  fi
 
   tmp=$1
+  shift # we already processed the first arg
+
+  # -----------
+  # WARNING: Use with caution
+  #          ignore-revs is not exactly safe/trustworthy
+  #          the targeted line will always be shown exactly as it currently is, but with its blame re-assigned to a change BEFORE the ignored commit
+  #          therefore only skip over syntactically irrelevant commits
+
+  # NOTE: cannot use "git blame <commit-hash> -- <file>" because then the line number is mutated and its impossible to automatically locate your target code
+  # <commit-hash>~1 or <commit-hash>^ to go one revision before
+
+  # Loop through each argument and prefix it
+  ignore_revs=()
+  for rev in "$@"; do
+    ignore_revs+=("--ignore-rev $rev")
+  done
+  ignore_revs_str="${ignore_revs[@]}" # convert it to a string
+  #echo "testing ignore_revs: '${ignore_revs}'"
+
+  # -----------
+
+  # TODO: if target line is greater than the last line of the file, both log and blame commands throw an error
+
   arr=(${tmp//':'/ }) # split by ":"
   FILE=${arr[0]}
   tmp=${arr[1]}
-  arr=(${tmp//'~'/ }) # split by "~"
-  line_num=${arr[0]}     # maybe empty
-  around_lines=${arr[1]} # maybe empty
+  # if we have at least a line_num supplied
+  if [ -n "$tmp" ]; then
+    # find the first non number character ... maybe empty
+    SPLITTER=$(echo "$tmp" | egrep -o '[^0-9]' | head -n 1)
+    [ -z "$SPLITTER" ] && SPLITTER=',' # FAILSAFE
+    # if not an accepted splitter value, show USAGE and exit
+    echo "$SPLITTER" | egrep -q '[,~+\-]' 
+    if [ $? -ne 0 ]; then
+      echo "$USAGE" && return 1
+    fi
 
-  if [ -z "$FILE" ]; then
-    echo $USAGE && return 1 
+    arr=(${tmp//$SPLITTER/ })
+    # WARN: If user puts some other garbage character inbetween the numbers, its ok, just blow up
+    line_num=${arr[0]}
+    tmp=${arr[1]}
+    # if we have an additional number after the line_num
+    if [ -z "$tmp" ]; then
+      # show just this line
+      other_num=1
+      opp='+'
+      # also valid line_num,line_num
+    else
+      other_num=$tmp
+      opp=$SPLITTER
+    fi
+
+    # Set the args based on the opperation
+    if   [ ',' == $opp ]; then
+      args="-L ${line_num},${other_num}"
+  
+    elif [ '+' == $opp ]; then
+      args="-L ${line_num},+${other_num}"
+  
+    elif [ '-' == $opp ]; then
+      args="-L ${line_num},-${other_num}"
+  
+    elif [ '~' == $opp ]; then
+      # TODO:
+      let "start_line = line_num - other_num"
+      let "end_line   = line_num + other_num"
+      # enforce min of 0 (max doesn't matter)
+      [ $start_line -lt 0 ] && start_line=0
+  
+      args="-L ${start_line},${end_line}"
+    fi
+
+    # Print the full commit message for the most recent (non-ignored) commit of the target line
+    # this should give us more clues whether we want to use --ignore-rev on that commit_hash
+    echo "git log --no-patch -n 1 -L ${line_num},+1:${FILE} --skip=${#ignore_revs[@]}"
+    # NOTE: Assumption, each ignored revision is directly from the target line.
+    git log --no-patch -n 1 -L ${line_num},+1:${FILE} --skip=${#ignore_revs[@]}
+    # TODO: for some reason this just stops printing output sometimes... even though there are clearly more changes
+    echo '-----------------------------'
   fi
-  # TODO: enforce numeric type on line_num and around_lines if given
-  if [ -z "$line_num" -a -n "$around_lines" ]; then
-    echo $USAGE && return 1
-  fi
 
-  REV=""
-  if [ -n "$2" ]; then
-    REV="${2}^" # ^ = the parent of
-  fi
+  # NOTE: specify HEAD so we ignore any as of yet uncommitted changes
+  echo "git blame $ignore_revs_str $args HEAD -- $FILE"
+  git blame $ignore_revs_str $args HEAD -- $FILE
 
-  #echo "GOT >> file:'${FILE}' REV:'${REV}' line_num:'${line_num}' around_lines:'${around_lines}'"
-
-  ARGS=""
-  if [ -n "$line_num" ]; then
-    [ -z "$around_lines" ] && around_lines=10
-
-    first=$((line_num - around_lines))
-    [ $first -lt 0 ] && first=0
-    last=$((line_num + around_lines))
-
-    ARGS="-L ${first},${last}"
-  fi
-
-  # TODO: we need to properly track this back in time even though the line number may change
-  #       ??? is this even possible ???
-  #echo "git blame $ARGS $REV $FILE"
-  git blame $ARGS $REV $FILE
 }
 
 
