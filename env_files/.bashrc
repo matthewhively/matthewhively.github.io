@@ -255,13 +255,20 @@ docker_run_mysql()
   container_name="mysql-docker-container"
   [ -n "$1" ] && container_name=$1
 
+  docker inspect "$container_name" &> /dev/null
+  # If container exists...
+  if [ $? -eq 0 ]; then
+    # ... is it running?
+    docker inspect -f '{{.State.Status}}' "$container_name" | grep -q "running"
+    [ $? -eq 0 ] && >&2 echo "ABORT: The container '$container_name' is running. Stop it with 'docker stop $container_name'" && return 1
+  fi
+
   image_tag="latest"
 
   dockerlogin "quiet"
 
-  # Clean up the old container
-  # TODO: what if its running?
-  docker rm $container_name 2>/dev/null
+  # Clean up the old (stopped) container
+  docker rm $container_name &> /dev/null
 
   docker_image="807374381268.dkr.ecr.us-east-1.amazonaws.com/viz-mysql8-test-data:${image_tag}"
 
@@ -273,7 +280,12 @@ docker_run_mysql()
   # Run the new container
   docker run -d -p 3306:3306 \
              -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -e MYSQL_ROOT_HOST='%' -e MYSQL_USER=viz -e MYSQL_PASSWORD=password \
-             --name $container_name $docker_image
+             --name $container_name $docker_image > /dev/null
+  if [ $? -eq 0 ]; then
+    echo -e "\nSUCCESS: docker container '$container_name' has been started"
+  else
+    >&2 echo -e "\nERROR: docker container '$container_name' failed to start"
+  fi
 }
 
 #brew services stop mysql
