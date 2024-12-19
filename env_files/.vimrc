@@ -60,9 +60,11 @@ endif
 "au BufNewFile,BufRead * if expand('<afile>:e') !=? 'inc' | syntax enable | endif
 autocmd BufRead,BufNewFile *.md set syntax=off
 
-" shortcuts
+" shortcuts (REM: all must start with an uppercase letter)
 command Q qall
 command W wall
+" for consistency should I use wallqall?
+command WQ wqall
 
 " convert tabs into spaces
 set tabstop=2
