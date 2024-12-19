@@ -246,19 +246,19 @@ staging_admin_on()
 
 # NOTE: to see mysqld version (while logged in through the client)
 #       SHOW VARIABLES LIKE 'version';
-mysql_use_80()
+mysql_use_83()
 {
-  brew unlink mysql@5.7
-  brew link mysql@8.0
+  brew unlink mysql@8.0
+  brew link mysql@8.3
   brew services restart mysql
   echo
   mysql --version
 }
 
-mysql_use_57()
+mysql_use_80()
 {
-  brew unlink mysql@8.0
-  brew link mysql@5.7
+  brew unlink mysql@8.3
+  brew link mysql@8.0
   brew services restart mysql
   echo
   mysql --version
