@@ -554,9 +554,15 @@ diff_sublime_to_vizmule()
     echo "Must be run from in the sublime/railsapp directory" && return 1
   fi
 
-  echo "diffing ... $path $VIZ_REPO_DIR/vizmule_rails/railsapp/$path"
+  vizmule_dir='vizmule_rails'
+  if [ "$2" == 'alt' ]; then
+    vizmule_dir='vizmule_rails_alt'
+  fi
+
+  echo "diffing ... $path $VIZ_REPO_DIR/$vizmule_dir/railsapp/$path"
   sleep 2
-  vimdiff $path $VIZ_REPO_DIR/vizmule_rails/railsapp/$path
+  # TODO: create a way to properly compare files that were upgraded to erb templates, like .js.erb 
+  vimdiff $path $VIZ_REPO_DIR/$vizmule_dir/railsapp/$path
 }
 
 # Not as easy to use as it could be, but it mostly works
