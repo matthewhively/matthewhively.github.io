@@ -257,7 +257,7 @@ docker_run_mysql()
 
   image_tag="latest"
 
-  dockerlogin
+  dockerlogin "quiet"
 
   # Clean up the old container
   # TODO: what if its running?
@@ -778,29 +778,11 @@ build_cart()
 #       for other aws commands simply attach --profile MYPROFILE to the aws command
 # example: aws --profile produser s3 ls s3://viz-manga/manga/shonenjump/wsja/ --exclude "*" --include "<your_regex>"
 
-# TODO: this is redundant with the docker_login.sh script block right?
+# $1 == quiet flag
 dockerlogin()
 {
-    AWS_DEFAULT_REGION='us-east-1'
-    PROFILE='default'
-    [ -n "$1" ] && PROFILE=$1
-
-    # NOTE: this redis key is (by default) put into DB 0
-    key="last_docker_login_$PROFILE"
-    active=$(redis-cli exists $key)
-
-    if [ $active -eq 1 ]; then
-      # Doesn't matter how long remains
-      echo "Docker $PROFILE is active"
-
-    else
-      echo "Login to Docker with $PROFILE"
-      #eval $(aws ecr get-login --profile $PROFILE --no-include-email)
-      aws ecr get-login-password --profile $PROFILE | docker login --username AWS --password-stdin "$(aws sts get-caller-identity --query Account --output text).dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
-
-      # Set a key to expire in 10 hours
-      redis-cli setex $key 36000 1
-    fi
+  $VIZ_REPO_DIR/viz-mysql-data/script_blocks/docker_login.sh $1
+  return $?
 }
 
 # fix the time sync in docker environment
