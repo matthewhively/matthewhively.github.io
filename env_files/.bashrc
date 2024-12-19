@@ -346,18 +346,18 @@ make_site_page_dump()
 
 con_prod_db()
 {
-  mysql -A --init-command="SET collation_connection = 'utf8mb4_general_ci';" -h $PROD_CLUSTER_HOST -u ${MYSQL_VIZ_PROD_USER} -p${MYSQL_VIZ_PROD_PASS} viz2
+  mysql -A -h $PROD_CLUSTER_HOST -u ${MYSQL_VIZ_PROD_USER} -p${MYSQL_VIZ_PROD_PASS} viz2
 }
 
 con_prod_yaoi_db()
 {
-  mysql -A --init-command="SET collation_connection = 'utf8mb4_general_ci';" -h $PROD_CLUSTER_HOST -u ${MYSQL_YAOI_PROD_USER} -p${MYSQL_YAOI_PROD_PASS} yaoi
+  mysql -A -h $PROD_CLUSTER_HOST -u ${MYSQL_YAOI_PROD_USER} -p${MYSQL_YAOI_PROD_PASS} yaoi
 }
 
 # NOTE: writable DB only
 con_insights_db()
 {
-  mysql -A --init-command="SET collation_connection = 'utf8mb4_general_ci';" -h $PROD_CLUSTER_HOST -u ${MYSQL_INSIGHT_PROD_USER} -p${MYSQL_INSIGHT_PROD_PASS} insight
+  mysql -A -h $PROD_CLUSTER_HOST -u ${MYSQL_INSIGHT_PROD_USER} -p${MYSQL_INSIGHT_PROD_PASS} insight
 }
 
 # for test/pre/staging etc
@@ -372,11 +372,9 @@ con_test_db()
 }
 
 # REM: the AWS version
-# NOTE: "SET NAMES utf8mb4" is required due to mismatch between mysql5.7 and mysql8 client in how they display unicode characters
-#       https://github.com/PyMySQL/mysqlclient/issues/504
 con_pb_db()
 {
-  mysql -A --init-command="SET NAMES utf8mb4;" -h $PROD_CLUSTER_HOST -u ${MYSQL_PB_USER} -p${MYSQL_PB_PASS} productbible
+  mysql -A -h $PROD_CLUSTER_HOST -u ${MYSQL_PB_USER} -p${MYSQL_PB_PASS} productbible
 }
 
 ############################################
