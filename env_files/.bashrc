@@ -246,6 +246,39 @@ staging_admin_on()
 
 # NOTE: to see mysqld version (while logged in through the client)
 #       SHOW VARIABLES LIKE 'version';
+
+# args: 1=container_name(optional)
+# TODO: allow optional additional environment vars to be declared/passed
+# TODO: allow choice of image_tag
+docker_run_mysql()
+{
+  container_name="mysql-docker-container"
+  [ -n "$1" ] && container_name=$1
+
+  image_tag="latest"
+
+  dockerlogin
+
+  # Clean up the old container
+  # TODO: what if its running?
+  docker rm $container_name 2>/dev/null
+
+  docker_image="807374381268.dkr.ecr.us-east-1.amazonaws.com/viz-mysql8-test-data:${image_tag}"
+
+  # pull the latest version of this image
+  docker pull $docker_image
+
+  # TODO: clean up old images (save disk space)
+
+  # Run the new container
+  docker run -d -p 3306:3306 \
+             -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -e MYSQL_ROOT_HOST='%' -e MYSQL_USER=viz -e MYSQL_PASSWORD=password \
+             --name $container_name $docker_image
+}
+
+#brew services stop mysql
+#brew services start mysql
+
 mysql_use_83()
 {
   brew unlink mysql@8.0
