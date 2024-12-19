@@ -98,6 +98,13 @@ export VIZ_REPO_DIR="${HOME}/vizlabs_repos"
 #export PB_PORT="3030"
 export PB_PASS="NONE"
 
+# https://apple.stackexchange.com/a/370287
+# TODO: the name is lost when I ssh into another server :(
+set_tab_name()
+{
+  echo -en "\033]1; ${1} \007"
+}
+
 ############################################
 #    General Helpers                       #
 ############################################
@@ -375,6 +382,13 @@ con_test_db()
 con_pb_db()
 {
   mysql -A -h $PROD_CLUSTER_HOST -u ${MYSQL_PB_USER} -p${MYSQL_PB_PASS} productbible
+}
+
+rds_replica_status()
+{
+  host=$1
+  [ -z "$host" ] && echo "choose a host DB" && return 1
+  echo "show replica status\G" | mysql -A -h $host -u ${MYSQL_PROD_ROOT_USER} -p${MYSQL_PROD_ROOT_PASS} viz2 | grep 'Replica_|Seconds_'
 }
 
 ############################################
@@ -724,19 +738,8 @@ build_cart()
 # NOTE: this is only for docker containers, not for aws as a whole
 #       for other aws commands simply attach --profile MYPROFILE to the aws command
 # example: aws --profile produser s3 ls s3://viz-manga/manga/shonenjump/wsja/ --exclude "*" --include "<your_regex>"
-awslogin()
-{
-echo "broken... TODO fix"
-return
-    PROFILE='default'
-    [ -n "$1" ] && PROFILE=$1
-    echo "logging in with $PROFILE"
-    eval $(aws ecr get-login --profile $PROFILE --no-include-email)
-    rm -f       /tmp/last_aws_login
-    date +%s >> /tmp/last_aws_login
-}
-# usage awslogin [profile]
 
+# TODO: this is redundant with the docker_login.sh script block right?
 dockerlogin()
 {
     AWS_DEFAULT_REGION='us-east-1'
