@@ -1,15 +1,19 @@
+# GNU Readline:
+# A set of functions for use by applications that allow users to edit command lines as they are typed in.
+# (more than just BASH)
+
 ## arrow up
 "\e[A":history-search-backward
 ## arrow down
 "\e[B":history-search-forward
 
-#TODO: get these stupid commands to work instead
+# TODO: get these stupid commands to work instead
 #"\e[A":history-substr-search-backward
 #"\e[A":history-substring-search-up
 
 #"\e[B":history-substr-search-forward
 #"\e[B":history-substring-search-down
 
-#NOTE: these commands may require additional installations GNU readline? install from homebrew using these steps: http://blogs.perl.org/users/aristotle/2013/07/easy-osx-termreadlinegnu.html
+# NOTE: these commands may require additional installations GNU readline? install from homebrew using these steps: http://blogs.perl.org/users/aristotle/2013/07/easy-osx-termreadlinegnu.html
 #      Also need to have installed cpan before hand (type "cpan" to begin)
 #      And then install cpanm (sudo cpan App::cpanminus)

@@ -1,3 +1,19 @@
+# Types of Shells:
+#   1) Interactive & Login
+#          opening any terminal window
+#          connect via SSH
+#   2) Interactive & Non-Login
+#          running a shell binary to start a subshell within an already open terminal window
+#   3) Non-Interactive & Non-Login
+#          automated shell script
+#   4) Non-Interactive & Login
+#          starting a script's shell with using the --login flag
+#          piping output of a command into an SSH connection
+
+# NOTE: bashrc is loaded when: starting an interactive shell that is not a login shell
+# NOTE: this file is run once per interactive-shell started
+#       therefore it should contain shortcuts, and aliases and functions
+
 ############################################
 #    COMMON SHORTCUTS                      #
 ############################################
@@ -9,11 +25,21 @@ alias grep='/usr/bin/egrep -n -S --color --exclude-dir=coverage --exclude-dir=vi
 # follow symlinks when recursive searching
 # NOTE: all defined functions should use "egrep" directly to avoid complications with this alias
 
+alias ppath='echo $PATH | sed "s/:/\n/g"'
+alias senv='env | sort'
+
 # make cd into symlinks change to the ACTUAL directory path
 set -o physical
 
 # ignore ctrl+d twice before actually closing the bash session (gives a warning)
 export IGNOREEOF=2
+
+# Save shorthand for the gem installation directory
+# DO NOT USE "GEM_HOME" as that has some special meaning to some ruby executables
+# Lets try GEM_PATH
+GEM_PATH() {
+  gem env home
+}
 
 # IMPORT SECRETS
 . ~/.bash_secrets
@@ -60,14 +86,12 @@ export IGNOREEOF=2
 ############################################
 
 # Add the pwd to the right side
-rightprompt()
-{
+rightprompt() {
     # NOTE: really long paths cause problems
     printf "%*s" $COLUMNS '\w'
 }
 
-short_pwd()
-{
+short_pwd() {
     pwd | awk -F'/' '{print $NF}'
 }
 
@@ -91,7 +115,7 @@ SV=$(echo ${BASH_VERSION} | awk -F'(' '{print $1}')
 # Set the prompt
 export PS1="\[${SILVER}\]\w\[${RESET}\]\n\[${BOLD}\]${SN}(${SV})\[${RESET}\] [\$(short_pwd)]> "
 
-#the directory that contains the viz repos. Just in case scripts need to know
+# the directory that contains the viz repos. (some scripts make use of this)
 export VIZ_REPO_DIR="${HOME}/vizlabs_repos"
 
 # PORT override for pb_dev_server -- so it doesn't conflict with vizmule dev
@@ -100,6 +124,8 @@ export PB_PASS="NONE"
 
 # https://apple.stackexchange.com/a/370287
 # TODO: the name is lost when I ssh into another server :(
+# TODO: maybe make an alias for "ssh" so I can append a command to re-run this afterward?
+#       would have to save the tab_name into the environment of this particular shell.
 set_tab_name()
 {
   echo -en "\033]1; ${1} \007"
@@ -115,8 +141,9 @@ set_tab_name()
 rem() {
     egrep '^[a-zA-Z_]+\(\)$' ~/.bashrc
     echo
-    echo "Ruby Gem Dir: $(SHELL_SESSION_FILE= && rvm gemdir)" # NOTE: workaround to prevent apple session saving for subshells
+    echo "Ruby Gem Dir: $(GEM_PATH)" # NOTE: workaround to prevent apple session saving for subshells
     echo "crontab -e is written here /var/spool/cron/"
+    echo "print definition of a shell function using 'declare -f <function_name>'"
 }
 
 # This utility is not installed on macos, but is on our linux machines
@@ -169,16 +196,12 @@ symlink()
 # NOTE: not every repo that can make use of bummr has a "dev" branch (example insights)
 export BASE_BRANCH='dev'
 
-# Disable homebrew auto-updating of all installed kegs
-export HOMEBREW_NO_AUTO_UPDATE=1
-
 ############################################
 #    REMOTE SCRIPT STORAGE                 #
 ############################################
 
 # Moves the HEAD of the 'deploy' branch to the latest revision of the specified branch
-git_pin()
-{
+git_pin() {
    branch=$1
    if [ -z "$branch" ]; then
      echo "USAGE: ${FUNCNAME[0]} 'BRANCH_NAME'"
@@ -199,8 +222,7 @@ git_pin()
 }
 
 # NOTE: only use on PB2 server, not for personal laptops -- this could be a script instead?
-restart_unicorn()
-{
+restart_unicorn() {
    systemctl stop unicorn
    echo 'stopped...'
    sleep 1
@@ -211,8 +233,7 @@ restart_unicorn()
 }
 
 # alt version for AWS instances
-restart_unicorn()
-{
+restart_unicorn() {
    # TODO: make this generic for sublime and vizmule  (insights doesn't matter, but is a bonus)
    pushd /srv/vizmule_rails/railsapp
 
@@ -230,8 +251,7 @@ restart_unicorn()
    popd
 }
 
-staging_admin_on()
-{
+staging_admin_on() {
   pushd /srv/vizmule_rails/railsapp/config/settings
   # key: allow_access_to_admin_site
   sed -i'.bak' -E 's/admin_site: false/admin_site: true/' staging.yml
@@ -431,6 +451,8 @@ con_pb_db()
 
 rds_replica_status()
 {
+  # TODO: make an AWS query to retrieve the RDS hosts that exist.
+  #       list them (1,2,3...) and choose which one.
   host=$1
   [ -z "$host" ] && echo "choose a host DB" && return 1
   echo "show replica status\G" | mysql -A -h $host -u ${MYSQL_PROD_ROOT_USER} -p${MYSQL_PROD_ROOT_PASS} viz2 | grep 'Replica_|Seconds_'
@@ -445,6 +467,7 @@ chef()
 cd ${VIZ_REPO_DIR}/chef-aws/VIZAWSOW/files/default/viz_rails_config/
 }
 
+# TODO: allow vizmule_rails_alt
 vizmule()
 {
 cd ${VIZ_REPO_DIR}/vizmule_rails/railsapp
@@ -502,6 +525,7 @@ git_prune()
 
 gf()
 {
+  # TODO: abort if current folder isn't part of a git repo
   git fetch --all
   # may as well prune at the same time
   git remote prune origin
@@ -521,6 +545,7 @@ git_spp()
   git stash pop
 }
 
+# TODO: add a way to choose an alternative merging strategy as an initial arg (not a read param) (use flag -s)
 git_rebase()
 {
   # git rebase --onto <place-to-put-it> <last-change-that-should-NOT-move> <(branch_name OR change_hash) to move>
@@ -556,8 +581,12 @@ git_rebase()
   git rebase --onto ${destination_commit} ${last_change_that_should_not_move} ${target_name}
 }
 
+# TODO: add a helper to manage cherry-picking within an ongoing rebase (in case of errors)
+# https://stackoverflow.com/a/68948140
+
 git_manual_diff()
 {
+  # WARN: does not work properly during a git_rebase... BEWARE (TODO: detect and alert)
   path=$1
   REPO_ROOT=$(git rev-parse --show-toplevel) # example: /Users/matthewhively/vizlabs_repos/vizmule_rails
 
@@ -567,7 +596,7 @@ git_manual_diff()
     echo 'ERROR: Current working directory is not part of a GIT repo! Cannot continue'
   else
     filename=$(basename $path) # just the file itself
-    rm /tmp/*.${filename}      # clear out any old copies
+    rm -f /tmp/*.${filename}   # clear out any old copies
 
     filepath=$(realpath $path) # get the FULL path of the file (no shortcuts, symlinks etc)
     rel_file_path=${filepath#$REPO_ROOT/} # remove substring ${string#substring}
@@ -843,12 +872,13 @@ dockerlogin()
 sync_env_files()
 {
   # WIP
-  cp ~/.bashrc    ~/misc_repos/matthewhively.github.io/env_files/.
-  cp ~/.gemrc     ~/misc_repos/matthewhively.github.io/env_files/.
-  cp ~/.gitconfig ~/misc_repos/matthewhively.github.io/env_files/.
-  cp ~/.inputrc   ~/misc_repos/matthewhively.github.io/env_files/.
-  cp ~/.irbrc     ~/misc_repos/matthewhively.github.io/env_files/.
-  cp ~/.vimrc     ~/misc_repos/matthewhively.github.io/env_files/.
+  cp ~/.bash_profile ~/misc_repos/matthewhively.github.io/env_files/.
+  cp ~/.bashrc       ~/misc_repos/matthewhively.github.io/env_files/.
+  cp ~/.gemrc        ~/misc_repos/matthewhively.github.io/env_files/.
+  cp ~/.gitconfig    ~/misc_repos/matthewhively.github.io/env_files/.
+  cp ~/.inputrc      ~/misc_repos/matthewhively.github.io/env_files/.
+  cp ~/.irbrc        ~/misc_repos/matthewhively.github.io/env_files/.
+  cp ~/.vimrc        ~/misc_repos/matthewhively.github.io/env_files/.
 
   # TODO: sync some of .vim, but not all of it
   #cp -a ~/.vim    ~/misc_repos/matthewhively.github.io/env_files/.
@@ -866,17 +896,15 @@ rails_bind()
   rails s -b 0.0.0.0 "$@"
 }
 
-rails_redshift_console()
-{
-# TODO: fix to automatically shift into vizmule project folder
-  REDSHIFT_REMOTE='true' REDSHIFT_DB='production' REDSHIFT_USER=${DW_REDSHIFT_USER} REDSHIFT_PASSWORD=${DW_REDSHIFT_PASSWORD} rails c
-}
+#rails_redshift_console()
+#{
+#  # TODO: fix to automatically shift into vizmule project folder
+#  REDSHIFT_REMOTE='true' REDSHIFT_DB='production' REDSHIFT_USER=${DW_REDSHIFT_USER} REDSHIFT_PASSWORD=${DW_REDSHIFT_PASSWORD} rails c
+#}
 
-# TODO: what is this exported for?
+# Set the default text editor
 export EDITOR=vim
 
-# set this to bogus? -- I think blank was just screwed up
-#export APPLE_SUBS_PASS='BOGUS'
 # init the APPLE_SUBS_PASS to the correct value, so it can be inherited by docker environment. (I think its ok to have it set for my local machine)
 export APPLE_SUBS_PASS="$(egrep 'subscription_password' ${VIZ_REPO_DIR}/chef-aws/VIZAWSOW/files/default/viz_rails_config/settings.yml | egrep -o '[a-z0-9]+' | tail -n1)"
 
@@ -890,6 +918,7 @@ export APPLE_SUBS_PASS="$(egrep 'subscription_password' ${VIZ_REPO_DIR}/chef-aws
 # :debug, :info, :warn, :error, :fatal, :unknown
 #RAILS_LOG_LEVEL='debug'
 
+# TODO: make shortcut methods to set/unset these
 # export RAILS_MYSQL_DEBUG=1    # to turn on MySQL level debug logging
 
 # export EXTRA_SECTION_DEBUG=true  # enhance the debug logging in the section helper
@@ -1016,17 +1045,6 @@ con_insights_internal()
   ssh insightsinternal
 }
 
-# ---- OLD ----
-
-# Assuming csshX is installed and working:
-### install instructions
-### - make sure your xcode "Command Line Tools"  are up to date. (may need to install manually)
-### --- xcode-select --install ???maybe???
-### --- https://developer.apple.com/download/all/?q=xcode (after sign in to apple)
-### - brew install csshx (or parera10/csshx/csshx if that fails)
-# Connect to multiple instances at the same time with:
-# csshX --login matthew host1 host2 ... hostX
-
 ##############################
 
 # auto discovered local network servers
@@ -1038,8 +1056,12 @@ con_insights_internal()
 
 ##############################
 
-# Adjust path
-# TODO: if yarn or rvm are not in their proper path locations, move them there
+# Adjust path -- QUESTION: should this move into .bash_profile ?
+
+# Custom bin directory so I don't have to use sudo to add things to /usr/local/bin
+export PATH="$PATH:/Users/matthewhively/bin"
+
+# REM: yarn should be at the front of the path (TODO: move it there if necessary)
 
 YARN_PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin"
 
@@ -1049,27 +1071,12 @@ if [[ ":$PATH:" != *":$YARN_PATH:"* ]]; then
     export PATH="$YARN_PATH:$PATH"
     echo "Added '$YARN_PATH' to the PATH."
 else
-    echo "$YARN_PATH is already in the PATH."
+    #echo "$YARN_PATH is already in the PATH."
+    echo
 fi
 
 
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-
-RVM_PATH="$HOME/.rvm/bin"
-
-# Check if the directory is already in the PATH
-if [[ ":$PATH:" != *":$RVM_PATH:"* ]]; then
-    # Add the directory to the PATH
-    export PATH="$PATH:$RVM_PATH"
-    echo "Added '$RVM_PATH' to the PATH."
-else
-    echo "$RVM_PATH is already in the PATH."
-fi
-
-# TODO: it looks like this path adjustment is performed here & in .profile (maybe also elsewhere?)
-# FIXME: where do these paths for ruby 2.5.5 come from?
-
-# EXPERIMENTAL chruby
+# EXPERIMENTAL chruby   (which also uses the .rvm folder... anoyingly)
 # prep:
 #    mv ~/.rvm ~/.silenced-rvm; mv ~/.rvm-rubies ~/.rvm
 #    mkdir ~/.rvm
