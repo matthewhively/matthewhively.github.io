@@ -108,7 +108,7 @@ RESET="$(tput sgr0)"
 #export PS1="\[$(tput sc; rightprompt; tput rc)\]\n\[${BOLD}\]bash\[${RESET}\] > "  # NOTE: cannot figure out why the wrap is so strange
 
 # get the name of the currently running program (in this case bash)
-# trim "-bash" -> "bash" if necessary
+# trim "-bash" -> "bash" if necessary # TODO: this is about login/non-login shells isn't it?
 SN=${0#-}
 SV=$(echo ${BASH_VERSION} | awk -F'(' '{print $1}')
 
@@ -1055,26 +1055,6 @@ con_insights_internal()
 # ...
 
 ##############################
-
-# Adjust path -- QUESTION: should this move into .bash_profile ?
-
-# Custom bin directory so I don't have to use sudo to add things to /usr/local/bin
-export PATH="$PATH:/Users/matthewhively/bin"
-
-# REM: yarn should be at the front of the path (TODO: move it there if necessary)
-
-YARN_PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin"
-
-# Check if the directory is already in the PATH
-if [[ ":$PATH:" != *":$YARN_PATH:"* ]]; then
-    # Add the directory to the PATH
-    export PATH="$YARN_PATH:$PATH"
-    echo "Added '$YARN_PATH' to the PATH."
-else
-    #echo "$YARN_PATH is already in the PATH."
-    echo
-fi
-
 
 # EXPERIMENTAL chruby   (which also uses the .rvm folder... anoyingly)
 # prep:
