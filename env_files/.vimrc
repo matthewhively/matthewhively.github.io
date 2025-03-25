@@ -34,7 +34,7 @@ syntax on
 " Syntax folders
 " ~/.vim/syntax/
 " ~/.vim/after/syntax/
-" /usr/share/vim/vim82/syntax/
+" /usr/share/vim/vim91/syntax/
 
 " This might be interesting
 " turn hybrid line numbers on
