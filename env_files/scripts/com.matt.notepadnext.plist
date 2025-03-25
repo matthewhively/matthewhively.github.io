@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.matt.notepadnext</string>
+    <!-- Command to run -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/Users/matthewhively/scripts/restart_notepadnext.sh</string>
+    </array>
+    <!-- Run once daily at 8:00 AM -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>08</integer>
+        <key>Minute</key>
+        <integer>00</integer>
+    </dict>
+    <!-- Ensure the task runs after the computer wakes from sleep -->
+    <key>RunAtLoad</key>
+    <true/>
+    <!-- Standard output/error logs -->
+    <key>StandardOutPath</key>
+    <string>/tmp/com.matt.notepadnext.out</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/com.matt.notepadnext.err</string>
+</dict>
+</plist>
