@@ -74,6 +74,9 @@ set expandtab
 " Fix backspace so its not capped to start of the insert (for example)
 set backspace=indent,eol,start
 
+" (optional) automatically indent to the same level as the previous line when inserting a new line
+set autoindent
+
 " space highlighting
 hi NonText    ctermfg=253
 hi SpecialKey ctermfg=253
