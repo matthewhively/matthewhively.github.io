@@ -19,10 +19,11 @@
 ############################################
 alias ls='ls -a -G -p -F'
 alias ll='ls -a -G -p -F -l'
-alias grep='/usr/bin/egrep -n -S --color --exclude-dir=coverage --exclude-dir=vizmule_cache_fldr --exclude-dir=sublime_cache_fldr --exclude=*.swp'
+alias grep='/usr/bin/egrep -n -S --color --exclude-dir=coverage --exclude=*.swp'
 # skip the coverage directory when I'm looking for variables/methods/etc
-# skip the vizmule_cache_fldr symlink from inside shopping_cart
-# follow symlinks when recursive searching
+# (-S) follow symlinks when recursive searching
+# ... beware, make sure to skip vizmule_cache_fldr/sublime_cache_fldr symlinks once inside shopping_cart_engine dir
+#     otherwise you get into an endless loop
 # NOTE: all defined functions should use "egrep" directly to avoid complications with this alias
 
 alias ppath='echo $PATH | sed "s/:/\n/g"'
@@ -95,13 +96,29 @@ short_pwd() {
     pwd | awk -F'/' '{print $NF}'
 }
 
+terminal_text() {
+  echo 'RESET="$(tput sgr0)"' # clear any special formatting in terminal text
+  echo 'BOLD="$(tput bold)"'
+  echo 'ITALIC="$(tput sitm)"'
+  echo 'UNDERLINE="$(tput smul)"'
+  echo 'BLINK="$(tput blink)"'
+  echo 'DIMMED="$(tput dim)"'
+  echo 'GREEN="$(tput setaf 2)"'
+  echo 'SILVER="$(tput setaf 8)"'
+  echo
+  # TODO: fix this printout
+  # echo 'print all colors: '
+  #printf '\e[48;5;%dm ' {0..255}; printf '\e[0m \n'
+}
+# Others: from "man terminfo"
+#   invis - invisible (can be copy-pasted, but not seen or highlighted)
+#   rev   - reverse (not working?)
+#   smso  - standout (not working?)
+#   sshm  - shadow (not working)
+#   ssubm - subscript (not working)
+#   ssupm - superscript (not working)
+
 BOLD="$(tput bold)"
-
-#ITALIC="\[$(tput sitm)\]"      # NOTE DOES NOT WORK
-#ITALIC_OFF="\[$(tput ritm)\]"
-
-# NOTE: print all colors    printf '\e[48;5;%dm ' {0..255}; printf '\e[0m \n'
-GREEN="$(tput setaf 2)"
 SILVER="$(tput setaf 8)"
 RESET="$(tput sgr0)"
 
@@ -122,13 +139,23 @@ export VIZ_REPO_DIR="${HOME}/vizlabs_repos"
 #export PB_PORT="3030"
 export PB_PASS="NONE"
 
+
+
 # https://apple.stackexchange.com/a/370287
-# TODO: the name is lost when I ssh into another server :(
-# TODO: maybe make an alias for "ssh" so I can append a command to re-run this afterward?
-#       would have to save the tab_name into the environment of this particular shell.
 set_tab_name()
 {
-  echo -en "\033]1; ${1} \007"
+  if [ -n "$1" ]; then
+    echo -en "\033]1; ${1} \007"
+    export TAB_NAME=$1
+  else
+    echo "Choose a name for this tab"
+  fi
+}
+
+# Because ssh-ing to another host changes the tab's name, we need to reset it to my custom tab-name afterward.
+ssh() {
+  /usr/bin/ssh "$@"
+  set_tab_name $TAB_NAME
 }
 
 ############################################
@@ -623,7 +650,7 @@ diff_sublime_to_vizmule()
   pwd | egrep 'sublime/railsapp' > /dev/null
   is_sublime=$?
   if [ -z "$path" ]; then
-    echo "USAGE: diff_sublime_to_vizmule [file_path]" && return 1
+    echo "USAGE: diff_sublime_to_vizmule [file_path] <alt (vizmule)>" && return 1
   elif [ $is_sublime -eq 1 ]; then
     echo "Must be run from in the sublime/railsapp directory" && return 1
   fi
@@ -882,6 +909,8 @@ sync_env_files()
 
   # TODO: sync some of .vim, but not all of it
   #cp -a ~/.vim    ~/misc_repos/matthewhively.github.io/env_files/.
+
+  cp -a ~/scripts  ~/misc_repos/matthewhively.github.io/env_files/.
 }
 
 # start rails with its network binding setup so that I can load it locally on a mobile device
@@ -905,9 +934,6 @@ rails_bind()
 # Set the default text editor
 export EDITOR=vim
 
-# init the APPLE_SUBS_PASS to the correct value, so it can be inherited by docker environment. (I think its ok to have it set for my local machine)
-export APPLE_SUBS_PASS="$(egrep 'subscription_password' ${VIZ_REPO_DIR}/chef-aws/VIZAWSOW/files/default/viz_rails_config/settings.yml | egrep -o '[a-z0-9]+' | tail -n1)"
-
 # Firebase/Firestore credentials via "Google Application Default Credentials"
 #export GOOGLE_APPLICATION_CREDENTIALS="${VIZ_REPO_DIR}/vizmule_rails/railsapp/config/vizmule-9dca1dab322d.json"
 
@@ -923,6 +949,8 @@ export APPLE_SUBS_PASS="$(egrep 'subscription_password' ${VIZ_REPO_DIR}/chef-aws
 
 # export EXTRA_SECTION_DEBUG=true  # enhance the debug logging in the section helper
 
+# Bump up the default latest activity timer internal from 1min => 24hrs
+export RAILS_LATEST_ACTIVITY_INTERVAL=86400
 
 ############################################
 #    ssh shortcuts for AWS                 #
@@ -930,6 +958,9 @@ export APPLE_SUBS_PASS="$(egrep 'subscription_password' ${VIZ_REPO_DIR}/chef-aws
 
 # "aws ssm start-session" requires:
 # https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html
+
+# TODO: do we need to reset the tab name after these connections too?
+#       set_tab_name $TAB_NAME
 
 # Connect directly via instance_id
 # automatically tries both vizlabs and vizprod before giving up
@@ -1057,19 +1088,33 @@ con_insights_internal()
 ##############################
 
 # EXPERIMENTAL chruby   (which also uses the .rvm folder... anoyingly)
-# prep:
-#    mv ~/.rvm ~/.silenced-rvm; mv ~/.rvm-rubies ~/.rvm
-#    mkdir ~/.rvm
-#    cp -a ~/.silenced-rvm/rubies ~/.rvm/.
+# TODO: looks like ruby-install puts stuff into a .rubies folder... instead of .rvm... so wehre did I get the above from???
+# prep (if using RVM):
+: '
+    mv ~/.rvm ~/.silenced-rvm; mv ~/.chruby-rvm ~/.rvm
+    mkdir -p ~/.rvm
+    cp -a ~/.silenced-rvm/rubies ~/.rvm/.
+'
 
-#source $(brew --prefix)/opt/chruby/share/chruby/chruby.sh
-#RUBIES+=(~/.rvm/rubies/*)
-#source $(brew --prefix)/opt/chruby/share/chruby/auto.sh
-#chruby ruby-2.5.3
+# QUESTION: can we copy over installed ruby binaries from ~/.rbenv/versions/ ?
 
-# restore:
-#    mv ~/.rvm ~/.rvm-chruby
-#    mv ~/.silenced-rvm ~/.rvm
-#    rm -rf ~/.rvm-chruby
+# comment out any rvm/rbenv sourcing from bash_profile
 
+# add to bash_profile
+: '
+source $(brew --prefix)/opt/chruby/share/chruby/chruby.sh
+RUBIES+=(~/.rvm/rubies/*)
+# Automatically change version when switching folders
+source $(brew --prefix)/opt/chruby/share/chruby/auto.sh
+'
+
+# REM: manually change version with:
+# chruby ruby-2.7.8
+
+# restore (if using RVM):
+: '
+    mv ~/.rvm ~/.chruby-rvm
+    mv ~/.silenced-rvm ~/.rvm
+'
+# fix your bash_profile to remove chruby again
 
