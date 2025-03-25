@@ -11,6 +11,9 @@ scripts/chosen/*.proto.*
 *.swo
 *.swn
 
+# symlinks
+vast_pdfs
+
 # Mac
 .DS_Store
 
