@@ -4,11 +4,13 @@
 <dict>
     <key>Label</key>
     <string>com.matt.notepadnext</string>
+
     <!-- Command to run -->
     <key>ProgramArguments</key>
     <array>
         <string>/Users/matthewhively/scripts/restart_notepadnext.sh</string>
     </array>
+
     <!-- Run once daily at 8:00 AM -->
     <key>StartCalendarInterval</key>
     <dict>
@@ -17,9 +19,19 @@
         <key>Minute</key>
         <integer>00</integer>
     </dict>
-    <!-- Ensure the task runs after the computer wakes from sleep -->
-    <key>RunAtLoad</key>
+
+    <!-- Run ASAP after wake if the job was missed -->
+    <key>Persistent</key>
     <true/>
+
+    <!-- Do NOT wake the computer to run the job -->
+    <key>Nice</key>
+    <integer>1</integer>
+
+    <!-- Only allow one instance at a time -->
+    <key>LimitLoadToSessionType</key>
+    <string>Aqua</string>
+
     <!-- Standard output/error logs -->
     <key>StandardOutPath</key>
     <string>/tmp/com.matt.notepadnext.out</string>
