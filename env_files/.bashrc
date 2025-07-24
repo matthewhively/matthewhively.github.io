@@ -17,8 +17,13 @@
 ############################################
 #    COMMON SHORTCUTS                      #
 ############################################
-alias ls='ls -a -G -p -F'
-alias ll='ls -a -G -p -F -l'
+# NOTE: BSD flags are different from GNU flags
+# -A => (AKA --almost-all)
+# -G => (AKA --color)
+# -F => add hints to listings (/ for folders, @ for links etc) (AKA --classify)
+alias ls='ls -A -G -F'
+alias ll='ls -A -G -F -l'
+
 alias grep='/usr/bin/egrep -n -S --color --exclude-dir=coverage --exclude=*.swp'
 # skip the coverage directory when I'm looking for variables/methods/etc
 # (-S) follow symlinks when recursive searching
@@ -36,9 +41,8 @@ set -o physical
 export IGNOREEOF=2
 
 # Save shorthand for the gem installation directory
-# DO NOT USE "GEM_HOME" as that has some special meaning to some ruby executables
-# Lets try GEM_PATH
-GEM_PATH() {
+# DO NOT USE "GEM_HOME" or "GEM_PATH" as those may be used by bundler (or other ruby executables)
+GEM_ENV_HOME() {
   gem env home
 }
 
@@ -136,8 +140,8 @@ export PS1="\[${SILVER}\]\w\[${RESET}\]\n\[${BOLD}\]${SN}(${SV})\[${RESET}\] [\$
 export VIZ_REPO_DIR="${HOME}/vizlabs_repos"
 
 # PORT override for pb_dev_server -- so it doesn't conflict with vizmule dev
-#export PB_PORT="3030"
-export PB_PASS="NONE"
+#export PB_PASS="NONE"
+#PB_PASS=""
 
 
 
@@ -210,28 +214,53 @@ free()
 
 symlink()
 {
+  # REM: ln -s foo bar
+  #    > bar@ -> foo
   # TODO: can I make dest/source interchangable in a safe way?
-  [ -z "$2" ] && echo "USAGE: symlink <source> <dest>" && return 1
+  [ -z "$2" ] && echo "USAGE: symlink <target> <link_name>" && return 1
 
   # TODO: allow force?
   ln -s $(realpath $1) $2
 }
 
-# for bummr
-# compares current (empty) branch to this parent branch
-# for some reason this is required
-# NOTE: not every repo that can make use of bummr has a "dev" branch (example insights)
-export BASE_BRANCH='dev'
+bummr_update() {
+  # TODO: maybe install bummr if its not already installed?
+  # REM: the standard update flags are still allowed here:
+  # --all, --group, --gem
+
+  cmd=""
+  # silence the dumb warning message about "Bummr is not meant to be run on your base branch"
+  cmd="${cmd} BASE_BRANCH=$(git rev-parse HEAD)"
+  # Set the test command (to null)
+  cmd="${cmd} BUMMR_TEST=''"
+  # silence any gem post-install messages
+  cmd="${cmd} BUNDLE_IGNORE_MESSAGES=true"
+  # silence any bundler deprecation warnings
+  cmd="${cmd} BUNDLE_SILENCE_DEPRECATIONS=true"
+
+  # Add the actual bummr command
+  cmd="${cmd} bummr update $1"
+
+  echo $cmd
+  eval "$cmd"
+}
+
+# TODO: add a helper for rubocop regenerate todo file
+# rubocop --disable-pending --fail-level C --display-only-fail-level-offenses --auto-gen-config --auto-gen-only-exclude --no-exclude-limit --no-offense-counts
+# scan for cops configured in todo file and elsewhere
+# egrep $(egrep '^[^# ]' .rubocop_todo.yml | xargs | tr ' ' '|') .rubocop/*.yml
 
 ############################################
 #    REMOTE SCRIPT STORAGE                 #
 ############################################
 
 # Moves the HEAD of the 'deploy' branch to the latest revision of the specified branch
+# TODO: update this to be useful and generic
+: '
 git_pin() {
    branch=$1
    if [ -z "$branch" ]; then
-     echo "USAGE: ${FUNCNAME[0]} 'BRANCH_NAME'"
+     echo "USAGE: ${FUNCNAME[0]} <BRANCH_NAME>"
    else
   
      git fetch --all
@@ -240,15 +269,17 @@ git_pin() {
      # TODO: what if there are conflicts?
      [ $? -eq 1 ] && echo "Cannot continue, pull failed (conflicts?)" && return 1
 
-     revision=$(git branch -v | egrep 'mh/new_digital_product' | awk '{print $2}')
+     revision=$(git branch -v | egrep "mh/new_digital_product" | awk "{print $2}")
      git branch -f deploy $revision
      git checkout deploy
      echo
-     echo "Don't forget to restart unicorn!"
+     echo "Do not forget to restart unicorn!"
    fi
 }
+'
 
 # NOTE: only use on PB2 server, not for personal laptops -- this could be a script instead?
+: "
 restart_unicorn() {
    systemctl stop unicorn
    echo 'stopped...'
@@ -258,6 +289,7 @@ restart_unicorn() {
    sleep 2
    systemctl status unicorn
 }
+"
 
 # alt version for AWS instances
 restart_unicorn() {
@@ -911,6 +943,11 @@ sync_env_files()
   #cp -a ~/.vim    ~/misc_repos/matthewhively.github.io/env_files/.
 
   cp -a ~/scripts  ~/misc_repos/matthewhively.github.io/env_files/.
+
+  # Don't forget to copy over the com.matt.notepadnext.plist file
+  cp ~/Library/LaunchAgents/com.matt.notepadnext.plist ~/misc_repos/matthewhively.github.io/env_files/scripts/.
+
+  # TODO: sync ~/.bundle/config
 }
 
 # start rails with its network binding setup so that I can load it locally on a mobile device
@@ -956,11 +993,13 @@ export RAILS_LATEST_ACTIVITY_INTERVAL=86400
 #    ssh shortcuts for AWS                 #
 ############################################
 
+# aws --version
+# session-manager-plugin --version
+
 # "aws ssm start-session" requires:
 # https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html
 
-# TODO: do we need to reset the tab name after these connections too?
-#       set_tab_name $TAB_NAME
+SESSION_DOCUMENT='arn:aws:ssm:us-east-1:873143145291:document/SSM-SessionManagerRunShell-bash'
 
 # Connect directly via instance_id
 # automatically tries both vizlabs and vizprod before giving up
@@ -973,23 +1012,28 @@ con_ssm_ectwo()
     return 1
   fi
   INSTANCE_ID=$1
+  # for ease of copy-paste, if not prefixed with "i-" append it now
+  [ "${INSTANCE_ID:0:2}" != 'i-' ] && INSTANCE_ID="i-${INSTANCE_ID}"
+
+  doc_name=''
+  [ -n "$SESSION_DOCUMENT" ] && doc_name="--document-name $SESSION_DOCUMENT"
+
+  AWS_PROFILE=$(get_profile_from_instance_id $INSTANCE_ID)
+  [ $? -eq 1 ] && echo "${INSTANCE_ID} > $AWS_PROFILE" && return 1
 
   # NOTE: instance MUST be managed through ssm for this to work
   # REM: always throw out default obtuse error messaging
 
-  aws ssm start-session --profile vizprod --target "${INSTANCE_ID}" 2>/dev/null
-  RES1=$?
-
-  # Retry for vizlabs
-  if [ $RES1 -ne 0 ]; then
-    aws ssm start-session --profile vizlabs --target "${INSTANCE_ID}" 2>/dev/null
-    RES2=$?
-
-    if [ $RES2 -ne 0 ]; then
-      echo "ERROR: Cannot connect to instance: '${INSTANCE_ID}'. VizLabs(${RES1}) nor VizProd(${RES2})"
-      return 1
-    fi
+  #echo aws ssm start-session $doc_name --profile $AWS_PROFILE --target "${INSTANCE_ID}"
+  aws ssm start-session $doc_name --profile $AWS_PROFILE --target "${INSTANCE_ID}" #2>/dev/null
+  RES=$?
+  if [ $RES -ne 0 ]; then
+    echo "ERROR: Cannot connect to instance: '${INSTANCE_ID}'. Not running in either VizLabs nor VizProd (${RES})"
+    return 1
   fi
+
+  # Fix tab name
+  [ -n "$TAB_NAME" ] && set_tab_name $TAB_NAME
 }
 
 # New version of the ectwo connection helper function
@@ -997,7 +1041,7 @@ con_ssm_ectwo()
 con_ssm_app_layer()
 {
   if [ -z "$2" ]; then
-    echo "USAGE: con_ssm_ectwo <APP Vizmule/Sublime/Insights/Pb> <LAYER>"
+    echo "USAGE: con_ssm_ectwo <APP Vizmule/Sublime/Insights/Pb> <LAYER> [list]"
     echo "Recognized layers:"
     echo "  Group1/Group2/Admin/Bg/Test/Pre/Pre1/Approvals"
     echo "  + Prod => Group1 & Group2"
@@ -1050,8 +1094,16 @@ con_ssm_app_layer()
   #echo aws ec2 describe-instances --profile $PROFILE --filters $FILTERS --query "Reservations[].Instances[].InstanceId" --output text
   #return 1
 
+  INSTANCE_IDS=$(aws ec2 describe-instances --profile $PROFILE --filters $FILTERS --query "Reservations[].Instances[].InstanceId" --output text)
+
+  if [ "$3" == "list" ]; then
+    echo "All instance IDs in ${APP_NAME} - ${LAYER_NAME}: ${INSTANCE_IDS}"
+    return 0
+  fi
+
   # 2) get the first running instance-id
-  INSTANCE_ID=$(aws ec2 describe-instances --profile $PROFILE --filters $FILTERS --query "Reservations[].Instances[].InstanceId" --output text | awk '{print $1}')
+  INSTANCE_ID=$(echo $INSTANCE_IDS | awk '{print $1}')
+  #INSTANCE_ID=$(aws ec2 describe-instances --profile $PROFILE --filters $FILTERS --query "Reservations[].Instances[].InstanceId" --output text | awk '{print $1}')
 
   # if empty, print an error
   if [ -z "${INSTANCE_ID}" ]; then
@@ -1065,15 +1117,145 @@ con_ssm_app_layer()
   #echo "Found instance id: ${INSTANCE_ID}"
   #return 1
 
+  doc_name=''
+  [ -n "$SESSION_DOCUMENT" ] && doc_name="--document-name $SESSION_DOCUMENT"
+
   # 3) connect to the instance
   # NOTE: we could use con_ssm_ectwo, but lets not complicated things further
-  aws ssm start-session --profile $PROFILE --target "${INSTANCE_ID}"
+  #echo aws ssm start-session $doc_name --profile $PROFILE --target "${INSTANCE_ID}"
+  aws ssm start-session $doc_name --profile $PROFILE --target "${INSTANCE_ID}"
+
+  # Fix tab name
+  [ -n "$TAB_NAME" ] && set_tab_name $TAB_NAME
 }
 
 # Just as a reminder
 con_insights_internal()
 { 
   ssh insightsinternal
+}
+
+# Find which account has the given instance_id (must be running not stopped)
+get_profile_from_instance_id()
+{
+  if [ -z "$1" ]; then
+    # NOTE: absolute paths
+    echo "USAGE: get_profile_from_instance_id <instance_id>"
+    echo "returns: vizprod, vizlabs or not_found"
+    return 1
+  fi
+
+  FILTERS="Name=instance-id,Values=${1}"
+
+  # First test vizprod...
+  STATE=$(aws ec2 describe-instances --profile vizprod --filters $FILTERS --query "Reservations[].Instances[].State.Name" --output text)
+  [ "$STATE" == "running" ]  &&  echo 'vizprod' && return 0
+  # ... then test vizlabs
+  STATE=$(aws ec2 describe-instances --profile vizlabs --filters $FILTERS --query "Reservations[].Instances[].State.Name" --output text)
+  [ "$STATE" == "running" ]  &&  echo 'vizlabs' && return 0
+
+  echo 'not_found'
+  return 1
+}
+
+remote_ssm_command()
+{
+  # TODO: should we use RunCommand, or non-interactive session-manager?
+  # AWS-StartNonInteractiveCommand
+  # vs
+  # AWS-RunShellScript
+
+  if [ -z "$2" ]; then
+    # NOTE: absolute paths
+    echo "USAGE: remote_ssm_command <instance_id> \"<command with single ' only>\""
+    return 1
+  fi
+
+  INSTANCE_ID=$1
+  CMD=$2
+
+  AWS_PROFILE=$(get_profile_from_instance_id $INSTANCE_ID)
+  [ $? -eq 1 ] && echo "${INSTANCE_ID} > $AWS_PROFILE" && exit 1
+
+  # TODO: how to properly handle commands with quotes?
+  # escaped_string=$(printf %q "$string_to_escape") ???
+
+  # TODO: I'm not doing this right, it isn't actually writing the file anywhere
+  #aws ssm start-session --profile $AWS_PROFILE --target $INSTANCE_ID --document-name AWS-StartNonInteractiveCommand --parameters '{"command": ["'"$CMD"'"]}'
+
+  aws ssm send-command --profile $AWS_PROFILE --document-name "AWS-RunShellScript" --targets '[{"Key":"InstanceIds","Values":["'"$INSTANCE_ID"'"]}]' --parameters '{"executionTimeout":["60"],"commands":["'"$CMD"'"]}' > /dev/null
+}
+
+# TODO: make a function "scp_to_ssm" for uploading of files
+scp_from_ssm()
+{
+  if [ -z "$3" ]; then
+    # NOTE: absolute paths
+    echo "USAGE: scp_from_ssm <remote_file> <local_file> <instance_id>"
+    return 1
+  fi
+
+  REMOTE_FILE=$1
+  LOCAL_FILE=$2
+  INSTANCE_ID=$3
+
+  # TODO: can I do rsync instead of nc? Maybe with daemon mode? https://www.perplexity.ai/search/about-aws-session-manager-is-t-d56PCHliTlSGWC2_zCCBKw#0
+
+  AWS_PROFILE=$(get_profile_from_instance_id $INSTANCE_ID)
+  [ $? -eq 1 ] && echo "${INSTANCE_ID} > $AWS_PROFILE" && exit 1
+
+  # Start NetCat on the remotehost
+  aws ssm send-command --profile $AWS_PROFILE --document-name "AWS-RunShellScript" \
+                       --targets '[{"Key":"InstanceIds","Values":["'$INSTANCE_ID'"]}]' \
+                       --parameters '{"executionTimeout":["30"],"commands":["nc -l -p 1234 < '$REMOTE_FILE'"]}' > /dev/null
+
+
+  rm -f /tmp/port_forward_session.log
+
+  # Start up a port forwarding session between localhost <-> remotehost
+  echo "Opening port forwarding between localhost:1234 <-> ${INSTANCE_ID}:1234"
+  aws ssm start-session --profile $AWS_PROFILE --target $INSTANCE_ID --document-name AWS-StartPortForwardingSession --parameters '{"portNumber":["1234"],"localPortNumber":["1234"]}' > /tmp/port_forward_session.log &
+  # NOTE: since awscli is running through homebrew, the backgrounded child PID will be incorrect, so cannot simply use $!
+
+  # have to give the port forwarding session a chance to start-up
+  x=10
+  while [ $x -gt 0 ]; do
+    let 'x=x-1'
+    grep 'Waiting for connections' /tmp/port_forward_session.log
+    [ $? -eq 0 ] && break
+    echo -n '.'
+    sleep 1
+  done
+
+  port_pid=$(lsof -ti:1234)
+  #ps -ejf |grep "$port_pid"
+  echo "backgrounded: ${port_pid}"
+
+  # Start NetCat on localhost
+  nc 127.0.0.1 1234 > $LOCAL_FILE &
+  nc_pid=$!
+  echo "backgrounded: ${nc_pid}"
+
+  # Wait for 5 sec (TODO: find a better way to determine file completes)
+  x=5
+  while [ $x -gt 0 ]; do
+    let 'x=x-1'
+    echo -n '.'
+    sleep 1
+  done
+
+  #set -v
+  # INT the background processes (same as ctrl+c)
+  # NOTE: the remotehost proc should auto exit as well
+  kill -s SIGINT $nc_pid
+  kill -s SIGINT $port_pid
+  #set +v
+
+  #sleep 1
+  #ps -ejf |grep "$port_pid"
+
+  echo "received ${LOCAL_FILE}:"
+  ls -l $LOCAL_FILE
 }
 
 ##############################

@@ -92,6 +92,12 @@ set listchars=tab:→\ ,eol:↲,nbsp:␣,space:•,extends:⟩,precedes:⟨
 " https://vim.fandom.com/wiki/Modeline_magic
 set nomodeline
 
+" vim syntax tries to be intelligent about which actual shell you're running.
+" for ubuntu /bin/sh =>symlinked=> dash
+" for macos /bin/sh =>system_setting=> whatever shell
+" vim isn't smart enough to decypher macos, so just force it
+let g:is_dash = 1
+
 " Remember that in vim:
 "   y => yank   => copy (ish)
 "   d => delete => cut (ish)
@@ -120,4 +126,5 @@ set nomodeline
 " maybe use 'C' to delete from the cursor position to the end of the line?
 " it seems like c (delete) and d (cut) are opposite meanings?
 " TODO: maybe I should change my own internal bindings to flip these?
+
 

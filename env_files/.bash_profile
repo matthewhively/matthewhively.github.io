@@ -11,7 +11,6 @@ export HOMEBREW_NO_AUTO_UPDATE=1
 # Configure rbenv (path, env_vars + rbenv() fn)
 eval "$(rbenv init -)"
 
-# the directory that contains the viz repos. Just in case scripts need to know
 # TODO: move VIZ_REPO_DIR here?
 
 # is an interactive shell
@@ -19,8 +18,6 @@ is_interactive=0
 [ -n "$PS1" ] && is_interactive=1
 
 # ----------------
-
-# Adjust path -- QUESTION: should this move into .bash_profile ?
 
 # Custom bin directory so I don't have to use sudo to add things to /usr/local/bin
 export PATH="$PATH:/Users/matthewhively/bin"
