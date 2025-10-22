@@ -143,25 +143,6 @@ export VIZ_REPO_DIR="${HOME}/vizlabs_repos"
 #export PB_PASS="NONE"
 #PB_PASS=""
 
-
-
-# https://apple.stackexchange.com/a/370287
-set_tab_name()
-{
-  if [ -n "$1" ]; then
-    echo -en "\033]1; ${1} \007"
-    export TAB_NAME=$1
-  else
-    echo "Choose a name for this tab"
-  fi
-}
-
-# Because ssh-ing to another host changes the tab's name, we need to reset it to my custom tab-name afterward.
-ssh() {
-  /usr/bin/ssh "$@"
-  set_tab_name $TAB_NAME
-}
-
 ############################################
 #    General Helpers                       #
 ############################################
@@ -171,8 +152,12 @@ ssh() {
 # helper in case I forget what exists, should just list all the functions
 rem() {
     egrep '^[a-zA-Z_]+\(\)$' ~/.bashrc
+    if [ -f ~/.bash_aws_helpers ]; then
+      egrep '^[a-zA-Z_]+\(\)$' ~/.bash_aws_helpers
+    fi
+
     echo
-    echo "Ruby Gem Dir: $(GEM_PATH)" # NOTE: workaround to prevent apple session saving for subshells
+    echo "Ruby Gem Dir: $(GEM_ENV_HOME)" # NOTE: workaround to prevent apple session saving for subshells
     echo "crontab -e is written here /var/spool/cron/"
     echo "print definition of a shell function using 'declare -f <function_name>'"
 }
@@ -205,6 +190,32 @@ clean_known_hosts()
   else
     echo "USAGE: clean_known_hosts <line_number>" && return 1
   fi
+}
+
+curl_ba()
+{
+  URL=$1
+  [ -z "$URL" ] && echo "Need a URL." && return 1
+  # move arg one out
+  shift
+
+  AUTH=""
+  if [[ $URL =~ (staging|admin|insights)\.viz\.com ]]; then
+    AUTH=$VIZPROD_BASIC_AUTH
+  elif [[ $URL =~ (pre1?|test|approvals)\.viz\.com ]]; then
+    AUTH=$VIZLABS_BASIC_AUTH
+  #else
+  #  # just use regular curl
+  #  curl $URL
+  #  return 0
+  fi
+
+  # prepend scheme if necessary
+  if [[ ! $URL =~ ^https?:// ]]; then
+    URL="https://$URL"
+  fi
+
+  curl $@ --silent -u "$AUTH" $URL
 }
 
 free()
@@ -480,6 +491,11 @@ con_prod_db()
   mysql -A -h $PROD_CLUSTER_HOST -u ${MYSQL_VIZ_PROD_USER} -p${MYSQL_VIZ_PROD_PASS} viz2
 }
 
+con_prod_db_ro()
+{   
+  mysql -A -h $PROD_CLUSTER_HOST -u ${MYSQL_VIZ_PROD_RO_USER} -p${MYSQL_VIZ_PROD_RO_PASS} viz2
+}
+
 con_prod_yaoi_db()
 {
   mysql -A -h $PROD_CLUSTER_HOST -u ${MYSQL_YAOI_PROD_USER} -p${MYSQL_YAOI_PROD_PASS} yaoi
@@ -489,6 +505,11 @@ con_prod_yaoi_db()
 con_insights_db()
 {
   mysql -A -h $PROD_CLUSTER_HOST -u ${MYSQL_INSIGHT_PROD_USER} -p${MYSQL_INSIGHT_PROD_PASS} insight
+}
+
+con_insights_db_ro()
+{
+  mysql -A -h $PROD_CLUSTER_HOST -u ${MYSQL_VIZ_PROD_RO_USER} -p${MYSQL_VIZ_PROD_RO_PASS} insight
 }
 
 # for test/pre/staging etc
@@ -526,10 +547,13 @@ chef()
 cd ${VIZ_REPO_DIR}/chef-aws/VIZAWSOW/files/default/viz_rails_config/
 }
 
-# TODO: allow vizmule_rails_alt
 vizmule()
 {
-cd ${VIZ_REPO_DIR}/vizmule_rails/railsapp
+if [ "$1" == "alt" ]; then
+  cd ${VIZ_REPO_DIR}/vizmule_rails_alt/railsapp
+else
+  cd ${VIZ_REPO_DIR}/vizmule_rails/railsapp
+fi
 }
 
 sublime()
@@ -582,17 +606,45 @@ git_prune()
   git remote prune origin
 }
 
+# REM: allows extra args to be appended (multiple using quotes)
 gf()
 {
   # TODO: abort if current folder isn't part of a git repo
-  git fetch --all
+  # NOTE: output by default is stderr
+  git fetch --all --prune $1 2>&1
+  res=$? # NOTE: 0 if fectched, and 0 if nothing fetched
   # may as well prune at the same time
-  git remote prune origin
+  #git remote prune origin
+
+  return $res
+}
+
+gf_all()
+{
+  my_dir=$PWD
+  for repo in vizmule_rails sublime chef-aws pb it rails_engines insights labs_dev viz-mysql-data; do
+    dir="$VIZ_REPO_DIR/$repo"
+    # Just in case
+    if [ ! -d $dir ]; then
+      >&2 echo "Cannot find $dir"
+      continue
+    fi
+
+    cd $dir
+    # Send both to terminal and into variable for non-zero size test
+    output=$(gf | tee /dev/tty)
+    if [ -z "$output" ]; then
+      echo "Nothing to fetch for >> $repo"
+    fi
+  done
+  # return to where we started
+  cd $my_dir
+  echo "All viz-repos fetched"
 }
 
 git_fp()
 {
-  git push origin $1 -f
+  git push origin $1 --force-with-lease
 }
 
 # spp = stash, pull, pop
@@ -993,269 +1045,12 @@ export RAILS_LATEST_ACTIVITY_INTERVAL=86400
 #    ssh shortcuts for AWS                 #
 ############################################
 
-# aws --version
-# session-manager-plugin --version
-
-# "aws ssm start-session" requires:
-# https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html
-
-SESSION_DOCUMENT='arn:aws:ssm:us-east-1:873143145291:document/SSM-SessionManagerRunShell-bash'
-
-# Connect directly via instance_id
-# automatically tries both vizlabs and vizprod before giving up
-# NOTE: its not clear whether both prod/labs accounts could have an instance with
-#       the same ID concurrently, but it seems so rare as to be ignorable
-con_ssm_ectwo()
-{
-  if [ -z "$1" ]; then
-    echo "USAGE: con_ssm_ectwo <instance-id>"
-    return 1
-  fi
-  INSTANCE_ID=$1
-  # for ease of copy-paste, if not prefixed with "i-" append it now
-  [ "${INSTANCE_ID:0:2}" != 'i-' ] && INSTANCE_ID="i-${INSTANCE_ID}"
-
-  doc_name=''
-  [ -n "$SESSION_DOCUMENT" ] && doc_name="--document-name $SESSION_DOCUMENT"
-
-  AWS_PROFILE=$(get_profile_from_instance_id $INSTANCE_ID)
-  [ $? -eq 1 ] && echo "${INSTANCE_ID} > $AWS_PROFILE" && return 1
-
-  # NOTE: instance MUST be managed through ssm for this to work
-  # REM: always throw out default obtuse error messaging
-
-  #echo aws ssm start-session $doc_name --profile $AWS_PROFILE --target "${INSTANCE_ID}"
-  aws ssm start-session $doc_name --profile $AWS_PROFILE --target "${INSTANCE_ID}" #2>/dev/null
-  RES=$?
-  if [ $RES -ne 0 ]; then
-    echo "ERROR: Cannot connect to instance: '${INSTANCE_ID}'. Not running in either VizLabs nor VizProd (${RES})"
-    return 1
-  fi
-
-  # Fix tab name
-  [ -n "$TAB_NAME" ] && set_tab_name $TAB_NAME
-}
-
-# New version of the ectwo connection helper function
-# REM: Relies on properly configured AWS profiles in your home folder
-con_ssm_app_layer()
-{
-  if [ -z "$2" ]; then
-    echo "USAGE: con_ssm_ectwo <APP Vizmule/Sublime/Insights/Pb> <LAYER> [list]"
-    echo "Recognized layers:"
-    echo "  Group1/Group2/Admin/Bg/Test/Pre/Pre1/Approvals"
-    echo "  + Prod => Group1 & Group2"
-    # NOTE: for insights, just type any layer
-    return 1
-  fi
-
-  APP_NAME=$1
-  LAYER_NAME=$2
-  # Capitalize the first letter of each var.
-  # NOTE: if you use ALL CAPS it will not correct that
-  APP_NAME=${APP_NAME^}
-  LAYER_NAME=${LAYER_NAME^}
-  #echo "${APP_NAME^} - ${LAYER_NAME^}"
-
-  # 0) validate app name
-  if [[ ! " Sublime Vizmule Insights Pb " =~ " ${APP_NAME} " ]]; then
-    echo "urecognized app. Got '${APP_NAME}'. ABORT"
-    return 1
-  fi
-
-  # 1) intelligently choose which AWS account to query
-  if [ 'Insights' == "${APP_NAME}" ]; then
-    PROFILE='vizprod'
-    # Layer is irrelevant for insights -- 2023-10-16
-
-  elif [ 'Prod' == "${LAYER_NAME}" ]; then
-    PROFILE='vizprod'
-    LAYER_NAME='Group1,Group2'
-
-  elif [[ " Group1 Group2 Admin Bg " =~ " ${LAYER_NAME} " ]]; then
-    PROFILE='vizprod'
-
-  elif [[ " Test Pre Pre1 Approvals Staging " =~ " ${LAYER_NAME} " ]]; then
-    PROFILE='vizlabs'
-
-  else
-    echo "unrecognized layer. Got '${LAYER_NAME}'. ABORT"
-    return 1
-  fi
-
-  FILTERS="Name=instance-state-name,Values=running Name=tag:ApplicationName,Values=${APP_NAME}"
-  if [ 'Insights' != "${APP_NAME}" ]; then
-    # NOTE: insights only has a single layer. For all other apps also include a layer filter
-    FILTERS="${FILTERS} Name=tag:LayerName,Values=${LAYER_NAME}"
-  fi
-
-  # DEBUGGING:
-  #echo $FILTERS
-  #echo aws ec2 describe-instances --profile $PROFILE --filters $FILTERS --query "Reservations[].Instances[].InstanceId" --output text
-  #return 1
-
-  INSTANCE_IDS=$(aws ec2 describe-instances --profile $PROFILE --filters $FILTERS --query "Reservations[].Instances[].InstanceId" --output text)
-
-  if [ "$3" == "list" ]; then
-    echo "All instance IDs in ${APP_NAME} - ${LAYER_NAME}: ${INSTANCE_IDS}"
-    return 0
-  fi
-
-  # 2) get the first running instance-id
-  INSTANCE_ID=$(echo $INSTANCE_IDS | awk '{print $1}')
-  #INSTANCE_ID=$(aws ec2 describe-instances --profile $PROFILE --filters $FILTERS --query "Reservations[].Instances[].InstanceId" --output text | awk '{print $1}')
-
-  # if empty, print an error
-  if [ -z "${INSTANCE_ID}" ]; then
-    echo "All instances for app ${APP_NAME} in layer ${LAYER_NAME} are not ready for connections (maybe offline?)"
-    return 1
-    # Maybe useful Query:
-    # aws ec2 describe-instances --profile $PROFILE --filters Name=tag-key,Values=opsworks:instance --query "Reservations[].Instances[].{Name: Tags[?Key=='Name'].Value | [0], Id: InstanceId, State: State.Name}" --output table
-  fi
-
-  # DEBUGGING:
-  #echo "Found instance id: ${INSTANCE_ID}"
-  #return 1
-
-  doc_name=''
-  [ -n "$SESSION_DOCUMENT" ] && doc_name="--document-name $SESSION_DOCUMENT"
-
-  # 3) connect to the instance
-  # NOTE: we could use con_ssm_ectwo, but lets not complicated things further
-  #echo aws ssm start-session $doc_name --profile $PROFILE --target "${INSTANCE_ID}"
-  aws ssm start-session $doc_name --profile $PROFILE --target "${INSTANCE_ID}"
-
-  # Fix tab name
-  [ -n "$TAB_NAME" ] && set_tab_name $TAB_NAME
-}
+. ~/.bash_aws_helpers
 
 # Just as a reminder
 con_insights_internal()
 { 
   ssh insightsinternal
-}
-
-# Find which account has the given instance_id (must be running not stopped)
-get_profile_from_instance_id()
-{
-  if [ -z "$1" ]; then
-    # NOTE: absolute paths
-    echo "USAGE: get_profile_from_instance_id <instance_id>"
-    echo "returns: vizprod, vizlabs or not_found"
-    return 1
-  fi
-
-  FILTERS="Name=instance-id,Values=${1}"
-
-  # First test vizprod...
-  STATE=$(aws ec2 describe-instances --profile vizprod --filters $FILTERS --query "Reservations[].Instances[].State.Name" --output text)
-  [ "$STATE" == "running" ]  &&  echo 'vizprod' && return 0
-  # ... then test vizlabs
-  STATE=$(aws ec2 describe-instances --profile vizlabs --filters $FILTERS --query "Reservations[].Instances[].State.Name" --output text)
-  [ "$STATE" == "running" ]  &&  echo 'vizlabs' && return 0
-
-  echo 'not_found'
-  return 1
-}
-
-remote_ssm_command()
-{
-  # TODO: should we use RunCommand, or non-interactive session-manager?
-  # AWS-StartNonInteractiveCommand
-  # vs
-  # AWS-RunShellScript
-
-  if [ -z "$2" ]; then
-    # NOTE: absolute paths
-    echo "USAGE: remote_ssm_command <instance_id> \"<command with single ' only>\""
-    return 1
-  fi
-
-  INSTANCE_ID=$1
-  CMD=$2
-
-  AWS_PROFILE=$(get_profile_from_instance_id $INSTANCE_ID)
-  [ $? -eq 1 ] && echo "${INSTANCE_ID} > $AWS_PROFILE" && exit 1
-
-  # TODO: how to properly handle commands with quotes?
-  # escaped_string=$(printf %q "$string_to_escape") ???
-
-  # TODO: I'm not doing this right, it isn't actually writing the file anywhere
-  #aws ssm start-session --profile $AWS_PROFILE --target $INSTANCE_ID --document-name AWS-StartNonInteractiveCommand --parameters '{"command": ["'"$CMD"'"]}'
-
-  aws ssm send-command --profile $AWS_PROFILE --document-name "AWS-RunShellScript" --targets '[{"Key":"InstanceIds","Values":["'"$INSTANCE_ID"'"]}]' --parameters '{"executionTimeout":["60"],"commands":["'"$CMD"'"]}' > /dev/null
-}
-
-# TODO: make a function "scp_to_ssm" for uploading of files
-scp_from_ssm()
-{
-  if [ -z "$3" ]; then
-    # NOTE: absolute paths
-    echo "USAGE: scp_from_ssm <remote_file> <local_file> <instance_id>"
-    return 1
-  fi
-
-  REMOTE_FILE=$1
-  LOCAL_FILE=$2
-  INSTANCE_ID=$3
-
-  # TODO: can I do rsync instead of nc? Maybe with daemon mode? https://www.perplexity.ai/search/about-aws-session-manager-is-t-d56PCHliTlSGWC2_zCCBKw#0
-
-  AWS_PROFILE=$(get_profile_from_instance_id $INSTANCE_ID)
-  [ $? -eq 1 ] && echo "${INSTANCE_ID} > $AWS_PROFILE" && exit 1
-
-  # Start NetCat on the remotehost
-  aws ssm send-command --profile $AWS_PROFILE --document-name "AWS-RunShellScript" \
-                       --targets '[{"Key":"InstanceIds","Values":["'$INSTANCE_ID'"]}]' \
-                       --parameters '{"executionTimeout":["30"],"commands":["nc -l -p 1234 < '$REMOTE_FILE'"]}' > /dev/null
-
-
-  rm -f /tmp/port_forward_session.log
-
-  # Start up a port forwarding session between localhost <-> remotehost
-  echo "Opening port forwarding between localhost:1234 <-> ${INSTANCE_ID}:1234"
-  aws ssm start-session --profile $AWS_PROFILE --target $INSTANCE_ID --document-name AWS-StartPortForwardingSession --parameters '{"portNumber":["1234"],"localPortNumber":["1234"]}' > /tmp/port_forward_session.log &
-  # NOTE: since awscli is running through homebrew, the backgrounded child PID will be incorrect, so cannot simply use $!
-
-  # have to give the port forwarding session a chance to start-up
-  x=10
-  while [ $x -gt 0 ]; do
-    let 'x=x-1'
-    grep 'Waiting for connections' /tmp/port_forward_session.log
-    [ $? -eq 0 ] && break
-    echo -n '.'
-    sleep 1
-  done
-
-  port_pid=$(lsof -ti:1234)
-  #ps -ejf |grep "$port_pid"
-  echo "backgrounded: ${port_pid}"
-
-  # Start NetCat on localhost
-  nc 127.0.0.1 1234 > $LOCAL_FILE &
-  nc_pid=$!
-  echo "backgrounded: ${nc_pid}"
-
-  # Wait for 5 sec (TODO: find a better way to determine file completes)
-  x=5
-  while [ $x -gt 0 ]; do
-    let 'x=x-1'
-    echo -n '.'
-    sleep 1
-  done
-
-  #set -v
-  # INT the background processes (same as ctrl+c)
-  # NOTE: the remotehost proc should auto exit as well
-  kill -s SIGINT $nc_pid
-  kill -s SIGINT $port_pid
-  #set +v
-
-  #sleep 1
-  #ps -ejf |grep "$port_pid"
-
-  echo "received ${LOCAL_FILE}:"
-  ls -l $LOCAL_FILE
 }
 
 ##############################

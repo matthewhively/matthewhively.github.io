@@ -44,3 +44,5 @@ if [ $is_interactive -eq 1 ]; then
   fi
 fi
 
+
+complete -C /opt/homebrew/bin/terraform terraform

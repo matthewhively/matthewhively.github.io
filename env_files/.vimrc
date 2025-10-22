@@ -4,12 +4,27 @@
 " USEFUL http://www.vim.org/scripts/script.php?script_id=302  << convert ANSI color codes into VIM color codes
 " after it's installed use   :AnsiEsc  within vim to execute the script
 
+function! TryAnsiEsc()
+  if exists(":AnsiEsc")
+    AnsiEsc
+  endif
+endfunction
+
 if has("autocmd")
   " remember where I was in a file
   autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 
   " except for git commits
   autocmd FileType gitcommit call setpos('.', [0, 1, 1, 0])
+
+  " download from http://www.drchip.org/astronaut/vim/index.html#ANSIESC
+  " to install:
+  "   1) vim AnsiEsc.vba.gz
+  "   2) :so %
+  "   3) :q
+  " turn on Ansi (terminal) highlighting
+  " toggle on/off with :AnsiEsc
+  autocmd BufReadPost *.log,*.out call TryAnsiEsc()
 endif
 
 
@@ -53,7 +68,12 @@ if &diff
     syntax off
     " TODO: DO NOT set ignore whitespace for python files
 
-    " in theory this could work, but cannot get it to work: https://github.com/chrisbra/vim-diff-enhanced
+    " in theory this could be-useful, but cannot get it to work: https://github.com/chrisbra/vim-diff-enhanced
+
+    " ctrl+j to jump to next delta
+    nnoremap <buffer> <C-j> ]c
+    " ctrl+k to jump to previous delta
+    nnoremap <buffer> <C-k> [c
 endif
 
 " turn off syntax highlight for README.md files
@@ -70,6 +90,7 @@ command WQ wqall
 set tabstop=2
 set expandtab
 " convert existing with :retab command
+" https://www.reddit.com/r/vim/comments/8nmwn1/do_you_retab/
 
 " Fix backspace so its not capped to start of the insert (for example)
 set backspace=indent,eol,start
