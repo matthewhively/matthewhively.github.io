@@ -157,7 +157,7 @@ rem() {
     fi
 
     echo
-    echo "Ruby Gem Dir: $(GEM_ENV_HOME)" # NOTE: workaround to prevent apple session saving for subshells
+    echo "Ruby Gem Dir (GEM_ENV_HOME): $(GEM_ENV_HOME)" # NOTE: workaround to prevent apple session saving for subshells
     echo "crontab -e is written here /var/spool/cron/"
     echo "print definition of a shell function using 'declare -f <function_name>'"
 }
@@ -234,10 +234,20 @@ symlink()
   ln -s $(realpath $1) $2
 }
 
-bummr_update() {
-  # TODO: maybe install bummr if its not already installed?
+bummr_update()
+{
+  # Prompt to install bummr if its not already installed
+  gem list bummr -i > /dev/null
+  if [ $? -eq 1 ]; then
+    echo "ERROR: bummr does not appear to be installed"
+    echo "Try installing with 'gem install ~/misc_repos/bummr/bummr-1.2.3.gem'"
+    return 1
+  fi
+
   # REM: the standard update flags are still allowed here:
-  # --all, --group, --gem
+  # --all   => Also update indirect dependencies
+  # --group => Update only a specific Gemfile-group
+  # --gem   => Update only a specific gem
 
   cmd=""
   # silence the dumb warning message about "Bummr is not meant to be run on your base branch"
@@ -260,6 +270,9 @@ bummr_update() {
 # rubocop --disable-pending --fail-level C --display-only-fail-level-offenses --auto-gen-config --auto-gen-only-exclude --no-exclude-limit --no-offense-counts
 # scan for cops configured in todo file and elsewhere
 # egrep $(egrep '^[^# ]' .rubocop_todo.yml | xargs | tr ' ' '|') .rubocop/*.yml
+
+# specifically for terraform IaC CLI
+#terraform -install-autocomplete
 
 ############################################
 #    REMOTE SCRIPT STORAGE                 #
@@ -484,6 +497,9 @@ make_site_page_dump()
 # why not?
 # --ssl-mode=prefer
 
+# NOTE: (-A) --no-auto-rehash
+#       Slightly faster mysql-client startup by skipping table/column tab auto-complete pre-loading
+
 # TODO: more configs found in ~/.my.cnf
 
 con_prod_db()
@@ -513,7 +529,7 @@ con_insights_db_ro()
 }
 
 # for test/pre/staging etc
-# TODO: from dev machine only works with direct IP address (see etc/hosts)
+# NOTE: from dev machine need to force it to use VPN internal IP (or use direct IP address) (see /etc/hosts)
 con_test_db()
 {
   #echo "permissions issue! Connect from EC2 instance"
@@ -567,6 +583,29 @@ cd ${VIZ_REPO_DIR}/sublime/railsapp
 
 alias vdgd="git difftool --tool=vimdiff --no-prompt"
 alias vdgds="git difftool --tool=vimdiff --no-prompt --staged"
+
+# Open up my standard repos
+gitup_open()
+{
+  # Set GitUp to ignore the system wide "open in tabs" setting
+  defaults write co.gitup.mac AppleWindowTabbingMode -string never
+
+  # Save the current directory
+  pushd `pwd` > /dev/null
+
+  for repo in vizmule_rails sublime rails_engines vizmule_rails_alt    pb it chef-aws labs_dev viz-mysql-data insights; do
+    new_tab='-t'
+    [ $repo == 'pb' ] && new_tab=''
+
+    cd $VIZ_REPO_DIR/$repo
+    # opens the current repo in gitup
+    # REM: Requires gitup command line tools to have been installed
+    gitup open $new_tab
+  done
+
+  # return to where we started
+  popd > /dev/null
+}
 
 # easily start a bisect in 1 command
 git_bisect()
@@ -732,11 +771,13 @@ diff_sublime_to_vizmule()
   path=$1
   # TODO: allow outside of railsapp dir
   pwd | egrep 'sublime/railsapp' > /dev/null
-  is_sublime=$?
+  is_sublime_rails=$?
+  pwd | egrep 'sublime/refinery' > /dev/null
+  is_sublime_refinery=$?
   if [ -z "$path" ]; then
     echo "USAGE: diff_sublime_to_vizmule [file_path] <alt (vizmule)>" && return 1
-  elif [ $is_sublime -eq 1 ]; then
-    echo "Must be run from in the sublime/railsapp directory" && return 1
+  elif [ $is_sublime_rails -eq 1  -a  $is_sublime_refinery -eq 1 ]; then
+    echo "Must be run from in the sublime railsapp/refinery directory" && return 1
   fi
 
   vizmule_dir='vizmule_rails'
@@ -744,10 +785,15 @@ diff_sublime_to_vizmule()
     vizmule_dir='vizmule_rails_alt'
   fi
 
-  echo "diffing ... $path $VIZ_REPO_DIR/$vizmule_dir/railsapp/$path"
+  app_dir='railsapp'
+  if [ $is_sublime_refinery -eq 0 ]; then
+    app_dir='refinery'
+  fi
+
+  echo "diffing ... $path $VIZ_REPO_DIR/$vizmule_dir/$app_dir/$path"
   sleep 2
   # TODO: create a way to properly compare files that were upgraded to erb templates, like .js.erb 
-  vimdiff $path $VIZ_REPO_DIR/$vizmule_dir/railsapp/$path
+  vimdiff $path $VIZ_REPO_DIR/$vizmule_dir/$app_dir/$path
 }
 
 # Not as easy to use as it could be, but it mostly works
