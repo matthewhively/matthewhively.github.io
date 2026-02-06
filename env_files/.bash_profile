@@ -22,6 +22,9 @@ is_interactive=0
 # Custom bin directory so I don't have to use sudo to add things to /usr/local/bin
 export PATH="$PATH:/Users/matthewhively/bin"
 
+# added to support UV (python package manager) tool packages
+export PATH="$PATH:/Users/matthewhively/.local/bin"
+
 # REM: yarn should be at the front of the path (TODO: move it there if necessary)
 YARN_PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin"
 

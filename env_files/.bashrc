@@ -590,6 +590,9 @@ gitup_open()
   # Set GitUp to ignore the system wide "open in tabs" setting
   defaults write co.gitup.mac AppleWindowTabbingMode -string never
 
+  # First open GitUp with a pristine environment (Important for git-hook rubocop script)
+  env -i open -a 'GitUp'
+
   # Save the current directory
   pushd `pwd` > /dev/null
 
@@ -702,6 +705,9 @@ git_rebase()
   # if last-change-that-should-NOT-move is skipped, will use last-common-ancestor
   # if target_name is skipped, will use current branch, or HEAD
 
+  INTERACTIVE=''
+  [ "$1" == '-i' ] && INTERACTIVE='-i'
+
   echo -n "${BOLD}Destination Commit:${RESET} "
   read destination_commit
 
@@ -728,7 +734,7 @@ git_rebase()
   fi
 
   #echo "git rebase --onto ${destination_commit} ${last_change_that_should_not_move} ${target_name}"
-  git rebase --onto ${destination_commit} ${last_change_that_should_not_move} ${target_name}
+  git rebase $INTERACTIVE --onto ${destination_commit} ${last_change_that_should_not_move} ${target_name}
 }
 
 # TODO: add a helper to manage cherry-picking within an ongoing rebase (in case of errors)
@@ -1057,7 +1063,7 @@ rails_bind()
   echo "mobile device connect to: '${ip}:3000'"
   echo
   # NOTE: $@ expands to all arguments
-  rails s -b 0.0.0.0 "$@"
+  bundle exec rails s -b 0.0.0.0 "$@"
 }
 
 #rails_redshift_console()
@@ -1111,7 +1117,7 @@ con_insights_internal()
 ##############################
 
 # EXPERIMENTAL chruby   (which also uses the .rvm folder... anoyingly)
-# TODO: looks like ruby-install puts stuff into a .rubies folder... instead of .rvm... so wehre did I get the above from???
+# TODO: looks like ruby-install puts stuff into a .rubies folder... instead of .rvm... so where did I get the above from???
 # prep (if using RVM):
 : '
     mv ~/.rvm ~/.silenced-rvm; mv ~/.chruby-rvm ~/.rvm
