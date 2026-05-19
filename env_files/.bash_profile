@@ -7,6 +7,7 @@
 eval "$(/opt/homebrew/bin/brew shellenv)"
 # Disable homebrew auto-updating of all installed kegs
 export HOMEBREW_NO_AUTO_UPDATE=1
+export HOMEBREW_CASK_OPTS="--appdir=/Users/matthewhively/Applications"
 
 # Configure rbenv (path, env_vars + rbenv() fn)
 eval "$(rbenv init -)"

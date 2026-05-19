@@ -24,6 +24,9 @@
 alias ls='ls -A -G -F'
 alias ll='ls -A -G -F -l'
 
+# TODO: egrep is deprecated, should just use grep -E instead?
+# TODO: I should really choose a slightly different name for my alias so I don't screw up my own scripts with these defaults
+#       `command grep` will bypass the aliases though
 alias grep='/usr/bin/egrep -n -S --color --exclude-dir=coverage --exclude=*.swp'
 # skip the coverage directory when I'm looking for variables/methods/etc
 # (-S) follow symlinks when recursive searching
@@ -90,7 +93,7 @@ GEM_ENV_HOME() {
 #    customize the terminal prompts        #
 ############################################
 
-# Add the pwd to the right side
+# Add the pwd to the right side -- UNUSED
 rightprompt() {
     # NOTE: really long paths cause problems
     printf "%*s" $COLUMNS '\w'
@@ -107,6 +110,7 @@ terminal_text() {
   echo 'UNDERLINE="$(tput smul)"'
   echo 'BLINK="$(tput blink)"'
   echo 'DIMMED="$(tput dim)"'
+  echo 'RED="$(tput setaf 1)"'
   echo 'GREEN="$(tput setaf 2)"'
   echo 'SILVER="$(tput setaf 8)"'
   echo
@@ -123,6 +127,8 @@ terminal_text() {
 #   ssupm - superscript (not working)
 
 BOLD="$(tput bold)"
+RED="$(tput setaf 1)"
+GREEN="$(tput setaf 2)"
 SILVER="$(tput setaf 8)"
 RESET="$(tput sgr0)"
 
@@ -147,10 +153,13 @@ export VIZ_REPO_DIR="${HOME}/vizlabs_repos"
 #    General Helpers                       #
 ############################################
 
-# NOTE: methods that should not be listed in rem() should have { on the same line as the method name
+# REMEMBER: methods that should not be listed in rem() should have { on the same line as the method name
 
 # helper in case I forget what exists, should just list all the functions
 rem() {
+    # ONLY find methods:
+    # - that start at the beginning of the line
+    # - do not have opening { on the same line as ()
     egrep '^[a-zA-Z_]+\(\)$' ~/.bashrc
     if [ -f ~/.bash_aws_helpers ]; then
       egrep '^[a-zA-Z_]+\(\)$' ~/.bash_aws_helpers
@@ -279,8 +288,12 @@ symlink()
   # TODO: can I make dest/source interchangable in a safe way?
   [ -z "$2" ] && >&2 echo "USAGE: symlink <target> <link_name> [other args]" && return 1
 
-  # TODO: allow force?
-  ln -s $(realpath $1) $2
+  target=$1
+  link=$2
+  shift 2
+
+  # TODO: I don't think we want to require paths to be absolute
+  ln -s $@ $(realpath $target) $link
 }
 
 bummr_update()
@@ -644,6 +657,11 @@ sublime()
 cd ${VIZ_REPO_DIR}/sublime/railsapp
 }
 
+cart()
+{
+cd ${VIZ_REPO_DIR}/rails_engines/shopping_cart_engine
+}
+
 ############################################
 #    Git Helpers                           #
 ############################################
@@ -683,21 +701,21 @@ git_bisect()
   # NOTE: not easy to run this in reverse
   #       we have to "pretend" that the fixed thing is actually newly broken
   if [ -z "$1" ]; then
-    echo "Usage: ${FUNCNAME[0]} 'last_known_good_revision_hash'"
-    echo
-    echo "continue with: 'git bisect good/bad/skip'"
-    echo "end with: 'git bisect reset'"
-  else
-
-    revision=$1
-
-    git_root=$(git rev-parse --show-toplevel)
-    cd $git_root
-
-    git bisect start
-    git bisect bad              # Current version is bad
-    git bisect good $revision   # known good revision
+    >&2 echo "Usage: ${FUNCNAME[0]} 'last_known_good_revision_hash'"
+    >&2 echo
+    >&2 echo "continue with: 'git bisect good/bad/skip'"
+    >&2 echo "end with: 'git bisect reset'"
+      return 1
   fi
+
+  revision=$1
+
+  git_root=$(git rev-parse --show-toplevel)
+  cd $git_root
+
+  git bisect start
+  git bisect bad              # Current version is bad
+  git bisect good $revision   # known good revision
 }
 
 # fully revert to the last commit for this branch, all local changes, staged and untracked files removed
@@ -760,7 +778,7 @@ git_fp()
 # for when there are local changes that prevent a pull
 git_spp()
 {
-  git stash save spp
+  git stash push spp
   git pull
   git stash pop
 }
@@ -803,6 +821,10 @@ git_rebase()
   #echo "git rebase --onto ${destination_commit} ${last_change_that_should_not_move} ${target_name}"
   git rebase $INTERACTIVE --onto ${destination_commit} ${last_change_that_should_not_move} ${target_name}
 }
+# These are the most commonly used shortcuts
+grc() { git rebase --continue; }
+grs() { git rebase --skip; }
+gra() { git rebase --abort; }
 
 # TODO: add a helper to manage cherry-picking within an ongoing rebase (in case of errors)
 # https://stackoverflow.com/a/68948140
@@ -814,26 +836,28 @@ git_manual_diff()
   REPO_ROOT=$(git rev-parse --show-toplevel) # example: /Users/matthewhively/vizlabs_repos/vizmule_rails
 
   if [ -z "$path" ]; then
-    echo "USAGE: git_manual_diff [file_path]"
+    >&2 echo "USAGE: git_manual_diff [file_path]"
+    return 1
   elif [ -z "$REPO_ROOT" ]; then
-    echo 'ERROR: Current working directory is not part of a GIT repo! Cannot continue'
-  else
-    filename=$(basename $path) # just the file itself
-    rm -f /tmp/*.${filename}   # clear out any old copies
-
-    filepath=$(realpath $path) # get the FULL path of the file (no shortcuts, symlinks etc)
-    rel_file_path=${filepath#$REPO_ROOT/} # remove substring ${string#substring}
-
-    git show :1:${rel_file_path} > /tmp/common.${filename} # common ancestor
-    git show :2:${rel_file_path} > /tmp/ours.${filename}
-    git show :3:${rel_file_path} > /tmp/theirs.${filename}
-
-    echo "/tmp/common.${filename}"
-    echo "/tmp/ours.${filename}"
-    echo "/tmp/theirs.${filename}"
-    echo "manual merge:"
-    echo "   vimdiff /tmp/theirs.${filename} /tmp/ours.${filename}"
+    >&2 echo 'ERROR: Current working directory is not part of a GIT repo! Cannot continue'
+    return 1
   fi
+
+  filename=$(basename $path) # just the file itself
+  rm -f /tmp/*.${filename}   # clear out any old copies
+
+  filepath=$(realpath $path) # get the FULL path of the file (no shortcuts, symlinks etc)
+  rel_file_path=${filepath#$REPO_ROOT/} # remove substring ${string#substring}
+
+  git show :1:${rel_file_path} > /tmp/common.${filename} # common ancestor
+  git show :2:${rel_file_path} > /tmp/ours.${filename}
+  git show :3:${rel_file_path} > /tmp/theirs.${filename}
+
+  echo "/tmp/common.${filename}"
+  echo "/tmp/ours.${filename}"
+  echo "/tmp/theirs.${filename}"
+  echo "manual merge:"
+  echo "   vimdiff /tmp/theirs.${filename} /tmp/ours.${filename}"
 }
 
 alias gmd=git_manual_diff
@@ -1022,8 +1046,8 @@ EOF
       # TODO:
       let "start_line = line_num - other_num"
       let "end_line   = line_num + other_num"
-      # enforce min of 0 (max doesn't matter)
-      [ $start_line -lt 0 ] && start_line=0
+      # enforce min of 1 (max doesn't matter)
+      [ $start_line -lt 1 ] && start_line=1
   
       args="-L ${start_line},${end_line}"
     fi
@@ -1198,7 +1222,10 @@ export RAILS_LATEST_ACTIVITY_INTERVAL=86400
 #    ssh shortcuts for AWS                 #
 ############################################
 
-. ~/.bash_aws_helpers
+# when this file exists, source it
+if [ -f ~/.bash_aws_helpers ]; then
+  . ~/.bash_aws_helpers
+fi
 
 # Just as a reminder
 con_insights_internal()
