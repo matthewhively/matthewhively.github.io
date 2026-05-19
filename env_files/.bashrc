@@ -1014,38 +1014,6 @@ EOF
 )
 }
 
-build_cart()
-{
-  if [ ! -f shopping_cart_engine.gemspec ]; then
-    echo "Must be run from shopping_cart_engine folder."
-    return 1
-  fi
-
-  # print current version number
-  echo "Current version: $(egrep 'VERSION' lib/shopping_cart_engine/version.rb | awk '{ print $3 }')"
-  # read input for new version number (default unchanged)
-  echo -n "${BOLD}New Version Number (optional):${RESET} "
-  read version_number
-
-  # maybe update version number
-  # TODO: enforce parsing of the version number?
-  if [ -n "$version_number" ]; then
-    # Replace the entire file. I couldn't get SED to work properly
-    printf "module ShoppingCartEngine\n  VERSION = \"${version_number}\"\nend\n" > lib/shopping_cart_engine/version.rb
-
-    # commit the version update...
-    git commit lib/shopping_cart_engine/version.rb -m "Version bump to ${version_number}"
-    # ...But don't push
-
-    # tag the commit with the version number
-    git tag "${version_number}"
-  fi
-  # NOTE: does not commit changes
-
-  # build the gem
-  gem build shopping_cart_engine.gemspec
-}
-
 # Get the temporary (12hr) login session approved.
 # NOTE: this is only for docker containers, not for aws as a whole
 #       for other aws commands simply attach --profile MYPROFILE to the aws command
