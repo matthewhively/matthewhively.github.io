@@ -4,29 +4,6 @@
 " USEFUL http://www.vim.org/scripts/script.php?script_id=302  << convert ANSI color codes into VIM color codes
 " after it's installed use   :AnsiEsc  within vim to execute the script
 
-function! TryAnsiEsc()
-  if exists(":AnsiEsc")
-    AnsiEsc
-  endif
-endfunction
-
-if has("autocmd")
-  " remember where I was in a file
-  autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-
-  " except for git commits
-  autocmd FileType gitcommit call setpos('.', [0, 1, 1, 0])
-
-  " download from http://www.drchip.org/astronaut/vim/index.html#ANSIESC
-  " to install:
-  "   1) vim AnsiEsc.vba.gz
-  "   2) :so %
-  "   3) :q
-  " turn on Ansi (terminal) highlighting
-  " toggle on/off with :AnsiEsc
-  autocmd BufReadPost *.log,*.out call TryAnsiEsc()
-endif
-
 
 " Turn on line#s and search highlighting
 set ruler
@@ -76,10 +53,6 @@ if &diff
     nnoremap <buffer> <C-k> [c
 endif
 
-" turn off syntax highlight for README.md files
-"au BufNewFile,BufRead * if expand('<afile>:e') !=? 'inc' | syntax enable | endif
-autocmd BufRead,BufNewFile *.md set syntax=off
-
 " shortcuts (REM: all must start with an uppercase letter)
 command Q qall
 command W wall
@@ -88,9 +61,14 @@ command WQ wqall
 
 " convert tabs into spaces
 set tabstop=2
+set softtabstop=2
 set expandtab
 " convert existing with :retab command
 " https://www.reddit.com/r/vim/comments/8nmwn1/do_you_retab/
+
+" When using > or < in visual mode to change indentation, use 2 spaces
+" note: by using > or < it avoids adding spaces to empty lines automatically
+set shiftwidth=2
 
 " Fix backspace so its not capped to start of the insert (for example)
 set backspace=indent,eol,start
@@ -118,6 +96,64 @@ set nomodeline
 " for macos /bin/sh =>system_setting=> whatever shell
 " vim isn't smart enough to decypher macos, so just force it
 let g:is_dash = 1
+
+" ------------- Autocmd stuff -----------
+
+function! TryAnsiEsc()
+  if exists(":AnsiEsc")
+    AnsiEsc
+  endif
+endfunction
+
+if has("autocmd")
+
+  augroup RememberLine
+    autocmd!
+
+    " remember where I was in a file
+    autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
+
+    " except for git commits
+    autocmd FileType gitcommit call setpos('.', [0, 1, 1, 0])
+
+  augroup END
+
+  augroup HilightAnsi
+    autocmd!
+
+    " download from http://www.drchip.org/astronaut/vim/index.html#ANSIESC
+    " to install:
+    "   1) vim AnsiEsc.vba.gz
+    "   2) :so %
+    "   3) :q
+    " turn on Ansi (terminal) highlighting
+    " toggle on/off with :AnsiEsc
+    autocmd BufReadPost *.log,*.out call TryAnsiEsc()
+
+  augroup END
+
+  augroup NoReadmeSyntax
+    autocmd!
+
+    " turn off syntax highlight for README.md files
+    "au BufNewFile,BufRead * if expand('<afile>:e') !=? 'inc' | syntax enable | endif
+    autocmd BufRead,BufNewFile *.md set syntax=off
+
+  augroup END
+
+  augroup AutoMkdir
+    autocmd!
+
+    " ensure directory tree exists before saving file
+    autocmd BufWritePre * if !isdirectory(expand('<afile>:p:h')) |
+      \ call mkdir(expand('<afile>:p:h'), 'p') |
+      \ endif
+
+  augroup END
+
+endif
+
+" ------------------------------------------
 
 " Remember that in vim:
 "   y => yank   => copy (ish)
