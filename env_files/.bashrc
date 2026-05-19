@@ -180,7 +180,7 @@ man() {
 # https://www.folkstalk.com/2013/03/sed-remove-lines-file-unix-examples.html
 clean_known_hosts()
 {
-  [ -z "$1" ] && echo "USAGE: clean_known_hosts <line_number>" && return 1
+  [ -z "$1" ] && >&2 echo "USAGE: clean_known_hosts <line_number>" && return 1
 
   # verify $1 is a positive number
   if [[ "$1" =~ ^[0-9]+$ ]]; then
@@ -188,14 +188,15 @@ clean_known_hosts()
     rm ~/.ssh/known_hosts.bak  # cleanup the extra backup
     echo "Successfully removed line number $1 from known_hosts file"
   else
-    echo "USAGE: clean_known_hosts <line_number>" && return 1
+    >&2 echo "USAGE: clean_known_hosts <line_number>"
+    return 1
   fi
 }
 
 curl_ba()
 {
   URL=$1
-  [ -z "$URL" ] && echo "Need a URL." && return 1
+  [ -z "$URL" ] && >&2 echo "Need a URL." && return 1
   # move arg one out
   shift
 
@@ -228,7 +229,7 @@ symlink()
   # REM: ln -s foo bar
   #    > bar@ -> foo
   # TODO: can I make dest/source interchangable in a safe way?
-  [ -z "$2" ] && echo "USAGE: symlink <target> <link_name>" && return 1
+  [ -z "$2" ] && >&2 echo "USAGE: symlink <target> <link_name> [other args]" && return 1
 
   # TODO: allow force?
   ln -s $(realpath $1) $2
@@ -239,8 +240,8 @@ bummr_update()
   # Prompt to install bummr if its not already installed
   gem list bummr -i > /dev/null
   if [ $? -eq 1 ]; then
-    echo "ERROR: bummr does not appear to be installed"
-    echo "Try installing with 'gem install ~/misc_repos/bummr/bummr-1.2.3.gem'"
+    >&2 echo "ERROR: bummr does not appear to be installed"
+    >&2 echo "Try installing with 'gem install ~/misc_repos/bummr/bummr-1.2.3.gem'"
     return 1
   fi
 
@@ -291,7 +292,7 @@ git_pin() {
      git checkout $branch
      git pull
      # TODO: what if there are conflicts?
-     [ $? -eq 1 ] && echo "Cannot continue, pull failed (conflicts?)" && return 1
+     [ $? -eq 1 ] && >&2 echo "Cannot continue, pull failed (conflicts?)" && return 1
 
      revision=$(git branch -v | egrep "mh/new_digital_product" | awk "{print $2}")
      git branch -f deploy $revision
@@ -431,7 +432,7 @@ add_test_users()
 {
   # only works for test db, not production
   if [ "$1" != 'test' -a "$1" != 'pre' -a "$1" != 'staging' -a "$1" != 'approvals' ]; then
-    echo "Choose which db: test OR pre OR staging OR approvals"
+    >&2 echo "Choose which db: test OR pre OR staging OR approvals"
     return 1
   fi
 
@@ -449,7 +450,7 @@ add_test_users()
 make_site_page_dump()
 {
   if [ -z "$1" ]; then
-    echo "choose a site_page_id"
+    >&2 echo "choose a site_page_id"
     return 1
   fi
 
@@ -457,14 +458,14 @@ make_site_page_dump()
   promo_zone_id=$(echo "SELECT promo_zone_id FROM site_pages WHERE id = ${site_page_id}" | mysql -h $PROD_CLUSTER_HOST -u ${MYSQL_VIZ_PROD_USER} -p${MYSQL_VIZ_PROD_PASS} viz2 | tail -n1)
 
   if [ -z "$promo_zone_id" ]; then
-    echo "ERROR: promo_zone not found"
+    >&2 echo "ERROR: promo_zone not found"
     return 1
   fi
 
   site_page_layout_id=$(echo "SELECT id FROM site_page_layouts WHERE site_page_id = ${site_page_id}" | mysql -h $PROD_CLUSTER_HOST -u ${MYSQL_VIZ_PROD_USER} -p${MYSQL_VIZ_PROD_PASS} viz2 | tail -n1)
 
   if [ -z "$site_page_layout_id" ]; then
-    echo "ERROR: layout not found"
+    >&2 echo "ERROR: layout not found"
     return 1
   fi
 
@@ -550,7 +551,7 @@ rds_replica_status()
   # TODO: make an AWS query to retrieve the RDS hosts that exist.
   #       list them (1,2,3...) and choose which one.
   host=$1
-  [ -z "$host" ] && echo "choose a host DB" && return 1
+  [ -z "$host" ] && >&2 echo "choose a host DB" && return 1
   echo "show replica status\G" | mysql -A -h $host -u ${MYSQL_PROD_ROOT_USER} -p${MYSQL_PROD_ROOT_PASS} viz2 | grep 'Replica_|Seconds_'
 }
 
@@ -712,7 +713,7 @@ git_rebase()
   read destination_commit
 
   if [ -z "$destination_commit" ]; then
-    echo "A Destination commit must be chosen. ABORT"
+    >&2 echo "A Destination commit must be chosen. ABORT"
     return 1
   fi
 
@@ -822,7 +823,8 @@ USAGE: git_blame <file>[:line_num[<sep>num]] [revision_to_ignore [...]]
 EOF
 
   if [ -z "$1" ]; then
-    echo "$USAGE" && return 1
+    >&2 echo "$USAGE"
+    return 1
   fi
 
   tmp=$1
@@ -860,7 +862,8 @@ EOF
     # if not an accepted splitter value, show USAGE and exit
     echo "$SPLITTER" | egrep -q '[,~+\-]' 
     if [ $? -ne 0 ]; then
-      echo "$USAGE" && return 1
+      >&2 echo "$USAGE"
+      return 1
     fi
 
     arr=(${tmp//$SPLITTER/ })
