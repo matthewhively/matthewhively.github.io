@@ -320,6 +320,24 @@ bummr_update()
 # scan for cops configured in todo file and elsewhere
 # egrep $(egrep '^[^# ]' .rubocop_todo.yml | xargs | tr ' ' '|') .rubocop/*.yml
 
+rubocop_sync() {
+  [ ! -f .rubocop.yml ] && echo "ABORT: Cannot find CWD .rubocop.yml" && return 1
+
+  repo=$1
+  [ -z "$repo" ] && echo "USAGE: rubocop_sync <repo> [folder => railsapp/refinery]" && return 1
+
+  fldr='railsapp'
+  [ -n "$2" ] && fldr=$2
+  target=$VIZ_REPO_DIR/$repo/$fldr
+  [ ! -f $target/.rubocop.yml ] && echo "ABORT: Cannot find TARGET .rubocop.yml" && return 1
+
+  for file in .rubocop.yml .rubocop/README.md .rubocop/resolved.yml .rubocop/wip.yml .rubocop/tbd.yml .rubocop/.pending.yml; do
+    vimdiff $file $target/$file
+  done
+}
+
+alias rubocop_dp="rubocop --disable-pending"
+
 # specifically for terraform IaC CLI
 #terraform -install-autocomplete
 
