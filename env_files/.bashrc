@@ -1102,6 +1102,9 @@ sync_env_files()
   # Don't forget to copy over the com.matt.notepadnext.plist file (no longer necessary 2026-05-19)
   #cp ~/Library/LaunchAgents/com.matt.notepadnext.plist ~/misc_repos/matthewhively.github.io/env_files/scripts/.
 
+  # export current crontab
+  crontab -l > ~/misc_repos/matthewhively.github.io/env_files/crontab
+
   # TODO: sync ~/.bundle/config
 }
 

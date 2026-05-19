@@ -1,0 +1,4 @@
+0 12 * * * /Users/matthewhively/scripts/cleanup_tmp_junk.sh
+
+# First monday of each month @ noon
+0 12 1-7 * 1 "/Users/matthewhively/scripts/remove_old_bash_tab_titles.sh"
