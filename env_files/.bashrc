@@ -841,21 +841,26 @@ alias gmd=git_manual_diff
 
 diff_sublime_to_vizmule()
 {
-  path=$1
+  # TODO: allow "alt" to be the first arg, and just shift it
+  vizmule_dir='vizmule_rails'
+  if [ "$2" == 'alt' ]; then
+    vizmule_dir='vizmule_rails_alt'
+  fi
+
+  file_path=$1
+  if [ -z "$file_path" ]; then
+    >&2 echo "USAGE: diff_sublime_to_vizmule [file_path] <alt (vizmule)>"
+    return 1
+  fi
+
   # TODO: allow outside of railsapp dir
   pwd | egrep 'sublime/railsapp' > /dev/null
   is_sublime_rails=$?
   pwd | egrep 'sublime/refinery' > /dev/null
   is_sublime_refinery=$?
-  if [ -z "$path" ]; then
-    echo "USAGE: diff_sublime_to_vizmule [file_path] <alt (vizmule)>" && return 1
-  elif [ $is_sublime_rails -eq 1  -a  $is_sublime_refinery -eq 1 ]; then
-    echo "Must be run from in the sublime railsapp/refinery directory" && return 1
-  fi
-
-  vizmule_dir='vizmule_rails'
-  if [ "$2" == 'alt' ]; then
-    vizmule_dir='vizmule_rails_alt'
+  if [ $is_sublime_rails -eq 1  -a  $is_sublime_refinery -eq 1 ]; then
+    >&2 echo "Must be run from in the sublime railsapp/refinery directory"
+    return 1
   fi
 
   app_dir='railsapp'
@@ -863,10 +868,66 @@ diff_sublime_to_vizmule()
     app_dir='refinery'
   fi
 
-  echo "diffing ... $path $VIZ_REPO_DIR/$vizmule_dir/$app_dir/$path"
+  # Enhance .js files with .js* in case they became .js.erb
+  [[ "$file_path" == *.js ]] && file_path="${file_path}*"
+
+  target_path="$VIZ_REPO_DIR/$vizmule_dir/$app_dir/$file_path"
+
+  # When the file exists on neither side exit with an error instead of showing an empty diff
+  if [ ! -f $file_path  -a  ! -f $target_path ]; then
+    >&2 echo "Given file '$file_path' neither exists in sublime nor $vizmule_dir"
+    return 1
+  fi
+
+  echo "diffing ... $file_path $target_path"
+  ls -l $file_path $target_path
+
+  diff -q $file_path $target_path > /dev/null
+  [ $? -eq 0 ] && echo "$BOLD$(tput blink)Files identical $RESET" && return
+
   sleep 2
-  # TODO: create a way to properly compare files that were upgraded to erb templates, like .js.erb 
-  vimdiff $path $VIZ_REPO_DIR/$vizmule_dir/$app_dir/$path
+  vimdiff $file_path $target_path
+}
+
+cp_sublime_from_vizmule()
+{
+  # TODO: allow "alt" to be the first arg, and just shift it
+  vizmule_dir='vizmule_rails'
+  if [ "$2" == 'alt' ]; then
+    vizmule_dir='vizmule_rails_alt'
+  fi
+
+  file_path=$1
+  if [ -z "$file_path" ]; then
+    >&2 echo "USAGE: cp_vizmule_to_sublime [file_path] <alt (vizmule)>"
+    return 1
+  fi
+
+  # TODO: allow outside of railsapp dir
+  pwd | egrep 'sublime/railsapp' > /dev/null
+  is_sublime_rails=$?
+  pwd | egrep 'sublime/refinery' > /dev/null
+  is_sublime_refinery=$?
+  if [ $is_sublime_rails -eq 1  -a  $is_sublime_refinery -eq 1 ]; then
+    >&2 echo "Must be run from in the sublime railsapp/refinery directory"
+    return 1
+  fi
+
+  app_dir='railsapp'
+  if [ $is_sublime_refinery -eq 0 ]; then
+    app_dir='refinery'
+  fi
+
+  target_path="$VIZ_REPO_DIR/$vizmule_dir/$app_dir/$file_path"
+
+  # When the file exists on neither side exit with an error instead of showing an empty diff
+  if [ ! -f $target_path ]; then
+    >&2 echo "Target file does not exist in $vizmule_dir"
+    return 1
+  fi
+
+  #echo "cp -a '$target_path' '$file_path'"
+  cp -a $target_path $file_path
 }
 
 # Not as easy to use as it could be, but it mostly works
