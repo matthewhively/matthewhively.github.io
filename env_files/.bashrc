@@ -177,6 +177,54 @@ man() {
     esac
 }
 
+# --------- terminal tab names ----------
+
+if [ -n "$TERM_SESSION_ID" ]; then
+  
+  _cache_tab_title() {
+    local dir key
+    dir="${HOME}/.cache/tabtitles"
+    mkdir -p $dir
+    key="${dir}/${TERM_SESSION_ID}"
+    echo -n "${1}" > $key
+  }
+  
+  _restore_tab_title() {
+    local key title
+    key="${HOME}/.cache/tabtitles/${TERM_SESSION_ID}"
+    if [ -f $key ]; then
+      title=$(cat $key)
+      if [ -n "$title" ]; then
+        # Tab Title (2) => some_text. Tab Text will be displayed as "pwd -- some_text -- current_process"
+        # Tab Icon  (1) => alt_text. Overrides Tab Title if set. Tab Text will be displayed as "alt_text"
+        printf "\033]1;%s\007" "$title" # Set tab Title
+        printf "\033]2;%s\007" " "
+        #printf "\033]2;%s\007" "$title" # Set window title? (this alone doesn't work)
+        #printf "\033]0;%s\007" "$title"  # supposedly set both? (doesn't seem to work right)
+      fi
+    fi
+  }
+  # prepend the above method before any other commands that may or may not exist
+  PROMPT_COMMAND="_restore_tab_title${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+  
+  # https://apple.stackexchange.com/a/370287
+  set_tab_name()
+  {
+    if [ -n "$1" ]; then
+      _cache_tab_title "$*"
+      _restore_tab_title
+  
+    else
+      echo "Choose a name for this tab"
+    fi
+  }
+
+else
+  >&2 echo "${RED}WARNING:${RESET} TERM_SESSION_ID is not set, so set_tab_name() is disabled" 
+fi
+
+# ---------  ----------
+
 # https://www.folkstalk.com/2013/03/sed-remove-lines-file-unix-examples.html
 clean_known_hosts()
 {
