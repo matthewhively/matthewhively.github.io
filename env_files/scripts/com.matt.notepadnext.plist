@@ -37,5 +37,11 @@
     <string>/tmp/com.matt.notepadnext.out</string>
     <key>StandardErrorPath</key>
     <string>/tmp/com.matt.notepadnext.err</string>
+
+    <!-- To toggle on/off -->
+    <!-- System Settings > General > Login Items -->
+    <!-- OR -->
+    <!-- launchctl list | grep -i "notepad" -->
+    <!-- launchctl disable ~/Library/LaunchAgents/com.matt.notepadnext -->
 </dict>
 </plist>

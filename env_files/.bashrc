@@ -1051,8 +1051,8 @@ sync_env_files()
 
   cp -a ~/scripts  ~/misc_repos/matthewhively.github.io/env_files/.
 
-  # Don't forget to copy over the com.matt.notepadnext.plist file
-  cp ~/Library/LaunchAgents/com.matt.notepadnext.plist ~/misc_repos/matthewhively.github.io/env_files/scripts/.
+  # Don't forget to copy over the com.matt.notepadnext.plist file (no longer necessary 2026-05-19)
+  #cp ~/Library/LaunchAgents/com.matt.notepadnext.plist ~/misc_repos/matthewhively.github.io/env_files/scripts/.
 
   # TODO: sync ~/.bundle/config
 }
