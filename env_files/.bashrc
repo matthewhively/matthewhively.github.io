@@ -126,9 +126,41 @@ terminal_text() {
 #   ssubm - subscript (not working)
 #   ssupm - superscript (not working)
 
+print_terminal_colors() {
+  # 3 distinct sections:
+
+  # ...system colors: 0-15
+  num=8
+  for ((i=0; i<16; i++)); do
+    (( i % $num == 0 )) && printf "%3d: " "$i"
+    printf "\e[48;5;%dm  \e[0m" "$i"
+    (( i % $num == ($num - 1) )) && printf "\n"
+  done
+
+  # ...6x6x6 color cube
+  num=6
+  for ((i=16; i<232; i++)); do
+    (( j = i - 16 ))
+    (( j % $num == 0 )) && printf "%3d: " "$i"
+    printf "\e[48;5;%dm  \e[0m" "$i"
+    (( j % $num == ($num - 1) )) && printf "\n"
+  done
+
+  # ...grayscale
+  num=8
+  for ((i=232; i<256; i++)); do
+    (( j = i - 232 ))
+    (( j % $num == 0 )) && printf "%3d: " "$i"
+    printf "\e[48;5;%dm  \e[0m" "$i"
+    (( j % $num == ($num - 1) )) && printf "\n"
+  done
+}
+
 BOLD="$(tput bold)"
 RED="$(tput setaf 1)"
 GREEN="$(tput setaf 2)"
+ORANGE="$(tput setaf 208)" # alt 214
+PURPLE="$(tput setaf 129)"
 SILVER="$(tput setaf 8)"
 RESET="$(tput sgr0)"
 
