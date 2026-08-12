@@ -681,11 +681,12 @@ gitup_open()
   # Save the current directory
   pushd `pwd` > /dev/null
 
-  for repo in vizmule_rails sublime rails_engines vizmule_rails_alt    pb it chef-aws labs_dev viz-mysql-data insights; do
+  for repo in vizmule_rails sublime vizmule_rails_alt    chef-aws pb labs_dev viz-mysql-data rails_engines; do
     new_tab='-t'
-    [ $repo == 'pb' ] && new_tab=''
+    [ "$repo" == 'chef-aws' ] && new_tab=''
 
     cd $VIZ_REPO_DIR/$repo
+    echo "gitup open $repo $new_tab"
     # opens the current repo in gitup
     # REM: Requires gitup command line tools to have been installed
     gitup open $new_tab
@@ -749,7 +750,7 @@ gf()
 gf_all()
 {
   my_dir=$PWD
-  for repo in vizmule_rails sublime chef-aws pb it rails_engines insights labs_dev viz-mysql-data; do
+  for repo in vizmule_rails sublime chef-aws pb rails_engines labs_dev viz-mysql-data; do
     dir="$VIZ_REPO_DIR/$repo"
     # Just in case
     if [ ! -d $dir ]; then
