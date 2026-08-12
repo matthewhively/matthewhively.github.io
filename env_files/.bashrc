@@ -793,16 +793,14 @@ git_rebase()
   INTERACTIVE=''
   [ "$1" == '-i' ] && INTERACTIVE='-i'
 
-  echo -n "${BOLD}Destination Commit:${RESET} "
-  read destination_commit
+  read -erp "${BOLD}Destination Commit:${RESET} " destination_commit
 
   if [ -z "$destination_commit" ]; then
     >&2 echo "A Destination commit must be chosen. ABORT"
     return 1
   fi
 
-  echo -n "${BOLD}Branch/Commit to move (default current):${RESET} "
-  read target_name
+  read -erp "${BOLD}Branch/Commit to move (default current):${RESET} " target_name
 
   if [ -z "$target_name" ]; then
     target_name=$(git branch --show-current)
@@ -810,8 +808,7 @@ git_rebase()
     [ -z "$target_name" ] && target_name="HEAD"
   fi
 
-  echo -n "${BOLD}Last change that should not move (default last_common_ancestor):${RESET} "
-  read last_change_that_should_not_move
+  read -erp "${BOLD}Last change that should not move (default last_common_ancestor):${RESET} " last_change_that_should_not_move
 
   # NOTE: as far as I know, this cannot fail
   if [ -z "$last_change_that_should_not_move" ]; then
