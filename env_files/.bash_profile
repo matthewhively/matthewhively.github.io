@@ -9,9 +9,6 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 export HOMEBREW_NO_AUTO_UPDATE=1
 export HOMEBREW_CASK_OPTS="--appdir=/Users/matthewhively/Applications"
 
-# Configure rbenv (path, env_vars + rbenv() fn)
-eval "$(rbenv init -)"
-
 # TODO: move VIZ_REPO_DIR here?
 
 # is an interactive shell
@@ -50,3 +47,6 @@ fi
 
 
 complete -C /opt/homebrew/bin/terraform terraform
+
+# Configure rbenv (path, env_vars + rbenv() fn)
+eval "$(rbenv init -)"

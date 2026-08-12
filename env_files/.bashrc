@@ -190,7 +190,7 @@ man() {
 
 if [ -n "$TERM_SESSION_ID" ]; then
   
-  _cache_tab_title() {
+  __cache_tab_title() {
     local dir key
     dir="${HOME}/.cache/tabtitles"
     mkdir -p $dir
@@ -198,7 +198,7 @@ if [ -n "$TERM_SESSION_ID" ]; then
     echo -n "${1}" > $key
   }
   
-  _restore_tab_title() {
+  __restore_tab_title() {
     local key title
     key="${HOME}/.cache/tabtitles/${TERM_SESSION_ID}"
     if [ -f $key ]; then
@@ -214,14 +214,14 @@ if [ -n "$TERM_SESSION_ID" ]; then
     fi
   }
   # prepend the above method before any other commands that may or may not exist
-  PROMPT_COMMAND="_restore_tab_title${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
+  PROMPT_COMMAND="__restore_tab_title${PROMPT_COMMAND:+;$PROMPT_COMMAND}"
   
   # https://apple.stackexchange.com/a/370287
   set_tab_name()
   {
     if [ -n "$1" ]; then
-      _cache_tab_title "$*"
-      _restore_tab_title
+      __cache_tab_title "$*"
+      __restore_tab_title
   
     else
       echo "Choose a name for this tab"
@@ -609,7 +609,10 @@ con_insights_db_ro()
 }
 
 # for test/pre/staging etc
-# NOTE: from dev machine need to force it to use VPN internal IP (or use direct IP address) (see /etc/hosts)
+# NOTE: From dev machine need to force it to use VPN internal IP
+#       Find IP using: 
+#        remote_ssm_command $(con_ssm_app_layer pb pre list | awk '{print $NF}') "host $LABS_CLUSTER_HOST"
+#       WRITE: the IP into /etc/hosts as >>> <INTERNAL_IP> $LABS_CLUSTER_HOST
 con_test_db()
 {
   #echo "permissions issue! Connect from EC2 instance"
@@ -640,7 +643,7 @@ rds_replica_status()
 
 chef()
 {
-cd ${VIZ_REPO_DIR}/chef-aws/VIZAWSOW/files/default/viz_rails_config/
+cd ${VIZ_REPO_DIR}/chef-aws/
 }
 
 vizmule()
