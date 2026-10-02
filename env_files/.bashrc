@@ -383,7 +383,7 @@ rubocop_sync() {
 
 alias rubocop_dp="rubocop --disable-pending"
 
-# specifically for terraform IaC CLI
+# Installs the auto-completion command into .bash_profile (only run ONCE)
 #terraform -install-autocomplete
 
 ############################################
@@ -399,7 +399,7 @@ git_pin() {
      echo "USAGE: ${FUNCNAME[0]} <BRANCH_NAME>"
    else
   
-     git fetch --all
+     git fetch
      git checkout $branch
      git pull
      # TODO: what if there are conflicts?
@@ -692,6 +692,11 @@ sublime()
 cd ${VIZ_REPO_DIR}/sublime/railsapp
 }
 
+pb()
+{
+cd ${VIZ_REPO_DIR}/pb/railsapp
+}
+
 cart()
 {
 cd ${VIZ_REPO_DIR}/rails_engines/shopping_cart_engine
@@ -774,8 +779,8 @@ gf()
 {
   # TODO: abort if current folder isn't part of a git repo
   # NOTE: output by default is stderr
-  git fetch --all --prune $1 2>&1
-  res=$? # NOTE: 0 if fectched, and 0 if nothing fetched
+  git fetch --prune $1 2>&1
+  res=$? # NOTE: 0 if fetched, and 0 if nothing fetched
   # may as well prune at the same time
   #git remote prune origin
 
@@ -814,7 +819,7 @@ git_fp()
 # for when there are local changes that prevent a pull
 git_spp()
 {
-  git stash push spp
+  git stash push -m 'spp'
   git pull
   git stash pop
 }

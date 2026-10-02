@@ -45,7 +45,7 @@ if [ $is_interactive -eq 1 ]; then
   fi
 fi
 
-
+# Enables tab auto-completion for terraform
 complete -C /opt/homebrew/bin/terraform terraform
 
 # Configure rbenv (path, env_vars + rbenv() fn)
