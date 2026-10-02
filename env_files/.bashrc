@@ -957,6 +957,16 @@ git_spp()
   git stash pop
 }
 
+gh_stack_create()
+{
+  # choose the base branch as `dev` if it exists
+  if git show-ref --verify --quiet refs/heads/dev; then
+    gh stack init --base dev "$@"
+  else
+    gh stack init "$@"
+  fi
+}
+
 # TODO: add a way to choose an alternative merging strategy as an initial arg (not a read param) (use flag -s)
 git_rebase()
 {
