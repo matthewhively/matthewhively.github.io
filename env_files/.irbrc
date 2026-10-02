@@ -1,9 +1,19 @@
 require 'rubygems'
 
 # Some commonly used gemfiles
-require 'amazing_print'
-require 'json'
-puts "Auto-required: amazing_print, json"
+begin
+  require 'amazing_print'
+  puts "Auto-required: amazing_print"
+rescue LoadError
+  warn "gem awesome_print not installed"
+end
+begin
+  require 'json'
+  puts "Auto-required: json"
+rescue LoadError
+  warn "gem json not installed"
+end
+
 puts 'REM: use "_" to quickly reference the previous command output'
 
 # turns on logging within ruby console
