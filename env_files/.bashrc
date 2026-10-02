@@ -769,6 +769,139 @@ git_revert()
    git clean -f
 }
 
+# Effectively move the tag to a new commit
+git_retag()
+{
+  [ -z "$2" ] && echo "Usage: retag <tag> <commit>" && return 0
+
+  git tag -d "$1" &>/dev/null || true
+  git tag "$1" "$2"
+}
+
+sync_viz_tags()
+{
+  vizmule || return
+
+  local domain tag sha current
+
+  # No longer using tags for these: test.viz.com pre.viz.com pre1.viz.com
+  for domain in www.viz.com; do
+    sha=$(curl -A "Matt-test-mozilla" -I -fsS "https://$domain/info/viz_status_check" |
+      awk -F': *' 'tolower($1) == "version" { sub(/\r$/, "", $2); print $2; exit }') || continue
+
+    tag=$domain
+    [[ "$domain" == "www.viz.com" ]] && tag=production
+
+    [ -z "$sha" ] && echo "Skipped $tag: no SHA found" && continue  # This shouldn't happen
+
+    if ! git rev-parse --verify "$sha^{commit}" &>/dev/null; then
+      echo "Skipped $tag: local commit not found"
+      continue
+    fi
+
+    current=$(git rev-parse -q --verify "refs/tags/$tag^{commit}" 2>/dev/null)
+
+    if [[ "${current:0:7}" == "$sha" ]]; then
+      echo "Skipped $tag"
+    else
+      git_retag "$tag" "$sha"
+      echo "Moved $tag => $sha"
+    fi
+  done
+}
+
+sync_yaoi_tags()
+{
+  sublime || return
+
+  local domain tag sha current
+
+  # No longer using tags for these: pre.sublimemanga.com
+  for domain in www.sublimemanga.com; do
+    sha=$(curl -A "Matt-test-mozilla" -I -fsS "https://$domain/info/sublime_status_check" |
+      awk -F': *' 'tolower($1) == "version" { sub(/\r$/, "", $2); print $2; exit }') || continue
+
+    tag=$domain
+    [[ "$domain" == "www.sublimemanga.com" ]] && tag=production
+
+    [ -z "$sha" ] && echo "Skipped $tag: no SHA found" && continue  # This shouldn't happen
+
+    if ! git rev-parse --verify "$sha^{commit}" &>/dev/null; then
+      echo "Skipped $tag: local commit not found"
+      continue
+    fi
+
+    current=$(git rev-parse -q --verify "refs/tags/$tag^{commit}" 2>/dev/null)
+
+    if [[ "${current:0:7}" == "$sha" ]]; then
+      echo "Skipped $tag"
+    else
+      git_retag "$tag" "$sha"
+      echo "Moved $tag => $sha"
+    fi
+  done
+}
+
+sync_pb_tags()
+{
+  pb || return
+
+  local domain tag sha current
+
+  # No longer using tags for these: pbpre.viz.com
+  for domain in pb2.viz.com; do
+    sha=$(curl -A "Matt-test-mozilla" -I -fsS "https://$domain/info/pb_status_check" |
+      awk -F': *' 'tolower($1) == "version" { sub(/\r$/, "", $2); print $2; exit }') || continue
+
+    tag=$domain
+    [[ "$domain" == "pb2.viz.com" ]] && tag=production
+
+    [ -z "$sha" ] && echo "Skipped $tag: no SHA found" && continue  # This shouldn't happen
+
+    if ! git rev-parse --verify "$sha^{commit}" &>/dev/null; then
+      echo "Skipped $tag: local commit not found"
+      continue
+    fi
+
+    current=$(git rev-parse -q --verify "refs/tags/$tag^{commit}" 2>/dev/null)
+
+    if [[ "${current:0:7}" == "$sha" ]]; then
+      echo "Skipped $tag"
+    else
+      git_retag "$tag" "$sha"
+      echo "Moved $tag => $sha"
+    fi
+  done
+}
+
+git_branch_deploy()
+{
+  if (( $# < 2 )); then
+    >&2 echo "Usage: ${FUNCNAME[0]} <branch> <new-tip>"
+    return 0
+  fi
+
+  branch_name=$1
+  new_tip=$2 # branch or sha1-commit
+
+  if [[ ! $branch_name =~ ^[a-z0-9]+\.[a-z0-9]+\.[a-z0-9]{3}$ ]]; then
+    >&2 echo "ERROR: branch must match a domain. Ex: pre.viz.com"
+    return 1
+  fi
+
+  git fetch --prune ||
+    ( >&2 echo "ERROR: git fetch failed" && return 1 )
+
+  # Change the head of a branch not currently checked out
+  git branch --force $branch_name $new_tip || 
+    ( >&2 echo "ERROR: could not move/create branch '${branch_name}'" && return 1 )
+
+  SKIP_PRE_PUSH_RUBOCOP=1 \
+  git push --force-with-lease origin \
+  "refs/heads/$branch_name:refs/heads/$branch_name" 2> >(sed '/^remote:/d' >&2)
+  # delete output starting with 'remote:'
+}
+
 git_prune()
 {
   git remote prune origin
