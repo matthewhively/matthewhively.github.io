@@ -5,8 +5,13 @@
 	ui = auto
 [core]
 	editor = vim
+	commitGraph = true
 [push]
 	default = simple
   autoSetupRemote
 [merge]
-	conflictstyle = diff3
+	conflictstyle = zdiff3
+[fetch]
+	writeCommitGraph = true
+[diff]
+	algorithm = histogram
