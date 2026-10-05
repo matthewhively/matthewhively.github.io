@@ -1351,6 +1351,9 @@ sync_env_files()
 
   cp -a ~/scripts  ~/misc_repos/matthewhively.github.io/env_files/.
 
+  # Copy any AI agent plugin configs I have
+  cp -a ~/Documents/engineering-reference/AI-stuff ~/misc_repos/matthewhively.github.io/env_files/.
+
   # Don't forget to copy over the com.matt.notepadnext.plist file (no longer necessary 2026-05-19)
   #cp ~/Library/LaunchAgents/com.matt.notepadnext.plist ~/misc_repos/matthewhively.github.io/env_files/scripts/.
 

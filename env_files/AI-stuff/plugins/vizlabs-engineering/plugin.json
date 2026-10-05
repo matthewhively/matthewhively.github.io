@@ -1,0 +1,21 @@
+{
+  "name": "vizlabs-engineering",
+  "version": "1.0.0",
+  "description": "VizLabs development workflows.",
+  "author": {
+    "name": "Matthew Hively"
+  },
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "VizLabs Engineering",
+        "shortDescription": "AWS and Ruby development",
+        "longDescription": "Shared VizLabs conventions and specialized skills for AWS-infrastructure and Ruby-development.",
+        "developerName": "Matthew Hively",
+        "category": "Productivity",
+        "capabilities": [],
+        "defaultPrompt": []
+      }
+    }
+  }
+}
