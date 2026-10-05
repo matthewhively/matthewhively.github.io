@@ -889,7 +889,7 @@ git_branch_deploy()
     return 1
   fi
 
-  git fetch --prune ||
+  git fetch --prune &>/dev/null ||
     ( >&2 echo "ERROR: git fetch failed" && return 1 )
 
   # Change the head of a branch not currently checked out
